@@ -37,13 +37,13 @@ export default function Footer()
                                 <a href="https://marketplace.visualstudio.com/items?itemName=CryptiTalk.context-pilot" className="hover:underline"><FontAwesomeIcon icon={faCodepen} className="mr-2" /> VS Code</a>
                             </li>
                             <li className="mb-4">
-                                <a href="https://www.youtube.com/channel/UCOqFi6GFp6hH5L0xlZzukng" className="hover:underline"><FontAwesomeIcon icon={faYoutube} className="mr-2" /> YouTube</a>
+                                <a href="https://youtu.be/MbSJaAMSErU" className="hover:underline"><FontAwesomeIcon icon={faYoutube} className="mr-2" /> YouTube</a>
                             </li>
                             <li className="mb-4">
-                                <a href="https://twitter.com/cryptitalk" className="hover:underline"><FontAwesomeIcon icon={faTwitter} className="mr-2" /> Twitter</a>
+                                <a href="https://x.com/PilotContext" className="hover:underline"><FontAwesomeIcon icon={faTwitter} className="mr-2" /> Twitter</a>
                             </li>
                             <li className="mb-4">
-                                <a href="https://github.com/cryptitalk/ContextPilot" className="hover:underline"><FontAwesomeIcon icon={faGithub} className="mr-2" /> Github</a>
+                                <a href="https://github.com/contextpilot" className="hover:underline"><FontAwesomeIcon icon={faGithub} className="mr-2" /> Github</a>
                             </li>
                         </ul>
                     </div>
@@ -56,15 +56,15 @@ export default function Footer()
                             <FontAwesomeIcon icon={faCodepen} className="mr-2" />
                             <span className="sr-only">VS Code</span>
                         </a>
-                        <a href="https://www.youtube.com/channel/UCOqFi6GFp6hH5L0xlZzukng" className="text-gray-400 hover:text-white">
+                        <a href="https://youtu.be/MbSJaAMSErU" className="text-gray-400 hover:text-white">
                             <FontAwesomeIcon icon={faYoutube} className="mr-2" />
                             <span className="sr-only">YouTube channel</span>
                         </a>
-                        <a href="https://twitter.com/cryptitalk" className="text-gray-400 hover:text-white">
+                        <a href="https://x.com/PilotContext" className="text-gray-400 hover:text-white">
                             <FontAwesomeIcon icon={faTwitter} className="mr-2" />
                             <span className="sr-only">Twitter page</span>
                         </a>
-                        <a href="https://github.com/cryptitalk/ContextPilot" className="text-gray-400 hover:text-white">
+                        <a href="https://github.com/contextpilot" className="text-gray-400 hover:text-white">
                             <FontAwesomeIcon icon={faGithub} className="mr-2" />
                             <span className="sr-only">Github page</span>
                         </a>
