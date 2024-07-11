@@ -19,16 +19,6 @@ export default function Footer()
                 </div>
                 <div className="grid grid-flow-row auto-rows-min sm:grid-flow-col justify-around gap-30 py-8 px-6">
                     <div className="w-2/3">
-                        {/*
-                        <h2 className="mb-6 text-lg font-semibold uppercase text-gray-400">About Example</h2>
-                        <p className="mb-6">
-                            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed tempus neque sit amet <br />
-                            ante iaculis ultricies. Phasellus justo eros, scelerisque ut mi quis, sollicitudin ornare purus. <br />
-                            Proin aliquet eleifend elit vitae pulvinar. Aliquam laoreet justo ac tellus dapibus, eget varius erat<br />
-                            blandit. Curabitur consequat a elit sagittis posuere. Vivamus vehicula rhoncus odio, eget sodales nisl <br />
-                            viverra sed. In sit amet mollis dolor.
-                        </p>
-                        */}
                     </div>
                     <div>
                         <h2 className="mb-6 text-lg font-semibold uppercase text-gray-400">Company contacts</h2>
