@@ -3,7 +3,7 @@ import { useAccount, useContractRead } from 'wagmi';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import React from 'react';
 import BuyWithUsdtModal from './buyWithUsdtModal';
-import BuyWithCreditCardModal from './buyWithCreditCardModal';
+// import BuyWithCreditCardModal from './buyWithCreditCardModal';
 
 function UserVesting({ userVestingData, userAddress }) {
     if (!userVestingData) {
@@ -89,7 +89,7 @@ export default function SeedSale() {
                 this.saleToken = presaleSplit[counter++];
                 this.startTime = new Date(presaleSplit[counter++] * 1000);
                 this.endTime = new Date(presaleSplit[counter++] * 1000);
-                this.price = (presaleSplit[counter++] / (10 ** 18));
+                this.price = (presaleSplit[counter++] / (10 ** 30));
                 this.tokensToSell = presaleSplit[counter++];
                 this.tokensToSellParsed = new Intl.NumberFormat().format(this.tokensToSell);
                 this.presaleGoal = this.tokensToSell * this.price;
@@ -224,11 +224,11 @@ export default function SeedSale() {
                     </div>
                     <div className="flex items-center justify-center mb-6 mt-5">
                         <BuyWithUsdtModal />
-                        <BuyWithCreditCardModal
+                        {/* <BuyWithCreditCardModal
                             isOpen={isBuyWithCreditCardModalOpen}
                             onClose={() => setBuyWithCreditCardModalOpen(false)}
                             onSuccessfulPurchase={onSuccessfulPurchase}
-                        />
+                        /> */}
                     </div>
                 </>
             );
@@ -246,7 +246,7 @@ export default function SeedSale() {
                         1 Credit = {presaleDataParsed?.price?.toFixed(4)}$
                     </h4>
                     <p className="text-white mb-4">
-                        1 Credit = 10,000,000 tokens in API calls
+                        1 Credit = 10,000 tokens in API calls
                     </p>
                     <div className="my-4">
                         <p className="text-white">

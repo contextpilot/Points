@@ -1,5 +1,3 @@
-// Rainbow and Wagmi integration guide: https://billyjitsu.hashnode.dev/the-rainbowkit-wagmi-guide-i-wish-i-had
-
 import '@rainbow-me/rainbowkit/styles.css';
 import { ledgerWallet, metaMaskWallet, walletConnectWallet, trustWallet, coinbaseWallet, rainbowWallet } from '@rainbow-me/rainbowkit/wallets';
 import { connectorsForWallets } from '@rainbow-me/rainbowkit';
@@ -22,27 +20,27 @@ import { loadStripe } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js';
 import type { Stripe, StripeConstructorOptions } from '@stripe/stripe-js';
 
-const binanceChainTestNet: Chain = {
-  id: 97,
-  name: 'BNB Smart Chain Testnet',
-  network: 'bsc-testnet',
+const binanceChainMainNet: Chain = {
+  id: 56,
+  name: 'BNB Smart Chain',
+  network: 'bsc',
   nativeCurrency: {
     decimals: 18,
-    name: 'Binance Chain Native Token',
-    symbol: 'tBNB',
+    name: 'Binance Coin',
+    symbol: 'BNB',
   },
   rpcUrls: {
-    public: 'https://data-seed-prebsc-1-s2.binance.org:8545/',
-    default: 'https://data-seed-prebsc-1-s2.binance.org:8545/',
+    public: 'https://bsc-dataseed.binance.org/',
+    default: 'https://bsc-dataseed.binance.org/',
   },
   blockExplorers: {
-    default: { name: 'BscScan', url: 'https://testnet.bscscan.com' },
+    default: { name: 'BscScan', url: 'https://bscscan.com' },
   },
-  testnet: true,
+  testnet: false,
 };
 
 const { chains, provider } = configureChains(
-  [binanceChainTestNet],
+  [binanceChainMainNet],
   [
     alchemyProvider({ apiKey: process.env.NEXT_PUBLIC_ALCHEMY_ID }),
     publicProvider()
