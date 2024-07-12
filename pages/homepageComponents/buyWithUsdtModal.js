@@ -44,7 +44,7 @@ const BuyWithUsdtModal = () =>
         this.saleToken = presaleSplit[counter++];
         this.startTime = new Date(presaleSplit[counter++] * 1000);
         this.endTime = new Date(presaleSplit[counter++] * 1000);
-        this.price = (presaleSplit[counter++] / (10 ** 18));
+        this.price = (presaleSplit[counter++] / (10 ** 30));
         this.tokensToSell = presaleSplit[counter++];
         this.tokensToSellParsed = new Intl.NumberFormat().format(this.tokensToSell);
         this.presaleGoal = this.tokensToSell * this.price;
@@ -173,7 +173,7 @@ const BuyWithUsdtModal = () =>
     });
   useEffect(() =>
   {
-    var usdtBalanceParsed = usdtBalanceOfWalletData / (10 ** 6);
+    var usdtBalanceParsed = usdtBalanceOfWalletData / (10 ** 18);
     Log("----> usdtBalanceParsed: " + usdtBalanceParsed);
     setUsdtBalanceOfWalletConnected(usdtBalanceParsed);
   }, [usdtBalanceOfWalletData]);
