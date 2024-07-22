@@ -8,9 +8,9 @@ import
 {
   useAccount,
   useContractRead,
-  useContractWrite,
-  usePrepareContractWrite,
-  useWaitForTransaction,
+  useWriteContract,
+  useSimulateContract,
+  useWaitForTransactionReceipt,
 } from "wagmi";
 
 const BuyWithUsdtModal = () =>
@@ -110,16 +110,18 @@ const BuyWithUsdtModal = () =>
   const [convertToUsdtButtonClass, setConvertToUsdtButtonClass] = useState();
   const [convertToUsdtDisabled, setConvertToUsdtDisabled] = useState();
   const [convertToUsdtInProcessText, setConvertToUsdtInProcessText] = useState();
+  const [refetchCount, setRefetchCount] = useState(0);
 
   /* Presale Data */
   const [presaleDataParsed, setPresaleDataParsed] = useState(0);
   const { data: presaleData,
+    refetch: refetchPresaleData,
     error: presaleDataError,
     isError: presaleIsError,
     isLoading: presaleIsLoading,
     status: presaleStatus } = useContractRead({
       address: process.env.NEXT_PUBLIC_CONTRACT_ADDRESS.toString(),
-      abi: process.env.NEXT_PUBLIC_CONTRACT_ABI,
+      abi: JSON.parse(process.env.NEXT_PUBLIC_CONTRACT_ABI),
       functionName: "presale",
       args: [process.env.NEXT_PUBLIC_PRESALE_ID],
       watch: true,
@@ -130,15 +132,17 @@ const BuyWithUsdtModal = () =>
   /* USDT Interface Contract Address */
   const { data: usdtContractAddress } = useContractRead({
     address: process.env.NEXT_PUBLIC_CONTRACT_ADDRESS.toString(),
-    abi: process.env.NEXT_PUBLIC_CONTRACT_ABI,
+    abi: JSON.parse(process.env.NEXT_PUBLIC_CONTRACT_ABI),
     functionName: "USDTInterface",
-    watch: false,
+    watch: true,
   });
-
+  
   /* USDT Buy Helper */
-  const { data: usdtAllowanceHelper } = useContractRead({
+  const { data: usdtAllowanceHelper,
+    refetch: refetchUsdtAllowanceHelper
+   } = useContractRead({
     address: process.env.NEXT_PUBLIC_CONTRACT_ADDRESS.toString(),
-    abi: process.env.NEXT_PUBLIC_CONTRACT_ABI,
+    abi: JSON.parse(process.env.NEXT_PUBLIC_CONTRACT_ABI),
     functionName: "usdtBuyHelper",
     args: [process.env.NEXT_PUBLIC_PRESALE_ID, tokens],
     watch: true,
@@ -147,11 +151,12 @@ const BuyWithUsdtModal = () =>
   const [accountAllowancePublic, setAccountAllowance] = useState();
   const {
     data: accountAllowance,
+    refetch: refetchAccountAllowanceHelper,
     error: accountAllowanceError,
     isError: accountAllowanceIsError,
     isLoading: accountAllowanceIsLoading } = useContractRead({
       address: usdtContractAddress,
-      abi: process.env.NEXT_PUBLIC_STABLE_COIN_CONTRACT_ABI,
+      abi: JSON.parse(process.env.NEXT_PUBLIC_STABLE_COIN_CONTRACT_ABI),
       functionName: "allowance",
       args: [useAccountAddress, process.env.NEXT_PUBLIC_CONTRACT_ADDRESS.toString()],
       watch: true,
@@ -164,84 +169,74 @@ const BuyWithUsdtModal = () =>
   /* USDT BalanceOf */
   const [usdtBalanceOfWalletConnected, setUsdtBalanceOfWalletConnected] = useState();
   const {
-    data: usdtBalanceOfWalletData } = useContractRead({
+    data: usdtBalanceOfWalletData,
+    refetch: refetchUsdtBalanceOfWalletData } = useContractRead({
       address: usdtContractAddress,
-      abi: process.env.NEXT_PUBLIC_STABLE_COIN_CONTRACT_ABI,
+      abi: JSON.parse(process.env.NEXT_PUBLIC_STABLE_COIN_CONTRACT_ABI),
       functionName: "balanceOf",
       args: [useAccountAddress],
       watch: true,
     });
-  useEffect(() =>
-  {
-    var usdtBalanceParsed = usdtBalanceOfWalletData / (10 ** 18);
-    Log("----> usdtBalanceParsed: " + usdtBalanceParsed);
-    setUsdtBalanceOfWalletConnected(usdtBalanceParsed);
-  }, [usdtBalanceOfWalletData]);
+    useEffect(() =>
+      {
+        if (usdtBalanceOfWalletData != undefined ) {
+          var usdtBalanceParsed = Number(usdtBalanceOfWalletData) / (10 ** 18);
+          Log("----> usdtBalanceParsed: " + usdtBalanceParsed);
+          setUsdtBalanceOfWalletConnected(usdtBalanceParsed);
+      
+        }
+      }, [usdtBalanceOfWalletData]);
 
-  const { data: usdtAllowanceConfig,
-    error: usdtAllowancePrepareError,
-    isError: usdtAllowanceIsPrepareError, } = usePrepareContractWrite({
-      address: usdtContractAddress,
-      abi: process.env.NEXT_PUBLIC_STABLE_COIN_CONTRACT_ABI,
-      functionName: 'approve',
-      chainId: parseInt(process.env.NEXT_PUBLIC_CHAIN_ID),
-      // USDT has 6 decimals
-      args: [process.env.NEXT_PUBLIC_CONTRACT_ADDRESS.toString(), usdtAllowanceHelper],
-      enabled: useAccountIsConnected,
-    });
-  const {
-    data: usdtAllowanceData,
-    write: usdtAllowanceWrite,
-    isLoading: usdtAllowanceIsLoading,
-    isSuccess: usdtAllowanceIsSuccess,
-    error: usdtAllowanceError,
-  } = useContractWrite(usdtAllowanceConfig);
+  const {writeContract, data: writeData, status: writeStatus, error: writeError } = useWriteContract()
+  const [writeType, setWriteType] = useState(0);
+  const [usdtAllowanceIsLoading, setUsdtAllowanceIsLoading] = useState(0);
+  const [isBuyWithUsdtLoading, setIsBuyWithUsdtLoading] = useState(0);
+  const [usdtAllowanceData, setUsdtAllowanceData] = useState(0);
+  const [buyWithUsdtData, setBuyWithUsdtData] = useState(0);
+  useEffect(() =>
+    {
+      console.log("writeType", writeType)
+      console.log("writeData", writeData)
+      console.log("writeStatus", writeStatus)
+      console.log("writeError", writeError)
+      if (writeType == "approve") {
+        if(writeStatus == "pending") {
+          setUsdtAllowanceIsLoading(true)
+        } else if (writeStatus == "success"){
+          setUsdtAllowanceIsLoading(false)
+          setUsdtAllowanceData(writeData)
+        } else {
+          setUsdtAllowanceIsLoading(false)
+        }
+      } else if (writeType == "buy") {
+        if(writeStatus == "pending") {
+          setIsBuyWithUsdtLoading(true)
+        } else if (writeStatus == "success"){
+          setIsBuyWithUsdtLoading(false)
+          setBuyWithUsdtData(writeData)
+        } else {
+          setIsBuyWithUsdtLoading(false)
+        }
+      }
+
+    }, [writeData, writeStatus, writeError]);
+
+
   const {
     isLoading: waitForTransactionUsdtAllowanceIsLoading,
     isSuccess: waitForTransactionUsdtAllowanceIsSuccess,
     isError: waitForTransactionUsdtAllowanceIsError,
     error: waitForTransactionUsdtAllowanceError,
-  } = useWaitForTransaction({
-    hash: usdtAllowanceData?.hash,
+  } = useWaitForTransactionReceipt({
+    hash: usdtAllowanceData,
   });
 
-
-  /* Buy with USDT */
-  const { data: buyWithUsdtConfig,
-    error: buyWithUsdtPrepareError,
-    isError: buyWithUsdtIsPrepareError,
-    status: buyWithUsdtPrepareStatus } = usePrepareContractWrite({
-      address: process.env.NEXT_PUBLIC_CONTRACT_ADDRESS.toString(),
-      abi: process.env.NEXT_PUBLIC_CONTRACT_ABI,
-      functionName: 'buyWithUSDT',
-      chainId: parseInt(process.env.NEXT_PUBLIC_CHAIN_ID),
-      args: [process.env.NEXT_PUBLIC_PRESALE_ID, tokens],
-      enabled: useAccountIsConnected && (accountAllowancePublic >= usdtAllowanceHelper),
-    });
-  const {
-    data: buyWithUsdtData,
-    write: buyWithUsdt,
-    isLoading: isBuyWithUsdtLoading,
-    isSuccess: isBuyWithUsdtStarted,
-    isError: isBuyWithUsdtError,
-    error: buyWithUsdtError,
-  } = useContractWrite(buyWithUsdtConfig);
   const {
     isLoading: waitForTransactionIsLoading,
     isSuccess: waitForTransactionIsSuccess
-  } = useWaitForTransaction({
-    hash: buyWithUsdtData?.hash,
+  } = useWaitForTransactionReceipt({
+    hash: buyWithUsdtData,
   });
-  useEffect(() =>
-  {
-    Log("---> isBuyWithUsdtLoading:" + isBuyWithUsdtLoading)
-    Log("---> isBuyWithUsdtStarted:" + isBuyWithUsdtStarted)
-    Log("---> isBuyWithUsdtError:" + isBuyWithUsdtError)
-    Log("---> buyWithUsdtError:" + buyWithUsdtError)
-  }, [isBuyWithUsdtLoading,
-    isBuyWithUsdtStarted,
-    isBuyWithUsdtError,
-    buyWithUsdtError]);
 
   function setTokensFromUsdt(usdtSet)
   {
@@ -255,15 +250,23 @@ const BuyWithUsdtModal = () =>
 
   useEffect(() =>
   {
-    Log("---> waitForTransactionUsdtAllowanceIsSuccess:" + waitForTransactionUsdtAllowanceIsSuccess)
-    Log("---> waitForTransactionUsdtAllowanceIsError:" + waitForTransactionUsdtAllowanceIsError)
-    Log("---> waitForTransactionUsdtAllowanceError:" + waitForTransactionUsdtAllowanceError)
-    // Once allowance has been confirmed, buy tokens with USDT
-    if (waitForTransactionUsdtAllowanceIsSuccess)
-      buyWithUsdt?.()
+    if (waitForTransactionUsdtAllowanceIsSuccess) {
+      setRefetchCount(prev => prev + 1);
+    }
   }, [waitForTransactionUsdtAllowanceIsSuccess,
     waitForTransactionUsdtAllowanceIsError,
     waitForTransactionUsdtAllowanceError]);
+
+    useEffect(() => {
+      if (refetchCount > 0) {
+        console.log("refetch information", accountAllowancePublic, usdtAllowanceHelper)
+        setAccountAllowance(0)
+        refetchPresaleData();
+        refetchUsdtAllowanceHelper();
+        refetchAccountAllowanceHelper();
+        refetchUsdtBalanceOfWalletData();
+      }
+    }, [refetchCount, refetchPresaleData, refetchAccountAllowanceHelper, refetchUsdtAllowanceHelper, refetchUsdtBalanceOfWalletData]);
 
   useEffect(() =>
   {
@@ -345,6 +348,7 @@ const BuyWithUsdtModal = () =>
     else if (waitForTransactionIsSuccess)
     {
       Log("##### usdtAllowanceIsLoading -> " + usdtAllowanceIsLoading);
+      setRefetchCount(prev => prev + 1);
       setConvertToUsdtInProcessText(
         <>
           <div className="flex items-center justify-center mb-5">
@@ -413,7 +417,7 @@ const BuyWithUsdtModal = () =>
                       </span>
                     </div>
                     <div className="flex">
-                      <input type="number" value={usdt.toFixed(6)} disabled readonly
+                      <input type="number" value={usdt.toFixed(6)} disabled readOnly
                         className={`${usdtInputBoxClassName}`}
                       />
                       <span className="inline-flex items-center px-3 text-sm text-gray-900 bg-gray-200 rounded-r-md border border-r-0 border-gray-300">
@@ -432,10 +436,29 @@ const BuyWithUsdtModal = () =>
                     onClick={(e) =>
                     {
                       e.preventDefault();
-                      if (accountAllowancePublic >= usdtAllowanceHelper)
-                        buyWithUsdt?.();
-                      else
-                        usdtAllowanceWrite?.()
+                      if (accountAllowancePublic >= usdtAllowanceHelper) {
+                        setWriteType("buy")
+                        writeContract({
+                          address: process.env.NEXT_PUBLIC_CONTRACT_ADDRESS.toString(),
+                          abi: JSON.parse(process.env.NEXT_PUBLIC_CONTRACT_ABI),
+                          functionName: 'buyWithUSDT',
+                          chainId: parseInt(process.env.NEXT_PUBLIC_CHAIN_ID),
+                          args: [process.env.NEXT_PUBLIC_PRESALE_ID, tokens],
+                          enabled: useAccountIsConnected && (accountAllowancePublic >= usdtAllowanceHelper),
+                        });
+                      }
+                      else {
+                        setWriteType("approve")
+                        writeContract({
+                            address: usdtContractAddress,
+                            abi: JSON.parse(process.env.NEXT_PUBLIC_STABLE_COIN_CONTRACT_ABI),
+                            functionName: 'approve',
+                            chainId: parseInt(process.env.NEXT_PUBLIC_CHAIN_ID),
+                            // USDT has 6 decimals
+                            args: [process.env.NEXT_PUBLIC_CONTRACT_ADDRESS.toString(), usdtAllowanceHelper],
+                            enabled: useAccountIsConnected,
+                          });
+                      }
                     }}>
                     CONVERT USDT
                   </button>
