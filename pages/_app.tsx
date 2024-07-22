@@ -1,81 +1,34 @@
 import '@rainbow-me/rainbowkit/styles.css';
-import { ledgerWallet, metaMaskWallet, walletConnectWallet, trustWallet, coinbaseWallet, rainbowWallet } from '@rainbow-me/rainbowkit/wallets';
-import { connectorsForWallets } from '@rainbow-me/rainbowkit';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { createPublicClient, http } from 'viem';
+import { WagmiProvider } from 'wagmi';
+import { bsc } from 'wagmi/chains';
+import { getDefaultConfig } from '@rainbow-me/rainbowkit';
 import {
   RainbowKitProvider,
   darkTheme
 } from '@rainbow-me/rainbowkit';
-import {
-  chain,
-  configureChains,
-  createClient,
-  WagmiConfig,
-} from 'wagmi';
-import { Chain } from "wagmi";
-import { alchemyProvider } from 'wagmi/providers/alchemy';
-import { publicProvider } from 'wagmi/providers/public';
 import { Analytics } from '@vercel/analytics/react';
 import { useEffect, useState } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js';
 import type { Stripe, StripeConstructorOptions } from '@stripe/stripe-js';
 
-const binanceChainMainNet: Chain = {
-  id: 56,
-  name: 'BNB Smart Chain',
-  network: 'bsc',
-  nativeCurrency: {
-    decimals: 18,
-    name: 'Binance Coin',
-    symbol: 'BNB',
+const config = getDefaultConfig({
+  appName: 'RainbowKit demo',
+  projectId: '1caa5aff046aaaed0ad0c902eadb8a50',
+  chains: [bsc],
+  transports: {
+    [bsc.id]: http(),
   },
-  rpcUrls: {
-    public: 'https://bsc-dataseed.binance.org/',
-    default: 'https://bsc-dataseed.binance.org/',
-  },
-  blockExplorers: {
-    default: { name: 'BscScan', url: 'https://bscscan.com' },
-  },
-  testnet: false,
-};
+});
 
-const { chains, provider } = configureChains(
-  [binanceChainMainNet],
-  [
-    alchemyProvider({ apiKey: process.env.NEXT_PUBLIC_ALCHEMY_ID }),
-    publicProvider()
-  ]
-);
-
-const connectors = connectorsForWallets([
-  {
-    groupName: 'Recommended',
-    wallets: [
-      metaMaskWallet({ chains }),
-      ledgerWallet({ chains }),
-      trustWallet({ chains }),
-    ],
-  },
-  {
-    groupName: 'Others',
-    wallets: [
-      coinbaseWallet({ chains, appName: 'Presale Dapp' }),
-      walletConnectWallet({ chains }),
-      rainbowWallet({ chains }),
-    ],
-  },
-]);
-
-const wagmiClient = createClient({
-  autoConnect: true,
-  connectors,
-  provider
-})
+const queryClient = new QueryClient();
 
 import '../styles/globals.css'
 import "@fortawesome/fontawesome-svg-core/styles.css"; // import Font Awesome CSS
-import { config } from "@fortawesome/fontawesome-svg-core";
-config.autoAddCss = false; // Tell Font Awesome to skip adding the CSS automatically since it's being imported above
+import { config as fontAwesomeConfig } from "@fortawesome/fontawesome-svg-core";
+fontAwesomeConfig.autoAddCss = false; // Tell Font Awesome to skip adding the CSS automatically since it's being imported above
 import type { AppProps } from 'next/app'
 
 export default function App({ Component, pageProps }: AppProps) {
@@ -92,19 +45,19 @@ export default function App({ Component, pageProps }: AppProps) {
 
   return (
     <Elements stripe={stripePromise}>
-      <WagmiConfig client={wagmiClient}>
-        <RainbowKitProvider coolMode chains={chains} theme={darkTheme(
-          {
+      <WagmiProvider config={config}>
+        <QueryClientProvider client={queryClient}>
+          <RainbowKitProvider theme={darkTheme({
             accentColor: '#E02424',
             accentColorForeground: 'white',
             borderRadius: 'large',
             fontStack: 'system',
-          }
-        )}>
-          <Component {...pageProps} />
-          <Analytics />
-        </RainbowKitProvider>
-      </WagmiConfig>
+          })}>
+            <Component {...pageProps} />
+            <Analytics />
+          </RainbowKitProvider>
+        </QueryClientProvider>
+      </WagmiProvider>
     </Elements>
   );
 }

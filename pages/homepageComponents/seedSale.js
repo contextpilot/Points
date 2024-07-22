@@ -147,7 +147,7 @@ export default function SeedSale() {
         isLoading: presaleIsLoading,
         status: presaleStatus } = useContractRead({
             address: process.env.NEXT_PUBLIC_CONTRACT_ADDRESS.toString(),
-            abi: process.env.NEXT_PUBLIC_CONTRACT_ABI,
+            abi: JSON.parse(process.env.NEXT_PUBLIC_CONTRACT_ABI),
             functionName: "presale",
             args: [process.env.NEXT_PUBLIC_PRESALE_ID],
             watch: false,
@@ -170,7 +170,7 @@ export default function SeedSale() {
         isLoading: userVestingIsLoading,
         status: userVestingStatus } = useContractRead({
             address: process.env.NEXT_PUBLIC_CONTRACT_ADDRESS.toString(),
-            abi: process.env.NEXT_PUBLIC_CONTRACT_ABI,
+            abi: JSON.parse(process.env.NEXT_PUBLIC_CONTRACT_ABI),
             functionName: "userVesting",
             args: [useAccountAddress, process.env.NEXT_PUBLIC_PRESALE_ID],
             watch: true,
