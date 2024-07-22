@@ -12,7 +12,6 @@ import { Analytics } from '@vercel/analytics/react';
 import { useEffect, useState } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js';
-import type { Stripe, StripeConstructorOptions } from '@stripe/stripe-js';
 
 const config = getDefaultConfig({
   appName: 'RainbowKit demo',
@@ -25,14 +24,13 @@ const config = getDefaultConfig({
 
 const queryClient = new QueryClient();
 
-import '../styles/globals.css'
+import '../styles/globals.css';
 import "@fortawesome/fontawesome-svg-core/styles.css"; // import Font Awesome CSS
 import { config as fontAwesomeConfig } from "@fortawesome/fontawesome-svg-core";
 fontAwesomeConfig.autoAddCss = false; // Tell Font Awesome to skip adding the CSS automatically since it's being imported above
-import type { AppProps } from 'next/app'
 
-export default function App({ Component, pageProps }: AppProps) {
-  const [stripePromise, setStripePromise] = useState<Stripe | null>(null);
+export default function App({ Component, pageProps }) {
+  const [stripePromise, setStripePromise] = useState(null);
 
   useEffect(() => {
     const fetchStripe = async () => {
