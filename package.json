@@ -17,9 +17,6 @@
     "@stripe/react-stripe-js": "^2.7.0",
     "@stripe/stripe-js": "^3.3.0",
     "@tanstack/react-query": "^5.51.11",
-    "@types/node": "18.11.9",
-    "@types/react": "18.0.25",
-    "@types/react-dom": "18.0.8",
     "@vercel/analytics": "^0.1.5",
     "axios": "^1.6.8",
     "chart.js": "^3.9.1",
@@ -32,7 +29,6 @@
     "react": "18.2.0",
     "react-chartjs-2": "^4.3.1",
     "react-dom": "18.2.0",
-    "typescript": "4.8.4",
     "typewriter-effect": "^2.19.0",
     "viem": "^2.17.8",
     "wagmi": "^2.11.3"
