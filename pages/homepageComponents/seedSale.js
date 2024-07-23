@@ -1,9 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAccount, useContractRead } from 'wagmi';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import React from 'react';
 import BuyWithUsdtModal from './buyWithUsdtModal';
-// import BuyWithCreditCardModal from './buyWithCreditCardModal';
 
 function UserVesting({ userVestingData, userAddress }) {
     if (!userVestingData) {
@@ -71,12 +70,11 @@ export default function SeedSale() {
         }
     }
 
-    useEffect(() => {
+    const fetchApiUsageData = useCallback(async () => {
         if (useAccountAddress) {
-            fetchApiUsage(useAccountAddress).then(data => {
-                setAllowedTokens(data.allowed_tokens);
-                setUsedTokens(data.used_tokens);
-            });
+            const data = await fetchApiUsage(useAccountAddress);
+            setAllowedTokens(data.allowed_tokens);
+            setUsedTokens(data.used_tokens);
         }
     }, [useAccountAddress]);
 
@@ -84,8 +82,8 @@ export default function SeedSale() {
         constructor(presaleData) {
             this.preSaleDataLocal = presaleData;
             if (this.preSaleDataLocal) {
-                var presaleSplit = presaleData.toString().split(',');
-                var counter = 0;
+                const presaleSplit = presaleData.toString().split(',');
+                let counter = 0;
                 this.saleToken = presaleSplit[counter++];
                 this.startTime = new Date(presaleSplit[counter++] * 1000);
                 this.endTime = new Date(presaleSplit[counter++] * 1000);
@@ -137,7 +135,7 @@ export default function SeedSale() {
     }
 
     function printPresaleData(presaleData) {
-        var preSale = new Presale(presaleData);
+        const preSale = new Presale(presaleData);
         setPresaleDataParsed(preSale);
     }
 
@@ -145,13 +143,15 @@ export default function SeedSale() {
         error: presaleDataError,
         isError: presaleIsError,
         isLoading: presaleIsLoading,
-        status: presaleStatus } = useContractRead({
-            address: process.env.NEXT_PUBLIC_CONTRACT_ADDRESS.toString(),
-            abi: JSON.parse(process.env.NEXT_PUBLIC_CONTRACT_ABI),
-            functionName: "presale",
-            args: [process.env.NEXT_PUBLIC_PRESALE_ID],
-            watch: false,
-        });
+        status: presaleStatus,
+        refetch: refetchPresaleData,
+    } = useContractRead({
+        address: process.env.NEXT_PUBLIC_CONTRACT_ADDRESS.toString(),
+        abi: JSON.parse(process.env.NEXT_PUBLIC_CONTRACT_ABI),
+        functionName: "presale",
+        args: [process.env.NEXT_PUBLIC_PRESALE_ID],
+        watch: false,
+    });
 
     useEffect(() => {
         Log("----------> presaleData: " + presaleData);
@@ -168,21 +168,22 @@ export default function SeedSale() {
         error: userVestingError,
         isError: userVestingIsError,
         isLoading: userVestingIsLoading,
-        status: userVestingStatus } = useContractRead({
-            address: process.env.NEXT_PUBLIC_CONTRACT_ADDRESS.toString(),
-            abi: JSON.parse(process.env.NEXT_PUBLIC_CONTRACT_ABI),
-            functionName: "userVesting",
-            args: [useAccountAddress, process.env.NEXT_PUBLIC_PRESALE_ID],
-            watch: true,
-        });
+        status: userVestingStatus,
+        refetch: refetchUserVestingData,
+    } = useContractRead({
+        address: process.env.NEXT_PUBLIC_CONTRACT_ADDRESS.toString(),
+        abi: JSON.parse(process.env.NEXT_PUBLIC_CONTRACT_ABI),
+        functionName: "userVesting",
+        args: [useAccountAddress, process.env.NEXT_PUBLIC_PRESALE_ID],
+        watch: true,
+    });
 
     const [displayPresaleData, setDisplayPresaleData] = useState(null);
     const [displayBuyData, setBuyData] = useState(null);
     const [displayUserVestingData, setDisplayUserVestingData] = useState(null);
 
     useEffect(() => {
-
-        if(!presaleDataParsed) {
+        if (!presaleDataParsed) {
             return;
         }
 
@@ -224,16 +225,26 @@ export default function SeedSale() {
                     </div>
                     <div className="flex items-center justify-center mb-6 mt-5">
                         <BuyWithUsdtModal />
-                        {/* <BuyWithCreditCardModal
-                            isOpen={isBuyWithCreditCardModalOpen}
-                            onClose={() => setBuyWithCreditCardModalOpen(false)}
-                            onSuccessfulPurchase={onSuccessfulPurchase}
-                        /> */}
                     </div>
                 </>
             );
         }
     }, [useAccountAddress, presaleDataParsed, userVestingData]);
+
+    // Set up interval to refetch data every 10 seconds
+    useEffect(() => {
+        const fetchData = async () => {
+            await fetchApiUsageData();
+            refetchPresaleData();
+            refetchUserVestingData();
+        };
+
+        fetchData(); // Initial fetch
+
+        const intervalId = setInterval(fetchData, 10000); // Fetch data every 10 seconds
+
+        return () => clearInterval(intervalId); // Clear interval on component unmount
+    }, [fetchApiUsageData, refetchPresaleData, refetchUserVestingData]);
 
     return (
         <>
