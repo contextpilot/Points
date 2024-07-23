@@ -261,6 +261,8 @@ const BuyWithUsdtModal = () =>
       if (refetchCount > 0) {
         console.log("refetch information", accountAllowancePublic, usdtAllowanceHelper)
         setAccountAllowance(0)
+        setConvertToUsdtDisabled(false);
+        setConvertToUsdtButtonClass("bg-red-600 text-white hover:text-white hover:bg-slate-300 active:bg-red-900 font-bold uppercase text-base px-8 py-3 rounded-[24px] shadow-md hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150");
         refetchPresaleData();
         refetchUsdtAllowanceHelper();
         refetchAccountAllowanceHelper();
