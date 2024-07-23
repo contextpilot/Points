@@ -261,8 +261,6 @@ const BuyWithUsdtModal = () =>
       if (refetchCount > 0) {
         console.log("refetch information", accountAllowancePublic, usdtAllowanceHelper)
         setAccountAllowance(0)
-        setConvertToUsdtDisabled(false);
-        setConvertToUsdtButtonClass("bg-red-600 text-white hover:text-white hover:bg-slate-300 active:bg-red-900 font-bold uppercase text-base px-8 py-3 rounded-[24px] shadow-md hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150");
         refetchPresaleData();
         refetchUsdtAllowanceHelper();
         refetchAccountAllowanceHelper();
@@ -282,7 +280,7 @@ const BuyWithUsdtModal = () =>
     {
       setUsdtInputBoxClassName("rounded-none rounded-l-lg border bg-gray-300 border border-gray-300 text-gray-900 block cursor-not-allowed flex-1 min-w-0 w-full text-sm p-2.5 placeholder-gray-400 focus:ring-red-500");
       setUsdtInputBoxError("");
-      setConvertToUsdtButtonClass("bg-red-600 text-white hover:text-white hover:bg-slate-300 active:bg-red-900 font-bold uppercase text-base px-8 py-3 rounded-[24px] shadow-md hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150");
+      setConvertToUsdtButtonClass("bg-red-600 text-white md:hover:text-white md:hover:bg-slate-300 active:bg-red-900 font-bold uppercase text-base px-8 py-3 rounded-[24px] shadow-md md:hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150");
       setConvertToUsdtDisabled(false);
     }
     else
@@ -296,7 +294,7 @@ const BuyWithUsdtModal = () =>
           </div>
         </>
       );
-      setConvertToUsdtButtonClass("cursor-not-allowed bg-gray-300 text-neutral-900 text-white font-bold uppercase text-base px-8 py-3 rounded-[24px] shadow-md hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150");
+      setConvertToUsdtButtonClass("cursor-not-allowed bg-gray-300 text-neutral-900 text-white font-bold uppercase text-base px-8 py-3 rounded-[24px] shadow-md md:hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150");
       setConvertToUsdtDisabled(true);
     }
   }, [tokens, presaleData, usdtBalanceOfWalletConnected]);
@@ -305,12 +303,12 @@ const BuyWithUsdtModal = () =>
     if (waitForTransactionIsLoading || usdtAllowanceIsLoading || isBuyWithUsdtLoading || waitForTransactionUsdtAllowanceIsLoading)
     {
       setConvertToUsdtDisabled(true);
-      setConvertToUsdtButtonClass("cursor-not-allowed bg-gray-300 text-neutral-900 text-white font-bold uppercase text-base px-8 py-3 rounded-[24px] shadow-md hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150");
+      setConvertToUsdtButtonClass("cursor-not-allowed bg-gray-300 text-neutral-900 text-white font-bold uppercase text-base px-8 py-3 rounded-[24px] shadow-md md:hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150");
     }
     else
     {
       setConvertToUsdtDisabled(false);
-      setConvertToUsdtButtonClass("bg-red-600 text-white hover:text-white hover:bg-slate-300 active:bg-red-900 font-bold uppercase text-base px-8 py-3 rounded-[24px] shadow-md hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150");
+      setConvertToUsdtButtonClass("bg-red-600 text-white md:hover:text-white md:hover:bg-slate-300 active:bg-red-900 font-bold uppercase text-base px-8 py-3 rounded-[24px] shadow-md md:hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150");
     }
 
     if (usdtAllowanceIsLoading || waitForTransactionUsdtAllowanceIsLoading)
