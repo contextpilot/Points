@@ -28,6 +28,7 @@ import '../styles/globals.css';
 import "@fortawesome/fontawesome-svg-core/styles.css"; // import Font Awesome CSS
 import { config as fontAwesomeConfig } from "@fortawesome/fontawesome-svg-core";
 fontAwesomeConfig.autoAddCss = false; // Tell Font Awesome to skip adding the CSS automatically since it's being imported above
+import Script from 'next/script';
 
 export default function App({ Component, pageProps }) {
   const [stripePromise, setStripePromise] = useState(null);
@@ -53,6 +54,10 @@ export default function App({ Component, pageProps }) {
           })}>
             <Component {...pageProps} />
             <Analytics />
+            <Script
+              strategy="lazyOnload"
+              src="https://embed.tawk.to/66aaf81132dca6db2cb880c4/1i45ti0rv"
+            />
           </RainbowKitProvider>
         </QueryClientProvider>
       </WagmiProvider>
