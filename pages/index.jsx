@@ -12,12 +12,14 @@ import Footer from "./homepageComponents/footer.js";
 import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import '@ryaneewx/react-chat-widget/lib/styles.css';
+import { useAccount } from 'wagmi';
 
 // Dynamically import the Chat Widget component
 const ChatWidget = dynamic(() => import('@ryaneewx/react-chat-widget').then((mod) => mod.Widget), { ssr: false });
 
 export default function Home() {
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const { address: useAccountAddress, isConnected: useAccountIsConnected } = useAccount();
 
   // Function to toggle chat visibility
   const handleChatToggle = () => {
@@ -26,6 +28,7 @@ export default function Home() {
 
   useEffect(() => {
     if (isChatOpen) {
+      console.log("address", useAccountAddress, "isConnected", useAccountIsConnected);
       // Chat just opened, send a greeting message
       import('@ryaneewx/react-chat-widget').then(({ addResponseMessage }) => {
         addResponseMessage("Welcome to our chat!");
@@ -54,7 +57,6 @@ export default function Home() {
         <Section4 />
         {/*
         <Section7 />
-      
         <Section5 />
         <Section6 />
         <Section8 />
