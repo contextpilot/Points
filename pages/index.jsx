@@ -13,6 +13,7 @@ import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import '@ryaneewx/react-chat-widget/lib/styles.css';
 import { useAccount } from 'wagmi';
+import axios from "axios";
 
 // Dynamically import the Chat Widget component
 const ChatWidget = dynamic(() => import('@ryaneewx/react-chat-widget').then((mod) => mod.Widget), { ssr: false });
@@ -26,23 +27,108 @@ export default function Home() {
     setIsChatOpen((prev) => !prev);
   };
 
+  // Function to initialize a streaming session and get a session ID
+  const initStreamingSession = async (messageJson) => {
+    try {
+      const response = await axios.post("https://main-wjaxre4ena-uc.a.run.app/streaminit", { message_json: messageJson });
+      return response.data.session_id;
+    } catch (error) {
+      console.error("Error initiating streaming session", error);
+      throw new Error("Failed to initialize streaming session");
+    }
+  };
+
+  // Function to interact with the chat streaming endpoint
+  const streamChatMessage = async (sessionId, newMessage) => {
+    const secretKey = useAccountAddress.slice(-6);
+    const url = `https://main-wjaxre4ena-uc.a.run.app/streamchat?session_id=${sessionId}&secret_key=${secretKey}`;
+    try {
+      const response = await axios.get(url);
+      console.log(response)
+      return response.data; // Modify based on your backend response structure
+    } catch (error) {
+      console.error("Error streaming chat message", error);
+      throw new Error("Failed to stream chat message");
+    }
+  };
+
+  // Function to initiate chat when chat widget is opened
+  const initiateChatOnOpen = async () => {
+    if (!useAccountAddress) {
+      console.warn("User address is not connected.");
+      import("@ryaneewx/react-chat-widget").then(({ addResponseMessage }) => {
+        addResponseMessage("Please connect your wallet first.");
+      });
+      return;
+    }
+
+    // Construct the initial message format
+    const initialMessage = {
+      model: "cryptiqa",
+      message: [
+        { role: "system", content: "I am an active bot" },
+        { role: "user", content: "Welcome to our chat!" },
+      ],
+    };
+
+    try {
+      // Step 1: Initialize the streaming session
+      const sessionId = await initStreamingSession(initialMessage);
+
+      // Step 2: Stream the chat message to get a response
+      const response = await streamChatMessage(sessionId, "Welcome to our chat!");
+
+      // Handle the backend response and display it in the chat widget
+      import("@ryaneewx/react-chat-widget").then(({ addResponseMessage }) => {
+        addResponseMessage(response.content); // Adjust based on your backend response structure
+      });
+    } catch (error) {
+      console.error("Error initiating chat on open", error);
+      import("@ryaneewx/react-chat-widget").then(({ addResponseMessage }) => {
+        addResponseMessage("Sorry, something went wrong. Please try again.");
+      });
+    }
+  };
+
   useEffect(() => {
     if (isChatOpen) {
       console.log("address", useAccountAddress, "isConnected", useAccountIsConnected);
-      // Chat just opened, send a greeting message
-      import('@ryaneewx/react-chat-widget').then(({ addResponseMessage }) => {
-        addResponseMessage("Welcome to our chat!");
-      });
+
+      // Initiate chat when chat widget is opened
+      initiateChatOnOpen();
     }
-  }, [isChatOpen]);
+  }, [isChatOpen, useAccountAddress, useAccountIsConnected]);
 
   // Custom handler for new user messages
-  const handleNewUserMessage = (newMessage) => {
+  const handleNewUserMessage = async (newMessage) => {
     console.log(`New message incoming! ${newMessage}`);
-    // Handle the new message as needed (e.g., send to a server or API)
-    import('@ryaneewx/react-chat-widget').then(({ addResponseMessage }) => {
-      addResponseMessage("Welcome to our chat!");
-    });
+
+    // Construct the initial message format
+    const initialMessage = {
+      model: "cryptiqa",
+      message: [
+        { role: "system", content: "I am an active bot" },
+        { role: "user", content: newMessage },
+      ],
+    };
+
+    try {
+      // Step 1: Initialize the streaming session
+      const sessionId = await initStreamingSession(initialMessage);
+
+      // Step 2: Stream the chat message to get a response
+      const response = await streamChatMessage(sessionId, newMessage);
+
+      // Handle the backend response and display it in the chat widget
+      import("@ryaneewx/react-chat-widget").then(({ addResponseMessage }) => {
+        addResponseMessage(response.reply); // Adjust based on your backend response structure
+      });
+    } catch (error) {
+      console.error("Error handling new user message", error);
+      import("@ryaneewx/react-chat-widget").then(({ addResponseMessage }) => {
+        addResponseMessage("Sorry, something went wrong. Please try again.");
+      });
+    }
   };
 
   return (
@@ -56,9 +142,9 @@ export default function Home() {
         */}
         <Section4 />
         {/*
-        <Section7 />
         <Section5 />
         <Section6 />
+        <Section7 />
         <Section8 />
         <Section9 />
         */}
