@@ -1,9 +1,8 @@
 import Document, { Html, Head, Main, NextScript } from 'next/document'
 import Script from 'next/script'
-class WebDocument extends Document
-{
-    render()
-    {
+
+class WebDocument extends Document {
+    render() {
         return (
             <Html lang="en-US" className="scroll-smooth">
                 <Head>
@@ -14,6 +13,17 @@ class WebDocument extends Document
                         href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700"
                         rel="stylesheet"
                     />
+                    {/* Google tag (gtag.js) */}
+                    <Script async src="https://www.googletagmanager.com/gtag/js?id=G-L7MFMYFMC4"></Script>
+                    <Script id="google-analytics" strategy="afterInteractive">
+                      {`
+                        window.dataLayer = window.dataLayer || [];
+                        function gtag(){dataLayer.push(arguments);}
+                        gtag('js', new Date());
+
+                        gtag('config', 'G-L7MFMYFMC4');
+                      `}
+                    </Script>
                     <Script strategy="afterInteractive" dangerouslySetInnerHTML={{
                         __html: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
         new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -33,4 +43,5 @@ class WebDocument extends Document
         )
     }
 }
+
 export default WebDocument

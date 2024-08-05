@@ -25,6 +25,7 @@ const config = getDefaultConfig({
 const queryClient = new QueryClient();
 
 import '../styles/globals.css';
+import './chatWidgetStyles.css'; // Make sure to import your custom CSS after the default styles
 import "@fortawesome/fontawesome-svg-core/styles.css"; // import Font Awesome CSS
 import { config as fontAwesomeConfig } from "@fortawesome/fontawesome-svg-core";
 fontAwesomeConfig.autoAddCss = false; // Tell Font Awesome to skip adding the CSS automatically since it's being imported above
