@@ -151,8 +151,6 @@ export default function Home() {
         <Footer />
       </main>
       <ChatWidget
-        title="Context Pilot"
-        subtitle="What a wonderful day!"
         handleNewUserMessage={handleNewUserMessage}
         handleToggle={handleChatToggle} // Call handleChatToggle on toggle event if available
       />
