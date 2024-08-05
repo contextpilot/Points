@@ -136,8 +136,8 @@ export default function Home() {
     <>
       <Menu />
       <main>
-        <HomeSection />
         {/*
+        <HomeSection />
         <Section2 />
         <Section3 />
         */}
