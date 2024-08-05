@@ -16,15 +16,23 @@
 /* Media query for mobile screens */
 @media (max-width: 767px) {
   .rcw-widget-container.expanded {
-    width: 90% !important;
-    right: 5% !important;
-    left: 5% !important; /* Ensure it's centered */
-    height: 80% !important;  /* Adjust the height for mobile */
-    margin: 0 auto; /* Ensure it's centered */
+    width: 100% !important;
+    right: 0 !important;
+    left: 0 !important;
+    height: auto !important;
+    margin: 0 !important;
+    position: fixed !important;
+    bottom: 0 !important;
+    top: auto !important;
   }
 
   .rcw-conversation-container {
-    width: 100% !important; /* Ensure full width on mobile */
-    box-sizing: border-box; /* Include padding and border in the element's total width and height */
+    width: 100% !important;
+    height: 90vh !important;  /* Use viewport height for responsiveness */
+    box-sizing: border-box;
+    align-self: flex-end;
+    position: fixed !important;
+    bottom: 0 !important;
   }
 }
+
