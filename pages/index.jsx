@@ -22,6 +22,12 @@ export default function Home() {
   const [isChatOpen, setIsChatOpen] = useState(false);
   const { address: useAccountAddress, isConnected: useAccountIsConnected } = useAccount();
 
+  // State to maintain the entire conversation
+  const [conversation, setConversation] = useState([
+    { role: "system", content: "I am an active bot" },
+    { role: "user", content: "Welcome to our chat!" },
+  ]);
+
   // Function to toggle chat visibility
   const handleChatToggle = () => {
     setIsChatOpen((prev) => !prev);
@@ -38,13 +44,12 @@ export default function Home() {
     }
   };
 
-  // Function to interact with the chat streaming endpoint
+  // Function to interact with the chat streaming endpoint 
   const streamChatMessage = async (sessionId, newMessage) => {
     const secretKey = useAccountAddress.slice(-6);
     const url = `https://main-wjaxre4ena-uc.a.run.app/streamchat?session_id=${sessionId}&secret_key=${secretKey}`;
     try {
       const response = await axios.get(url);
-      console.log(response)
       return response.data; // Modify based on your backend response structure
     } catch (error) {
       console.error("Error streaming chat message", error);
@@ -62,13 +67,9 @@ export default function Home() {
       return;
     }
 
-    // Construct the initial message format
-    const initialMessage = {
-      model: "cryptiqa",
-      message: [
-        { role: "system", content: "I am an active bot" },
-        { role: "user", content: "Welcome to our chat!" },
-      ],
+    const initialMessage = { 
+      model: "cryptiqa", 
+      message: conversation 
     };
 
     try {
@@ -77,6 +78,8 @@ export default function Home() {
 
       // Step 2: Stream the chat message to get a response
       const response = await streamChatMessage(sessionId, "Welcome to our chat!");
+
+      setConversation(prev => [...prev, { role: "assistant", content: response.content }]);
 
       // Handle the backend response and display it in the chat widget
       import("@ryaneewx/react-chat-widget").then(({ addResponseMessage }) => {
@@ -101,15 +104,11 @@ export default function Home() {
 
   // Custom handler for new user messages
   const handleNewUserMessage = async (newMessage) => {
-    console.log(`New message incoming! ${newMessage}`);
 
-    // Construct the initial message format
+    const updatedConversation = [...conversation, { role: "user", content: newMessage }];
     const initialMessage = {
       model: "cryptiqa",
-      message: [
-        { role: "system", content: "I am an active bot" },
-        { role: "user", content: newMessage },
-      ],
+      message: updatedConversation,
     };
 
     try {
@@ -119,9 +118,11 @@ export default function Home() {
       // Step 2: Stream the chat message to get a response
       const response = await streamChatMessage(sessionId, newMessage);
 
+      setConversation(prev => [...prev, { role: "assistant", content: response.content }]);
+
       // Handle the backend response and display it in the chat widget
       import("@ryaneewx/react-chat-widget").then(({ addResponseMessage }) => {
-        addResponseMessage(response.reply); // Adjust based on your backend response structure
+        addResponseMessage(response.content); // Adjust based on your backend response structure
       });
     } catch (error) {
       console.error("Error handling new user message", error);
