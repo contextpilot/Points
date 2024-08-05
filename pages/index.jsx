@@ -74,12 +74,12 @@ export default function Home() {
 
     try {
       // Step 1: Initialize the streaming session
-      const sessionId = await initStreamingSession(initialMessage);
+      const sessionId = await initStreamingSession(JSON.stringify(initialMessage));
 
       // Step 2: Stream the chat message to get a response
       const response = await streamChatMessage(sessionId, "Welcome to our chat!");
 
-      setConversation(prev => [...prev, { role: "assistant", content: response.content }]);
+      setConversation(prev => [...prev, { role: "assistant", content: response.content, question_id: response.question_id }]);
 
       // Handle the backend response and display it in the chat widget
       import("@ryaneewx/react-chat-widget").then(({ addResponseMessage }) => {
@@ -97,14 +97,13 @@ export default function Home() {
     if (isChatOpen) {
       console.log("address", useAccountAddress, "isConnected", useAccountIsConnected);
 
-      // Initiate chat when chat widget is opened
+      // Initiate chat when the chat widget is opened
       initiateChatOnOpen();
     }
   }, [isChatOpen, useAccountAddress, useAccountIsConnected]);
 
   // Custom handler for new user messages
   const handleNewUserMessage = async (newMessage) => {
-
     const updatedConversation = [...conversation, { role: "user", content: newMessage }];
     const initialMessage = {
       model: "cryptiqa",
@@ -113,12 +112,12 @@ export default function Home() {
 
     try {
       // Step 1: Initialize the streaming session
-      const sessionId = await initStreamingSession(initialMessage);
+      const sessionId = await initStreamingSession(JSON.stringify(initialMessage));
 
       // Step 2: Stream the chat message to get a response
       const response = await streamChatMessage(sessionId, newMessage);
 
-      setConversation(prev => [...prev, { role: "assistant", content: response.content }]);
+      setConversation(prev => [...prev, { role: "assistant", content: response.content, question_id: response.question_id }]);
 
       // Handle the backend response and display it in the chat widget
       import("@ryaneewx/react-chat-widget").then(({ addResponseMessage }) => {

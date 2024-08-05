@@ -1,10 +1,13 @@
 /* chatWidgetStyles.css */
 
 /* Apply styles to the chat widget container globally */
+.rcw-widget-container {
+  font-size: 12px; /* Adjust the font size as needed */
+}
 
 /* Media query for mobile screens */
 @media (max-width: 767px) {
-  .rcw-widget-container {
+  .rcw-widget-container.expanded {
     width: 90% !important;
     right: 5% !important;
     left: 5% !important; /* Ensure it's centered */
