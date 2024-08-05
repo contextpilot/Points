@@ -5,13 +5,21 @@
   font-size: 12px; /* Adjust the font size as needed */
 }
 
+.rcw-title {
+  display: none; /* Hide the title */
+}
+
+.rcw-subtitle {
+  display: none; /* Hide the subtitle */
+}
+
 /* Media query for mobile screens */
 @media (max-width: 767px) {
   .rcw-widget-container.expanded {
     width: 90% !important;
     right: 5% !important;
     left: 5% !important; /* Ensure it's centered */
-    height: 90% !important;  /* Adjust the height for mobile */
+    height: 80% !important;  /* Adjust the height for mobile */
     margin: 0 auto; /* Ensure it's centered */
   }
 
