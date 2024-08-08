@@ -51,7 +51,7 @@ export default function Footer() {
                             <span className="sr-only">Github page</span>
                         </a>
                         <a 
-                            href="https://t.me/YourTelegramUsername" 
+                            href="https://t.me/PilotContext" 
                             className="text-gray-400 hover:text-white" 
                             target="_blank" 
                             rel="noopener noreferrer"
@@ -60,7 +60,7 @@ export default function Footer() {
                             <span className="sr-only">Telegram channel</span>
                         </a>
                         <a 
-                            href="https://discord.gg/YourDiscordInvite" 
+                            href="https://discord.com/invite/XBa9Va9S" 
                             className="text-gray-400 hover:text-white" 
                             target="_blank" 
                             rel="noopener noreferrer"
