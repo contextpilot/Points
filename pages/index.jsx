@@ -9,7 +9,7 @@ import Section7 from "./homepageComponents/section7.js";
 import Section8 from "./homepageComponents/section8.js";
 import Section9 from "./homepageComponents/section9.js";
 import Footer from "./homepageComponents/footer.js";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import '@ryaneewx/react-chat-widget/lib/styles.css';
 import { useAccount } from 'wagmi';
@@ -22,37 +22,16 @@ export default function Home() {
   const [isChatOpen, setIsChatOpen] = useState(false);
   const { address: useAccountAddress, isConnected: useAccountIsConnected } = useAccount();
 
-  const chatWidgetRef = useRef(null);
-
-  const handleChatToggle = () => {
-    setIsChatOpen((prev) => {
-      const newIsChatOpen = !prev;
-  
-      if (newIsChatOpen) {
-        setTimeout(() => {
-          const inputField = chatWidgetRef.current.querySelector('input');
-          if (inputField) {
-            inputField.classList.add('no-focus');
-          }
-        }, 100);
-      } else {
-        setTimeout(() => {
-          const inputField = chatWidgetRef.current.querySelector('input');
-          if (inputField) {
-            inputField.classList.remove('no-focus');
-          }
-        }, 100);
-      }
-  
-      return newIsChatOpen;
-    });
-  };
-
   // State to maintain the entire conversation
   const [conversation, setConversation] = useState([
     { role: "system", content: "I am an active bot" },
     { role: "user", content: "Welcome to our chat!" },
   ]);
+
+  // Function to toggle chat visibility
+  const handleChatToggle = () => {
+    setIsChatOpen((prev) => !prev);
+  };
 
   // Function to initialize a streaming session and get a session ID
   const initStreamingSession = async (messageJson) => {
@@ -172,7 +151,6 @@ export default function Home() {
         <Footer />
       </main>
       <ChatWidget
-        innerRef={chatWidgetRef}
         handleNewUserMessage={handleNewUserMessage}
         handleToggle={handleChatToggle}
         autofocus={false}
