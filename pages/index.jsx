@@ -16,12 +16,12 @@ import { useAccount } from 'wagmi';
 import axios from "axios";
 
 // Dynamically import the Chat Widget component
-const ChatWidget = dynamic(() => import('./ChatWidget'), { ssr: false });
+const ChatWidget = dynamic(() => import('@ryaneewx/react-chat-widget').then((mod) => mod.Widget), { ssr: false });
 
 export default function Home() {
   const [isChatOpen, setIsChatOpen] = useState(false);
   const { address: useAccountAddress, isConnected: useAccountIsConnected } = useAccount();
-  const inputRef = useRef(null);
+  const chatWidgetRef = useRef(null);
 
   // State to maintain the entire conversation
   const [conversation, setConversation] = useState([
@@ -104,24 +104,29 @@ export default function Home() {
   }, [isChatOpen, useAccountAddress, useAccountIsConnected]);
 
   useEffect(() => {
-    const inputElement = inputRef.current;
+    if (chatWidgetRef.current) {
+      setTimeout(() => {
+        const inputElement = chatWidgetRef.current.querySelector('.rcw-input');
+        console.log("Input element:", inputElement);
 
-    if (inputElement) {
-      // Ensure the input does not automatically gain focus when the chatbox opens
-      inputElement.setAttribute('readonly', true);
-      
-      // Remove the readonly attribute and focus the input when the user taps on it
-      const handleTouchStart = () => {
-        inputElement.removeAttribute('readonly');
-        inputElement.focus();
-      };
+        if (inputElement) {
+          // Ensure the input does not automatically gain focus when the chatbox opens
+          inputElement.setAttribute('contenteditable', false);
+          
+          // Remove the readonly attribute and focus the input when the user taps on it
+          const handleTouchStart = () => {
+            inputElement.setAttribute('contenteditable', true);
+            inputElement.focus();
+          };
 
-      inputElement.addEventListener('touchstart', handleTouchStart);
+          inputElement.addEventListener('touchstart', handleTouchStart);
 
-      // Clean up event listener on component unmount
-      return () => {
-        inputElement.removeEventListener('touchstart', handleTouchStart);
-      };
+          // Clean up event listener on component unmount
+          return () => {
+            inputElement.removeEventListener('touchstart', handleTouchStart);
+          };
+        }
+      }, 500); // Adjust the delay if necessary
     }
   }, [isChatOpen]);
 
@@ -173,12 +178,13 @@ export default function Home() {
         */}
         <Footer />
       </main>
-      <ChatWidget
-        handleNewUserMessage={handleNewUserMessage}
-        handleToggle={handleChatToggle}
-        autofocus={false}
-        ref={inputRef} // Pass the ref to the ChatWidget
-      />
+      <div ref={chatWidgetRef}>
+        <ChatWidget
+          handleNewUserMessage={handleNewUserMessage}
+          handleToggle={handleChatToggle}
+          autofocus={false}
+        />
+      </div>
     </>
   );
 }
