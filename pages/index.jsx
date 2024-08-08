@@ -68,6 +68,12 @@ export default function Home() {
       return;
     }
 
+    // Check if the conversation length is larger than 2
+    if (conversation.length > 2) {
+      console.warn("Conversation length is larger than 2. No action will be taken.");
+      return;
+    }
+
     const initialMessage = { 
       model: "cryptiqa", 
       message: conversation 
@@ -112,7 +118,7 @@ export default function Home() {
         if (inputElement) {
           // Ensure the input does not automatically gain focus when the chatbox opens
           inputElement.setAttribute('contenteditable', false);
-          
+
           // Remove the readonly attribute and focus the input when the user taps on it
           const handleTouchStart = () => {
             inputElement.setAttribute('contenteditable', true);
