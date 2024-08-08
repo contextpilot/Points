@@ -41,6 +41,9 @@ export default function SeedSale() {
     const [allowedTokens, setAllowedTokens] = useState(0);
     const [usedTokens, setUsedTokens] = useState(0);
     const [presaleDataParsed, setPresaleDataParsed] = useState(null);
+    const [correctAnswers, setCorrectAnswers] = useState(0);
+    const [totalAnswers, setTotalAnswers] = useState(0);
+    const [points, setPoints] = useState(0);
 
     const onSuccessfulPurchase = () => {
         console.log('Purchase was successful!');
@@ -66,7 +69,7 @@ export default function SeedSale() {
             return data;
         } catch (error) {
             console.error("Failed to fetch API usage:", error);
-            return { allowed_tokens: 0, used_tokens: 0 };
+            return { allowed_tokens: 0, used_tokens: 0, total_answers: 0, correctAnswers: 0 };
         }
     }
 
@@ -75,6 +78,10 @@ export default function SeedSale() {
             const data = await fetchApiUsage(useAccountAddress);
             setAllowedTokens(data.allowed_tokens);
             setUsedTokens(data.used_tokens);
+
+            setCorrectAnswers(data.correct_answers || 0);
+            setTotalAnswers(data.total_answers || 0);
+            setPoints(data.correct_answers*100 || 0);
         }
     }, [useAccountAddress]);
 
@@ -261,10 +268,13 @@ export default function SeedSale() {
                     </p>
                     <div className="my-4">
                         <p className="text-white">
-                            Allowed Tokens: {allowedTokens}
+                            Used / Allowed Tokens: {usedTokens} / {allowedTokens}
                         </p>
                         <p className="text-white">
-                            Used Tokens: {usedTokens}
+                            Correct / Total Answers: {correctAnswers} / {totalAnswers}
+                        </p>
+                        <p className="text-white">
+                            Points earned: {points}
                         </p>
                     </div>
                     {displayPresaleData}

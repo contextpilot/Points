@@ -152,7 +152,8 @@ export default function Home() {
       </main>
       <ChatWidget
         handleNewUserMessage={handleNewUserMessage}
-        handleToggle={handleChatToggle} // Call handleChatToggle on toggle event if available
+        handleToggle={handleChatToggle}
+        autofocus={false}
       />
     </>
   );
