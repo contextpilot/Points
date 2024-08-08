@@ -9,7 +9,7 @@ import Section7 from "./homepageComponents/section7.js";
 import Section8 from "./homepageComponents/section8.js";
 import Section9 from "./homepageComponents/section9.js";
 import Footer from "./homepageComponents/footer.js";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import dynamic from "next/dynamic";
 import '@ryaneewx/react-chat-widget/lib/styles.css';
 import { useAccount } from 'wagmi';
@@ -22,16 +22,27 @@ export default function Home() {
   const [isChatOpen, setIsChatOpen] = useState(false);
   const { address: useAccountAddress, isConnected: useAccountIsConnected } = useAccount();
 
+  const chatWidgetRef = useRef(null);
+
+     const handleChatToggle = () => {
+       setIsChatOpen((prev) => !prev);
+
+       // Move focus away from the chat input to prevent virtual keyboard from opening
+       if (chatWidgetRef.current) {
+         chatWidgetRef.current.blur();
+       }
+
+       // or, if autofocus: false should work, ensure it's respected
+       if (!isChatOpen && chatWidgetRef.current) {
+         chatWidgetRef.current.autofocus = false;
+       }
+     };
+
   // State to maintain the entire conversation
   const [conversation, setConversation] = useState([
     { role: "system", content: "I am an active bot" },
     { role: "user", content: "Welcome to our chat!" },
   ]);
-
-  // Function to toggle chat visibility
-  const handleChatToggle = () => {
-    setIsChatOpen((prev) => !prev);
-  };
 
   // Function to initialize a streaming session and get a session ID
   const initStreamingSession = async (messageJson) => {
