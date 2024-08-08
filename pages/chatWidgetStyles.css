@@ -13,6 +13,11 @@
   display: none; /* Hide the subtitle */
 }
 
+input.no-focus:focus {
+  outline: none;
+  border: none;
+}
+
 /* Media query for mobile screens */
 @media (max-width: 767px) {
   .rcw-widget-container.expanded {
