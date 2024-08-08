@@ -24,19 +24,23 @@ export default function Home() {
 
   const chatWidgetRef = useRef(null);
 
-     const handleChatToggle = () => {
-       setIsChatOpen((prev) => !prev);
-
-       // Move focus away from the chat input to prevent virtual keyboard from opening
-       if (chatWidgetRef.current) {
-         chatWidgetRef.current.blur();
-       }
-
-       // or, if autofocus: false should work, ensure it's respected
-       if (!isChatOpen && chatWidgetRef.current) {
-         chatWidgetRef.current.autofocus = false;
-       }
-     };
+  const handleChatToggle = () => {
+    setIsChatOpen((prev) => {
+      const newIsChatOpen = !prev;
+  
+      if (newIsChatOpen && chatWidgetRef.current) {
+        setTimeout(() => {
+          // Attempt to find the input element inside the ChatWidget after it is opened
+          const inputField = chatWidgetRef.current.querySelector('input');
+          if (inputField) {
+            inputField.blur();
+          }
+        }, 100);
+      }
+  
+      return newIsChatOpen;
+    });
+  };  
 
   // State to maintain the entire conversation
   const [conversation, setConversation] = useState([
@@ -162,6 +166,7 @@ export default function Home() {
         <Footer />
       </main>
       <ChatWidget
+        innerRef={chatWidgetRef}
         handleNewUserMessage={handleNewUserMessage}
         handleToggle={handleChatToggle}
         autofocus={false}
