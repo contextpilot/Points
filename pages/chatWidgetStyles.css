@@ -42,4 +42,9 @@
     position: fixed !important;
     bottom: 0 !important;
   }
+
+  .rcw-input.no-focus:focus {
+    outline: none;
+    border: none;
+  }
 }
