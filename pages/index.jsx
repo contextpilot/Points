@@ -28,19 +28,25 @@ export default function Home() {
     setIsChatOpen((prev) => {
       const newIsChatOpen = !prev;
   
-      if (newIsChatOpen && chatWidgetRef.current) {
+      if (newIsChatOpen) {
         setTimeout(() => {
-          // Attempt to find the input element inside the ChatWidget after it is opened
           const inputField = chatWidgetRef.current.querySelector('input');
           if (inputField) {
-            inputField.blur();
+            inputField.classList.add('no-focus');
+          }
+        }, 100);
+      } else {
+        setTimeout(() => {
+          const inputField = chatWidgetRef.current.querySelector('input');
+          if (inputField) {
+            inputField.classList.remove('no-focus');
           }
         }, 100);
       }
   
       return newIsChatOpen;
     });
-  };  
+  };
 
   // State to maintain the entire conversation
   const [conversation, setConversation] = useState([
