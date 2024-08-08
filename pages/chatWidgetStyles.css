@@ -13,9 +13,12 @@
   display: none; /* Hide the subtitle */
 }
 
-input.no-focus:focus {
-  outline: none;
-  border: none;
+.rcw-input:not(:focus) {
+  outline: none; /* Ensures no outline is shown when the element is not focused */
+}
+
+.rcw-input:focus-visible {
+  outline: none; /* Ensures no outline is shown when the element is focused */
 }
 
 /* Media query for mobile screens */
@@ -40,4 +43,3 @@ input.no-focus:focus {
     bottom: 0 !important;
   }
 }
-
