@@ -16,7 +16,7 @@ import { useAccount } from 'wagmi';
 import axios from "axios";
 
 // Dynamically import the Chat Widget component
-const ChatWidget = dynamic(() => import('@ryaneewx/react-chat-widget').then((mod) => mod.Widget), { ssr: false });
+const ChatWidget = dynamic(() => import('./ChatWidget'), { ssr: false });
 
 export default function Home() {
   const [isChatOpen, setIsChatOpen] = useState(false);
@@ -177,7 +177,7 @@ export default function Home() {
         handleNewUserMessage={handleNewUserMessage}
         handleToggle={handleChatToggle}
         autofocus={false}
-        inputRef={inputRef} // Pass the ref to the ChatWidget
+        ref={inputRef} // Pass the ref to the ChatWidget
       />
     </>
   );
