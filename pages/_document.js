@@ -1,5 +1,5 @@
-import Document, { Html, Head, Main, NextScript } from 'next/document'
-import Script from 'next/script'
+import Document, { Html, Head, Main, NextScript } from 'next/document';
+import Script from 'next/script';
 
 class WebDocument extends Document {
     render() {
@@ -13,6 +13,8 @@ class WebDocument extends Document {
                         href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700"
                         rel="stylesheet"
                     />
+                    {/* Viewport Meta Tag for responsiveness */}
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
                     {/* Google tag (gtag.js) */}
                     <Script async src="https://www.googletagmanager.com/gtag/js?id=G-L7MFMYFMC4"></Script>
                     <Script id="google-analytics" strategy="afterInteractive">
@@ -36,12 +38,11 @@ class WebDocument extends Document {
                         __html: `<iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MG9F62J"
             height="0" width="0" style="display:none;visibility:hidden"></iframe>`}}></noscript>
                     <Main />
-                    <NextScript>
-                    </NextScript>
+                    <NextScript />
                 </body>
             </Html>
-        )
+        );
     }
 }
 
-export default WebDocument
+export default WebDocument;
