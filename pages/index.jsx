@@ -143,11 +143,16 @@ export default function Home() {
     if (isiOS && chatWidgetRef.current) {
       const widgetContainer = chatWidgetRef.current.querySelector('.rcw-widget-container');
       if (widgetContainer) {
-        widgetContainer.style.paddingBottom = '15px'; // Add padding if necessary
-        widgetContainer.style.boxSizing = 'border-box'; // Ensure box-sizing
+        widgetContainer.style.paddingBottom = '15px';
+        widgetContainer.style.boxSizing = 'border-box';
+  
+        const conversationContainer = chatWidgetRef.current.querySelector('.rcw-conversation-container');
+        if (conversationContainer) {
+          conversationContainer.style.height = `calc(100vh - ${widgetContainer.offsetTop}px - env(safe-area-inset-bottom))`;
+        }
       }
     }
-  }, []); // Run effect only once
+  }, []);
 
   // Custom handler for new user messages
   const handleNewUserMessage = async (newMessage) => {
