@@ -74,9 +74,9 @@ export default function Home() {
       return;
     }
 
-    const initialMessage = { 
-      model: "cryptiqa", 
-      message: conversation 
+    const initialMessage = {
+      model: "cryptiqa",
+      message: conversation
     };
 
     try {
@@ -111,41 +111,43 @@ export default function Home() {
 
   useEffect(() => {
     if (chatWidgetRef.current) {
-      setTimeout(() => {
-        const inputElement = chatWidgetRef.current.querySelector('.rcw-input');
-        console.log("Input element:", inputElement);
+      const inputElement = chatWidgetRef.current.querySelector('.rcw-input');
+      console.log("Input element:", inputElement);
 
-        if (inputElement) {
-          // Ensure the input does not automatically gain focus when the chatbox opens
-          inputElement.setAttribute('contenteditable', false);
+      if (inputElement) {
+        // Ensure the input does not automatically gain focus when the chatbox opens
+        inputElement.setAttribute('contenteditable', false);
 
-          // Remove the readonly attribute and focus the input when the user taps on it
-          const handleTouchStart = () => {
-            inputElement.setAttribute('contenteditable', true);
+        // Remove the readonly attribute and focus the input when the user taps on it
+        const handleTouchStart = () => {
+          inputElement.setAttribute('contenteditable', true);
+
+          // This slight delay allows the browser to register the contenteditable change
+          setTimeout(() => {
             inputElement.focus();
-          };
+          }, 100);
+        };
 
-          inputElement.addEventListener('touchstart', handleTouchStart);
+        inputElement.addEventListener('touchstart', handleTouchStart);
 
-          // Clean up event listener on component unmount
-          return () => {
-            inputElement.removeEventListener('touchstart', handleTouchStart);
-          };
-        }
-      }, 5); // Adjust the delay if necessary
+        // Clean up event listener on component unmount
+        return () => {
+          inputElement.removeEventListener('touchstart', handleTouchStart);
+        };
+      }
     }
   }, [isChatOpen]);
 
   useEffect(() => {
     const userAgent = window.navigator.userAgent;
     const isiOS = /iPad|iPhone|iPod/.test(userAgent) && !window.MSStream;
-  
+
     if (isiOS && chatWidgetRef.current) {
       const widgetContainer = chatWidgetRef.current.querySelector('.rcw-widget-container');
       if (widgetContainer) {
         widgetContainer.style.paddingBottom = '15px';
         widgetContainer.style.boxSizing = 'border-box';
-  
+
         const conversationContainer = chatWidgetRef.current.querySelector('.rcw-conversation-container');
         if (conversationContainer) {
           conversationContainer.style.height = `calc(100vh - ${widgetContainer.offsetTop}px - env(safe-area-inset-bottom))`;
