@@ -1,8 +1,11 @@
 /* chatWidgetStyles.css */
-
 /* Apply styles to the chat widget container globally */
 .rcw-widget-container {
-  font-size: 12px; /* Adjust the font size as needed */
+  font-size: 12px;  /* Adjust the font size as needed */
+  max-width: 100vw;  /* Ensure the width does not exceed the viewport width */
+  overflow: hidden;  /* Hide any overflowing content */
+  box-sizing: border-box; /* Ensure padding and border are included in the element's total width and height */
+  padding-bottom: env(safe-area-inset-bottom, 0); /* Adjust for safe area insets */
 }
 
 .rcw-title {
@@ -24,7 +27,7 @@
 /* Media query for mobile screens */
 @media (max-width: 767px) {
   .rcw-widget-container.expanded {
-    width: 100% !important;
+    width: 100vw !important;  /* Use viewport width */
     right: 0 !important;
     left: 0 !important;
     height: auto !important;
@@ -32,15 +35,17 @@
     position: fixed !important;
     bottom: 0 !important;
     top: auto !important;
+    padding-bottom: env(safe-area-inset-bottom, 0); /* Adjust for safe area insets */
   }
 
   .rcw-conversation-container {
-    width: 100% !important;
+    width: 100vw !important;  /* Use viewport width */
     height: 90vh !important;  /* Use viewport height for responsiveness */
     box-sizing: border-box;
     align-self: flex-end;
     position: fixed !important;
     bottom: 0 !important;
+    top: auto !important;
   }
 
   .rcw-input.no-focus:focus {

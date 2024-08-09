@@ -136,6 +136,19 @@ export default function Home() {
     }
   }, [isChatOpen]);
 
+  useEffect(() => {
+    const userAgent = window.navigator.userAgent;
+    const isiOS = /iPad|iPhone|iPod/.test(userAgent) && !window.MSStream;
+  
+    if (isiOS && chatWidgetRef.current) {
+      const widgetContainer = chatWidgetRef.current.querySelector('.rcw-widget-container');
+      if (widgetContainer) {
+        widgetContainer.style.paddingBottom = '15px'; // Add padding if necessary
+        widgetContainer.style.boxSizing = 'border-box'; // Ensure box-sizing
+      }
+    }
+  }, []); // Run effect only once
+
   // Custom handler for new user messages
   const handleNewUserMessage = async (newMessage) => {
     const updatedConversation = [...conversation, { role: "user", content: newMessage }];
