@@ -132,7 +132,7 @@ export default function Home() {
             inputElement.removeEventListener('touchstart', handleTouchStart);
           };
         }
-      }, 500); // Adjust the delay if necessary
+      }, 5); // Adjust the delay if necessary
     }
   }, [isChatOpen]);
 
