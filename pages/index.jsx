@@ -114,7 +114,7 @@ export default function Home() {
       const inputElement = chatWidgetRef.current.querySelector('.rcw-input');
       console.log("Input element:", inputElement);
 
-      if (inputElement) {
+      if (inputElement && 'ontouchstart' in window) {
         // Ensure the input does not automatically gain focus when the chatbox opens
         inputElement.setAttribute('contenteditable', false);
 
