@@ -2,6 +2,7 @@
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import {
 useAccount,
+useContractRead,
 useContractWrite,
 usePrepareContractWrite,
 useWaitForTransaction,
@@ -14,8 +15,9 @@ export default function PresaleData() {
      * @brief Log to console
      */
     const { chain } = useAccount();
-    const [contractAddress, setContractAddress] = useState('');
-    const [presaleId, setPresaleId] = useState('');
+    const [contractAddress, setContractAddress] = useState(process.env.NEXT_PUBLIC_CONTRACT_ADDRESS);
+    const [abi, setAbi] = useState(process.env.NEXT_PUBLIC_CONTRACT_ABI);
+    const [presaleId, setPresaleId] = useState(process.env.NEXT_PUBLIC_PRESALE_ID);
 
     function Log(stringToLog) {
         const timeElapsed = Date.now();
