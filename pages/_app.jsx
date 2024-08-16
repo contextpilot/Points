@@ -2,7 +2,7 @@ import '@rainbow-me/rainbowkit/styles.css';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createPublicClient, http } from 'viem';
 import { WagmiProvider } from 'wagmi';
-import { bsc } from 'wagmi/chains';
+import { bsc, opBNB } from 'wagmi/chains';
 import { getDefaultConfig } from '@rainbow-me/rainbowkit';
 import {
   RainbowKitProvider,
@@ -14,11 +14,12 @@ import { loadStripe } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js';
 
 const config = getDefaultConfig({
-  appName: 'RainbowKit demo',
+  appName: 'Context Pilot',
   projectId: '1caa5aff046aaaed0ad0c902eadb8a50',
-  chains: [bsc],
+  chains: [bsc, opBNB],
   transports: {
     [bsc.id]: http(),
+    [opBNB.id]: http(),
   },
 });
 
