@@ -1,28 +1,23 @@
 import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import
-{
-  faDollar
+import {
+faDollar
 } from "@fortawesome/free-solid-svg-icons";
-import
-{
-  useAccount,
-  useContractRead,
-  useWriteContract,
-  useSimulateContract,
-  useWaitForTransactionReceipt,
+import {
+useAccount,
+useContractRead,
+useWriteContract,
+useWaitForTransactionReceipt,
 } from "wagmi";
 
-const BuyWithUsdtModal = () =>
-{
+const BuyWithUsdtModal = () => {
   const { address: useAccountAddress, connector: useAccountActiveConnector, isConnected: useAccountIsConnected } = useAccount()
 
   /**
    * @fn Log
    * @brief Log to console
    */
-  function Log(stringToLog)
-  {
+  function Log(stringToLog) {
     const timeElapsed = Date.now();
     const today = new Date(timeElapsed);
     console.log(today.toUTCString() + " | " + stringToLog);
@@ -32,13 +27,10 @@ const BuyWithUsdtModal = () =>
    * @class Presale
    * @brief Presale Data
    */
-  class Presale
-  {
-    constructor(presaleData)
-    {
+  class Presale {
+    constructor(presaleData) {
       this.preSaleDataLocal = presaleData;
-      if (this.preSaleDataLocal)
-      {
+      if (this.preSaleDataLocal) {
         var presaleSplit = presaleData.toString().split(",");
         var counter = 0;
         this.saleToken = presaleSplit[counter++];
@@ -65,10 +57,8 @@ const BuyWithUsdtModal = () =>
       }
     }
 
-    get HtmlOutput()
-    {
-      if (this.preSaleDataLocal)
-      {
+    get HtmlOutput() {
+      if (this.preSaleDataLocal) {
         return (
           <>
             <p>Sale Token: {this.saleToken}</p>
@@ -96,8 +86,7 @@ const BuyWithUsdtModal = () =>
   * @fn printPresaleData
   * @brief Print Presale Data
   */
-  function printPresaleData(presaleData)
-  {
+  function printPresaleData(presaleData) {
     var preSale = new Presale(presaleData);
     setPresaleDataParsed(preSale);
   }
@@ -111,6 +100,33 @@ const BuyWithUsdtModal = () =>
   const [convertToUsdtDisabled, setConvertToUsdtDisabled] = useState();
   const [convertToUsdtInProcessText, setConvertToUsdtInProcessText] = useState();
   const [refetchCount, setRefetchCount] = useState(0);
+  const { chain } = useAccount();
+  const [stableCoinAbi, setStableCoinAbi] = useState(process.env.NEXT_PUBLIC_STABLE_COIN_CONTRACT_ABI);
+  const [chainId, setChainId] = useState(process.env.NEXT_PUBLIC_CHAIN_ID);
+  const [contractAddress, setContractAddress] = useState(process.env.NEXT_PUBLIC_CONTRACT_ADDRESS);
+  const [abi, setAbi] = useState(process.env.NEXT_PUBLIC_CONTRACT_ABI);
+  const [presaleId, setPresaleId] = useState(process.env.NEXT_PUBLIC_PRESALE_ID);
+
+  // Dynamically set the contract address based on the current chain
+  useEffect(() => {
+    if (chain) {
+      if (chain.id === 56) { // BNB
+        setContractAddress(process.env.NEXT_PUBLIC_CONTRACT_ADDRESS);
+        setAbi(process.env.NEXT_PUBLIC_CONTRACT_ABI);
+        setChainId(process.env.NEXT_PUBLIC_CHAIN_ID);
+        setPresaleId(process.env.NEXT_PUBLIC_PRESALE_ID);
+        setStableCoinAbi(process.env.NEXT_PUBLIC_STABLE_COIN_CONTRACT_ABI);
+      } else if (chain.id === 204) { // OPBNB
+        setContractAddress(process.env.NEXT_PUBLIC_CONTRACT_ADDRESS_OPBNB);
+        setAbi(process.env.NEXT_PUBLIC_CONTRACT_ABI);
+        setChainId(process.env.NEXT_PUBLIC_CHAIN_ID_OPBNB);
+        setPresaleId(process.env.NEXT_PUBLIC_PRESALE_ID_OPBNB);
+        setStableCoinAbi(process.env.NEXT_PUBLIC_STABLE_COIN_CONTRACT_ABI);
+      } else {
+        console.error('Unsupported network');
+      }
+    }
+  }, [chain]);
 
   /* Presale Data */
   const [presaleDataParsed, setPresaleDataParsed] = useState(0);
@@ -120,10 +136,10 @@ const BuyWithUsdtModal = () =>
     isError: presaleIsError,
     isLoading: presaleIsLoading,
     status: presaleStatus } = useContractRead({
-      address: process.env.NEXT_PUBLIC_CONTRACT_ADDRESS.toString(),
-      abi: JSON.parse(process.env.NEXT_PUBLIC_CONTRACT_ABI),
+      address: contractAddress,
+      abi: JSON.parse(abi),
       functionName: "presale",
-      args: [process.env.NEXT_PUBLIC_PRESALE_ID],
+      args: [presaleId],
       watch: true,
     });
 
@@ -131,20 +147,20 @@ const BuyWithUsdtModal = () =>
 
   /* USDT Interface Contract Address */
   const { data: usdtContractAddress } = useContractRead({
-    address: process.env.NEXT_PUBLIC_CONTRACT_ADDRESS.toString(),
-    abi: JSON.parse(process.env.NEXT_PUBLIC_CONTRACT_ABI),
+    address: contractAddress,
+    abi: JSON.parse(abi),
     functionName: "USDTInterface",
     watch: true,
   });
-  
+
   /* USDT Buy Helper */
   const { data: usdtAllowanceHelper,
     refetch: refetchUsdtAllowanceHelper
-   } = useContractRead({
-    address: process.env.NEXT_PUBLIC_CONTRACT_ADDRESS.toString(),
-    abi: JSON.parse(process.env.NEXT_PUBLIC_CONTRACT_ABI),
+  } = useContractRead({
+    address: contractAddress,
+    abi: JSON.parse(abi),
     functionName: "usdtBuyHelper",
-    args: [process.env.NEXT_PUBLIC_PRESALE_ID, tokens],
+    args: [presaleId, tokens],
     watch: true,
   });
   /* USDT Allowance */
@@ -156,13 +172,12 @@ const BuyWithUsdtModal = () =>
     isError: accountAllowanceIsError,
     isLoading: accountAllowanceIsLoading } = useContractRead({
       address: usdtContractAddress,
-      abi: JSON.parse(process.env.NEXT_PUBLIC_STABLE_COIN_CONTRACT_ABI),
+      abi: JSON.parse(stableCoinAbi),
       functionName: "allowance",
-      args: [useAccountAddress, process.env.NEXT_PUBLIC_CONTRACT_ADDRESS.toString()],
+      args: [useAccountAddress, contractAddress],
       watch: true,
     });
-  useEffect(() =>
-  {
+  useEffect(() => {
     if (accountAllowance)
       setAccountAllowance(accountAllowance.toString());
   }, [accountAllowance]);
@@ -172,54 +187,52 @@ const BuyWithUsdtModal = () =>
     data: usdtBalanceOfWalletData,
     refetch: refetchUsdtBalanceOfWalletData } = useContractRead({
       address: usdtContractAddress,
-      abi: JSON.parse(process.env.NEXT_PUBLIC_STABLE_COIN_CONTRACT_ABI),
+      abi: JSON.parse(stableCoinAbi),
       functionName: "balanceOf",
       args: [useAccountAddress],
       watch: true,
     });
-    useEffect(() =>
-      {
-        if (usdtBalanceOfWalletData != undefined ) {
-          var usdtBalanceParsed = Number(usdtBalanceOfWalletData) / (10 ** 18);
-          Log("----> usdtBalanceParsed: " + usdtBalanceParsed);
-          setUsdtBalanceOfWalletConnected(usdtBalanceParsed);
-      
-        }
-      }, [usdtBalanceOfWalletData]);
+  useEffect(() => {
+    if (usdtBalanceOfWalletData != undefined) {
+      var usdtBalanceParsed = Number(usdtBalanceOfWalletData) / (10 ** 18);
+      Log("----> usdtBalanceParsed: " + usdtBalanceParsed);
+      setUsdtBalanceOfWalletConnected(usdtBalanceParsed);
 
-  const {writeContract, data: writeData, status: writeStatus, error: writeError } = useWriteContract()
+    }
+  }, [usdtBalanceOfWalletData]);
+
+  const { writeContract, data: writeData, status: writeStatus, error: writeError } = useWriteContract()
   const [writeType, setWriteType] = useState(0);
   const [usdtAllowanceIsLoading, setUsdtAllowanceIsLoading] = useState(0);
   const [isBuyWithUsdtLoading, setIsBuyWithUsdtLoading] = useState(0);
   const [usdtAllowanceData, setUsdtAllowanceData] = useState(0);
   const [buyWithUsdtData, setBuyWithUsdtData] = useState(0);
-  useEffect(() =>
-    {
-      console.log("writeType", writeType)
-      console.log("writeData", writeData)
-      console.log("writeStatus", writeStatus)
-      console.log("writeError", writeError)
-      if (writeType == "approve") {
-        if(writeStatus == "pending") {
-          setUsdtAllowanceIsLoading(true)
-        } else if (writeStatus == "success"){
-          setUsdtAllowanceIsLoading(false)
-          setUsdtAllowanceData(writeData)
-        } else {
-          setUsdtAllowanceIsLoading(false)
-        }
-      } else if (writeType == "buy") {
-        if(writeStatus == "pending") {
-          setIsBuyWithUsdtLoading(true)
-        } else if (writeStatus == "success"){
-          setIsBuyWithUsdtLoading(false)
-          setBuyWithUsdtData(writeData)
-        } else {
-          setIsBuyWithUsdtLoading(false)
-        }
+  useEffect(() => {
+    console.log("writeType", writeType)
+    console.log("writeData", writeData)
+    console.log("writeStatus", writeStatus)
+    console.log("writeError", writeError)
+    if (writeType == "approve") {
+      if (writeStatus == "pending") {
+        setUsdtAllowanceIsLoading(true)
+      } else if (writeStatus == "success") {
+        setUsdtAllowanceIsLoading(false)
+        setUsdtAllowanceData(writeData)
+      } else {
+        setUsdtAllowanceIsLoading(false)
       }
+    } else if (writeType == "buy") {
+      if (writeStatus == "pending") {
+        setIsBuyWithUsdtLoading(true)
+      } else if (writeStatus == "success") {
+        setIsBuyWithUsdtLoading(false)
+        setBuyWithUsdtData(writeData)
+      } else {
+        setIsBuyWithUsdtLoading(false)
+      }
+    }
 
-    }, [writeData, writeStatus, writeError]);
+  }, [writeData, writeStatus, writeError]);
 
 
   const {
@@ -238,8 +251,7 @@ const BuyWithUsdtModal = () =>
     hash: buyWithUsdtData,
   });
 
-  function setTokensFromUsdt(usdtSet)
-  {
+  function setTokensFromUsdt(usdtSet) {
     Log("Buy with USDT - Tokens: " + tokens + " - UsdtValue: " + usdtSet);
     if (!presaleData)
       return;
@@ -248,8 +260,7 @@ const BuyWithUsdtModal = () =>
     setTokens(tokens);
   }
 
-  useEffect(() =>
-  {
+  useEffect(() => {
     if (waitForTransactionUsdtAllowanceIsSuccess) {
       setRefetchCount(prev => prev + 1);
     }
@@ -257,34 +268,31 @@ const BuyWithUsdtModal = () =>
     waitForTransactionUsdtAllowanceIsError,
     waitForTransactionUsdtAllowanceError]);
 
-    useEffect(() => {
-      if (refetchCount > 0) {
-        console.log("refetch information", accountAllowancePublic, usdtAllowanceHelper)
-        setAccountAllowance(0)
-        refetchPresaleData();
-        refetchUsdtAllowanceHelper();
-        refetchAccountAllowanceHelper();
-        refetchUsdtBalanceOfWalletData();
-      }
-    }, [refetchCount, refetchPresaleData, refetchAccountAllowanceHelper, refetchUsdtAllowanceHelper, refetchUsdtBalanceOfWalletData]);
+  useEffect(() => {
+    if (refetchCount > 0) {
+      console.log("refetch information", accountAllowancePublic, usdtAllowanceHelper)
+      setAccountAllowance(0)
+      refetchPresaleData();
+      refetchUsdtAllowanceHelper();
+      refetchAccountAllowanceHelper();
+      refetchUsdtBalanceOfWalletData();
+    }
+  }, [refetchCount, refetchPresaleData, refetchAccountAllowanceHelper, refetchUsdtAllowanceHelper, refetchUsdtBalanceOfWalletData]);
 
-  useEffect(() =>
-  {
+  useEffect(() => {
     if (!presaleData)
       return;
     var presale = new Presale(presaleData);
     var usdtValue = tokens * presale.price;
     Log("Buy with USDT - Tokens: " + tokens + " - UsdtValue: " + usdtValue + " - usdtBalanceOfWalletConnected: " + usdtBalanceOfWalletConnected);
     setUsdt(usdtValue);
-    if (usdtValue <= usdtBalanceOfWalletConnected)
-    {
+    if (usdtValue <= usdtBalanceOfWalletConnected) {
       setUsdtInputBoxClassName("rounded-none rounded-l-lg border bg-gray-300 border border-gray-300 text-gray-900 block cursor-not-allowed flex-1 min-w-0 w-full text-sm p-2.5 placeholder-gray-400 focus:ring-red-500");
       setUsdtInputBoxError("");
       setConvertToUsdtButtonClass("bg-red-600 text-white md:hover:text-white md:hover:bg-slate-300 active:bg-red-900 font-bold uppercase text-base px-8 py-3 rounded-[24px] shadow-md md:hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150");
       setConvertToUsdtDisabled(false);
     }
-    else
-    {
+    else {
       setUsdtInputBoxClassName("rounded-none rounded-l-lg border bg-red-50 border border-red-500 text-red-900 block cursor-not-allowed flex-1 min-w-0 w-full text-sm p-2.5 placeholder-gray-400 focus:ring-red-500");
       setUsdtInputBoxError(
         <>
@@ -298,21 +306,17 @@ const BuyWithUsdtModal = () =>
       setConvertToUsdtDisabled(true);
     }
   }, [tokens, presaleData, usdtBalanceOfWalletConnected]);
-  useEffect(() =>
-  {
-    if (waitForTransactionIsLoading || usdtAllowanceIsLoading || isBuyWithUsdtLoading || waitForTransactionUsdtAllowanceIsLoading)
-    {
+  useEffect(() => {
+    if (waitForTransactionIsLoading || usdtAllowanceIsLoading || isBuyWithUsdtLoading || waitForTransactionUsdtAllowanceIsLoading) {
       setConvertToUsdtDisabled(true);
       setConvertToUsdtButtonClass("cursor-not-allowed bg-gray-300 text-neutral-900 text-white font-bold uppercase text-base px-8 py-3 rounded-[24px] shadow-md md:hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150");
     }
-    else
-    {
+    else {
       setConvertToUsdtDisabled(false);
       setConvertToUsdtButtonClass("bg-red-600 text-white md:hover:text-white md:hover:bg-slate-300 active:bg-red-900 font-bold uppercase text-base px-8 py-3 rounded-[24px] shadow-md md:hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150");
     }
 
-    if (usdtAllowanceIsLoading || waitForTransactionUsdtAllowanceIsLoading)
-    {
+    if (usdtAllowanceIsLoading || waitForTransactionUsdtAllowanceIsLoading) {
       Log("##### waitForTransactionIsLoading -> " + waitForTransactionIsLoading);
       setConvertToUsdtInProcessText(
         <>
@@ -328,8 +332,7 @@ const BuyWithUsdtModal = () =>
           </div>
         </>);
     }
-    else if (isBuyWithUsdtLoading || waitForTransactionIsLoading)
-    {
+    else if (isBuyWithUsdtLoading || waitForTransactionIsLoading) {
       Log("##### usdtAllowanceIsLoading -> " + usdtAllowanceIsLoading);
       setConvertToUsdtInProcessText(
         <>
@@ -345,8 +348,7 @@ const BuyWithUsdtModal = () =>
           </div>
         </>);
     }
-    else if (waitForTransactionIsSuccess)
-    {
+    else if (waitForTransactionIsSuccess) {
       Log("##### usdtAllowanceIsLoading -> " + usdtAllowanceIsLoading);
       setRefetchCount(prev => prev + 1);
       setConvertToUsdtInProcessText(
@@ -357,8 +359,7 @@ const BuyWithUsdtModal = () =>
           </div>
         </>);
     }
-    else
-    {
+    else {
       Log("##### setConvertToUsdtInProcessText Empty");
       setConvertToUsdtInProcessText("");
     }
@@ -433,31 +434,30 @@ const BuyWithUsdtModal = () =>
                   <button
                     className={`${convertToUsdtButtonClass}`}
                     disabled={convertToUsdtDisabled}
-                    onClick={(e) =>
-                    {
+                    onClick={(e) => {
                       e.preventDefault();
                       if (accountAllowancePublic >= usdtAllowanceHelper) {
                         setWriteType("buy")
                         writeContract({
-                          address: process.env.NEXT_PUBLIC_CONTRACT_ADDRESS.toString(),
-                          abi: JSON.parse(process.env.NEXT_PUBLIC_CONTRACT_ABI),
+                          address: contractAddress,
+                          abi: JSON.parse(abi),
                           functionName: 'buyWithUSDT',
-                          chainId: parseInt(process.env.NEXT_PUBLIC_CHAIN_ID),
-                          args: [process.env.NEXT_PUBLIC_PRESALE_ID, tokens],
+                          chainId: parseInt(chainId),
+                          args: [presaleId, tokens],
                           enabled: useAccountIsConnected && (accountAllowancePublic >= usdtAllowanceHelper),
                         });
                       }
                       else {
                         setWriteType("approve")
                         writeContract({
-                            address: usdtContractAddress,
-                            abi: JSON.parse(process.env.NEXT_PUBLIC_STABLE_COIN_CONTRACT_ABI),
-                            functionName: 'approve',
-                            chainId: parseInt(process.env.NEXT_PUBLIC_CHAIN_ID),
-                            // USDT has 6 decimals
-                            args: [process.env.NEXT_PUBLIC_CONTRACT_ADDRESS.toString(), usdtAllowanceHelper],
-                            enabled: useAccountIsConnected,
-                          });
+                          address: usdtContractAddress,
+                          abi: JSON.parse(stableCoinAbi),
+                          functionName: 'approve',
+                          chainId: parseInt(chainId),
+                          // USDT has 6 decimals
+                          args: [contractAddress, usdtAllowanceHelper],
+                          enabled: useAccountIsConnected,
+                        });
                       }
                     }}>
                     CONVERT USDT

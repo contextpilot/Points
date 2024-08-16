@@ -1,23 +1,23 @@
 // Rainbow and Wagmi integration guide: https://billyjitsu.hashnode.dev/the-rainbowkit-wagmi-guide-i-wish-i-had
 import { ConnectButton } from '@rainbow-me/rainbowkit';
-import
-{
-    useAccount,
-    useContractRead,
-    useContractWrite,
-    usePrepareContractWrite,
-    useWaitForTransaction,
+import {
+useAccount,
+useContractWrite,
+usePrepareContractWrite,
+useWaitForTransaction,
 } from "wagmi";
 import { useState, useEffect } from "react";
 
-export default function PresaleData()
-{
+export default function PresaleData() {
     /**
      * @fn Log
      * @brief Log to console
      */
-    function Log(stringToLog)
-    {
+    const { chain } = useAccount();
+    const [contractAddress, setContractAddress] = useState('');
+    const [presaleId, setPresaleId] = useState('');
+
+    function Log(stringToLog) {
         const timeElapsed = Date.now();
         const today = new Date(timeElapsed);
         console.log(today.toUTCString() + " | " + stringToLog);
@@ -27,13 +27,10 @@ export default function PresaleData()
     * @class Presale
     * @brief Presale Data
     */
-    class Presale
-    {
-        constructor(presaleData)
-        {
+    class Presale {
+        constructor(presaleData) {
             this.preSaleDataLocal = presaleData;
-            if (this.preSaleDataLocal)
-            {
+            if (this.preSaleDataLocal) {
                 var presaleSplit = presaleData.toString().split(",");
                 var counter = 0;
                 this.saleToken = presaleSplit[counter++];
@@ -53,10 +50,8 @@ export default function PresaleData()
             }
         }
 
-        get HtmlOutput()
-        {
-            if (this.preSaleDataLocal)
-            {
+        get HtmlOutput() {
+            if (this.preSaleDataLocal) {
                 return (
                     <>
                         <p>Sale Token: {this.saleToken}</p>
@@ -84,8 +79,7 @@ export default function PresaleData()
     * @fn printPresaleData
     * @brief Print Presale Data
     */
-    function printPresaleData(presaleData)
-    {
+    function printPresaleData(presaleData) {
         var preSale = new Presale(presaleData);
         setPresaleDataParsed(preSale.HtmlOutput);
     }
@@ -97,19 +91,31 @@ export default function PresaleData()
         isError: presaleIsError,
         isLoading: presaleIsLoading,
         status: presaleStatus } = useContractRead({
-            address: process.env.NEXT_PUBLIC_CONTRACT_ADDRESS.toString(),
-            abi: process.env.NEXT_PUBLIC_CONTRACT_ABI,
+            address: contractAddress,
+            abi: abi,
             functionName: "presale",
-            args: [process.env.NEXT_PUBLIC_PRESALE_ID],
+            args: [presaleId],
             watch: false,
         });
 
     /* ------------------- */
-
+    // Dynamically set the contract address based on the current chain
+    useEffect(() => {
+        if (chain) {
+            if (chain.id === 56) { // BNB
+                setContractAddress(process.env.NEXT_PUBLIC_CONTRACT_ADDRESS);
+                setPresaleId(process.env.NEXT_PUBLIC_PRESALE_ID);
+            } else if (chain.id === 204) { // OPBNB
+                setContractAddress(process.env.NEXT_PUBLIC_CONTRACT_ADDRESS_OPBNB);
+                setPresaleId(process.env.NEXT_PUBLIC_PRESALE_ID_OPBNB);
+            } else {
+                console.error('Unsupported network');
+            }
+        }
+    }, [chain]);
 
     /* Wallet Connected / Disconnected */
-    useEffect(() =>
-    {
+    useEffect(() => {
         Log("----------> presaleData: " + presaleData);
         Log("----------> presaleDataError: " + presaleDataError);
         Log("----------> presaleIsError: " + presaleIsError);
@@ -118,8 +124,7 @@ export default function PresaleData()
         printPresaleData(presaleData);
     }, [presaleData, presaleDataError, presaleIsError, presaleIsLoading, presaleStatus]);
 
-    const renderContent = () =>
-    {
+    const renderContent = () => {
         return (
             <>
                 <h3 classNames="magenta normal">Presale Data:</h3>

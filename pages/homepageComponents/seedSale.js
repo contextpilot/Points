@@ -44,6 +44,10 @@ export default function SeedSale() {
     const [correctAnswers, setCorrectAnswers] = useState(0);
     const [totalAnswers, setTotalAnswers] = useState(0);
     const [points, setPoints] = useState(0);
+    const { chain } = useAccount();
+    const [contractAddress, setContractAddress] = useState(process.env.NEXT_PUBLIC_CONTRACT_ADDRESS);
+    const [abi, setAbi] = useState(process.env.NEXT_PUBLIC_CONTRACT_ABI);
+    const [presaleId, setPresaleId] = useState(process.env.NEXT_PUBLIC_PRESALE_ID);
 
     const onSuccessfulPurchase = () => {
         console.log('Purchase was successful!');
@@ -81,7 +85,7 @@ export default function SeedSale() {
 
             setCorrectAnswers(data.correct_answers || 0);
             setTotalAnswers(data.total_answers || 0);
-            setPoints(data.correct_answers*100 || 0);
+            setPoints(data.correct_answers * 100 || 0);
         }
     }, [useAccountAddress]);
 
@@ -146,6 +150,23 @@ export default function SeedSale() {
         setPresaleDataParsed(preSale);
     }
 
+    // Dynamically set the contract address based on the current chain
+    useEffect(() => {
+        if (chain) {
+            if (chain.id === 56) { // BNB
+                setContractAddress(process.env.NEXT_PUBLIC_CONTRACT_ADDRESS);
+                setAbi(process.env.NEXT_PUBLIC_CONTRACT_ABI);
+                setPresaleId(process.env.NEXT_PUBLIC_PRESALE_ID);
+            } else if (chain.id === 204) { // OPBNB
+                setContractAddress(process.env.NEXT_PUBLIC_CONTRACT_ADDRESS_OPBNB);
+                setAbi(process.env.NEXT_PUBLIC_CONTRACT_ABI);
+                setPresaleId(process.env.NEXT_PUBLIC_PRESALE_ID_OPBNB);
+            } else {
+                console.error('Unsupported network');
+            }
+        }
+    }, [chain]);
+
     const { data: presaleData,
         error: presaleDataError,
         isError: presaleIsError,
@@ -153,10 +174,10 @@ export default function SeedSale() {
         status: presaleStatus,
         refetch: refetchPresaleData,
     } = useContractRead({
-        address: process.env.NEXT_PUBLIC_CONTRACT_ADDRESS.toString(),
-        abi: JSON.parse(process.env.NEXT_PUBLIC_CONTRACT_ABI),
+        address: contractAddress,
+        abi: JSON.parse(abi),
         functionName: "presale",
-        args: [process.env.NEXT_PUBLIC_PRESALE_ID],
+        args: [presaleId],
         watch: false,
     });
 
@@ -178,10 +199,10 @@ export default function SeedSale() {
         status: userVestingStatus,
         refetch: refetchUserVestingData,
     } = useContractRead({
-        address: process.env.NEXT_PUBLIC_CONTRACT_ADDRESS.toString(),
-        abi: JSON.parse(process.env.NEXT_PUBLIC_CONTRACT_ABI),
+        address: contractAddress,
+        abi: JSON.parse(abi),
         functionName: "userVesting",
-        args: [useAccountAddress, process.env.NEXT_PUBLIC_PRESALE_ID],
+        args: [useAccountAddress, presaleId],
         watch: true,
     });
 
@@ -190,9 +211,7 @@ export default function SeedSale() {
     const [displayUserVestingData, setDisplayUserVestingData] = useState(null);
 
     useEffect(() => {
-        if (!presaleDataParsed) {
-            return;
-        }
+        if (!presaleDataParsed) return;
 
         if (!useAccountAddress) {
             setDisplayPresaleData(
@@ -247,46 +266,43 @@ export default function SeedSale() {
         };
 
         fetchData(); // Initial fetch
-
         const intervalId = setInterval(fetchData, 10000); // Fetch data every 10 seconds
 
         return () => clearInterval(intervalId); // Clear interval on component unmount
     }, [fetchApiUsageData, refetchPresaleData, refetchUserVestingData]);
 
     return (
-        <>
-            <div className="text-center">
-                <div className="box-cont h-fit w-fit px-14 mb-10 py-8 shadow-md bg-neutral-900 rounded-lg">
-                    <h7 className="text-white font-bold">
-                        ✅ Limited API credit sale <br />
-                    </h7>
-                    <h4 className="text-white font-bold text-4xl">
-                        1 Credit = {presaleDataParsed?.price?.toFixed(4)}$
-                    </h4>
-                    <p className="text-white mb-4">
-                        1 Credit = 10,000 tokens in API calls
+        <div className="text-center">
+            <div className="box-cont h-fit w-fit px-14 mb-10 py-8 shadow-md bg-neutral-900 rounded-lg">
+                <h7 className="text-white font-bold">
+                    ✅ Limited API credit sale <br />
+                </h7>
+                <h4 className="text-white font-bold text-4xl">
+                    1 Credit = {presaleDataParsed?.price?.toFixed(4)}$
+                </h4>
+                <p className="text-white mb-4">
+                    1 Credit = 10,000 tokens in API calls
+                </p>
+                <div className="my-4">
+                    <p className="text-white">
+                        Used / Allowed Tokens: {usedTokens} / {allowedTokens}
                     </p>
-                    <div className="my-4">
-                        <p className="text-white">
-                            Used / Allowed Tokens: {usedTokens} / {allowedTokens}
-                        </p>
-                        <p className="text-white">
-                            Correct / Total Answers: {correctAnswers} / {totalAnswers}
-                        </p>
-                        <p className="text-white">
-                            Points earned: {points}
-                        </p>
-                    </div>
-                    {displayPresaleData}
-                    <div className="flex place-items-center justify-around">
-                        {displayUserVestingData}
-                    </div>
-                    {displayBuyData}
-                    <div className="flex place-items-center justify-around">
-                        <ConnectButton />
-                    </div>
+                    <p className="text-white">
+                        Correct / Total Answers: {correctAnswers} / {totalAnswers}
+                    </p>
+                    <p className="text-white">
+                        Points earned: {points}
+                    </p>
+                </div>
+                {displayPresaleData}
+                <div className="flex place-items-center justify-around">
+                    {displayUserVestingData}
+                </div>
+                {displayBuyData}
+                <div className="flex place-items-center justify-around">
+                    <ConnectButton />
                 </div>
             </div>
-        </>
+        </div>
     );
 }
