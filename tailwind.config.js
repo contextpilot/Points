@@ -14,7 +14,12 @@ module.exports = {
       wide: '.025em',
       wider: '.05em',
       widest: '6.4px',
-    }
+    },
+    extend: {
+      fontFamily: {
+        'irish-grover': ['Irish Grover', 'cursive'],
+      },
+    },
   },
   plugins: [
     require('flowbite/plugin')
