@@ -21,7 +21,7 @@ const CreditCardModal = ({ evmAddress }) => {
 
   const fetchCreditScore = async () => {
     try {
-      const response = await fetch(`https://main-wjaxre4ena-uc.a.run.app/api_usage?address=${evmAddress}?type=credit_checkin`);
+      const response = await fetch(`https://main-wjaxre4ena-uc.a.run.app/api_usage?address=${evmAddress}&type=credit_checkin`);
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
