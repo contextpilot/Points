@@ -28,7 +28,7 @@ function UserVesting({ userVestingData, userAddress }) {
                 </g>
             </svg>
             <div className="pl-4 text-sm font-normal">
-                You already own {new Intl.NumberFormat().format(totalAmount)} Credits<br />
+                You own {new Intl.NumberFormat().format(totalAmount)} Credits<br />
                 Secret key: {showKey ? secretKeyPart : "****"}
                 <button onClick={toggleKeyVisibility} className="pl-2 text-blue-500">{showKey ? "Hide" : "Show"}</button>
             </div>
@@ -38,7 +38,7 @@ function UserVesting({ userVestingData, userAddress }) {
 
 export default function SeedSale() {
     const { address: useAccountAddress, isConnected: useAccountIsConnected } = useAccount();
-    const [isBuyWithCreditCardModalOpen, setBuyWithCreditCardModalOpen] = useState(false);
+    const [isCreditCardModalOpen, setIsCreditCardModalOpen] = useState(false);
     const [allowedTokens, setAllowedTokens] = useState(0);
     const [usedTokens, setUsedTokens] = useState(0);
     const [presaleDataParsed, setPresaleDataParsed] = useState(null);
@@ -83,7 +83,6 @@ export default function SeedSale() {
             const data = await fetchApiUsage(useAccountAddress);
             setAllowedTokens(data.allowed_tokens);
             setUsedTokens(data.used_tokens);
-
             setCorrectAnswers(data.correct_answers || 0);
             setTotalAnswers(data.total_answers || 0);
             setPoints(data.correct_answers * 100 || 0);
@@ -146,12 +145,11 @@ export default function SeedSale() {
         }
     }
 
-    function printPresaleData(presaleData) {
+    const printPresaleData = (presaleData) => {
         const preSale = new Presale(presaleData);
         setPresaleDataParsed(preSale);
-    }
+    };
 
-    // Dynamically set the contract address based on the current chain
     useEffect(() => {
         if (chain) {
             if (chain.id === 56) { // BNB
@@ -210,7 +208,6 @@ export default function SeedSale() {
     const [displayPresaleData, setDisplayPresaleData] = useState(null);
     const [displayBuyData, setBuyData] = useState(null);
     const [displayUserVestingData, setDisplayUserVestingData] = useState(null);
-    const [isCreditCardModalOpen, setIsCreditCardModalOpen] = useState(false);
 
     useEffect(() => {
         if (!presaleDataParsed) return;
@@ -259,7 +256,6 @@ export default function SeedSale() {
         }
     }, [useAccountAddress, presaleDataParsed, userVestingData]);
 
-    // Set up interval to refetch data every 10 seconds
     useEffect(() => {
         const fetchData = async () => {
             await fetchApiUsageData();
@@ -276,21 +272,21 @@ export default function SeedSale() {
     return (
         <div className="text-center">
             <div className="box-cont h-fit w-fit px-14 mb-10 py-8 shadow-md bg-neutral-900 rounded-lg">
-                <h7 className="text-white font-bold">
-                    ✅ Limited API credit sale <br />
-                </h7>
-                <h4 className="text-white font-bold text-4xl">
-                    1 Credit = {presaleDataParsed?.price?.toFixed(4)}$
-                </h4>
-                <p className="text-white mb-4">
-                    1 Credit = 10,000 tokens in API calls
-                </p>
-                <div className="my-4">
+                {/* Replace the existing header with the "Witch Card" button */}
+                <button
+                    onClick={() => setIsCreditCardModalOpen(true)}
+                    className="mt-4 bg-blue-500 text-white px-4 py-2 rounded"
+                >
+                    Witch Card
+                </button>
+    
+                {/* Smaller font size for this section */}
+                <div className="my-4 text-sm">
                     <p className="text-white">
-                        Used / Allowed Tokens: {usedTokens} / {allowedTokens}
+                        Used / Allowed Tokens: <br /> {usedTokens} / {allowedTokens}
                     </p>
                     <p className="text-white">
-                        Correct / Total Answers: {correctAnswers} / {totalAnswers}
+                        Correct / Total Answers: <br /> {correctAnswers} / {totalAnswers}
                     </p>
                     <p className="text-white">
                         Points earned: {points}
@@ -304,19 +300,13 @@ export default function SeedSale() {
                 <div className="flex place-items-center justify-around">
                     <ConnectButton />
                 </div>
-                <button
-                    onClick={() => setIsCreditCardModalOpen(true)}
-                    className="mt-4 bg-blue-500 text-white px-4 py-2 rounded"
-                >
-                    Witch Card
-                </button>
             </div>
-            
+    
             {isCreditCardModalOpen && (
                 <div className="fixed inset-0 flex items-center justify-center z-50">
                     <div className="bg-black opacity-50 absolute inset-0"></div>
                     <div className="relative z-10">
-                        <CreditCardModal />
+                        <CreditCardModal evmAddress={useAccountAddress} />
                         <button onClick={() => setIsCreditCardModalOpen(false)} className="mt-4 bg-red-500 text-white px-4 py-2 rounded">
                             Close
                         </button>
