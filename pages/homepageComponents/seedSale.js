@@ -3,6 +3,7 @@ import { useAccount, useContractRead } from 'wagmi';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import React from 'react';
 import BuyWithUsdtModal from './buyWithUsdtModal';
+import CreditCardModal from './CreditCardModal';
 
 function UserVesting({ userVestingData, userAddress }) {
     if (!userVestingData) {
@@ -209,6 +210,7 @@ export default function SeedSale() {
     const [displayPresaleData, setDisplayPresaleData] = useState(null);
     const [displayBuyData, setBuyData] = useState(null);
     const [displayUserVestingData, setDisplayUserVestingData] = useState(null);
+    const [isCreditCardModalOpen, setIsCreditCardModalOpen] = useState(false);
 
     useEffect(() => {
         if (!presaleDataParsed) return;
@@ -302,7 +304,25 @@ export default function SeedSale() {
                 <div className="flex place-items-center justify-around">
                     <ConnectButton />
                 </div>
+                <button
+                    onClick={() => setIsCreditCardModalOpen(true)}
+                    className="mt-4 bg-blue-500 text-white px-4 py-2 rounded"
+                >
+                    Witch Card
+                </button>
             </div>
+            
+            {isCreditCardModalOpen && (
+                <div className="fixed inset-0 flex items-center justify-center z-50">
+                    <div className="bg-black opacity-50 absolute inset-0"></div>
+                    <div className="relative z-10">
+                        <CreditCardModal />
+                        <button onClick={() => setIsCreditCardModalOpen(false)} className="mt-4 bg-red-500 text-white px-4 py-2 rounded">
+                            Close
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

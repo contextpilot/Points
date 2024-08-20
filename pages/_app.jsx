@@ -12,6 +12,7 @@ import { Analytics } from '@vercel/analytics/react';
 import { useEffect, useState } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js';
+import Head from 'next/head'; // Import Head component from next/head
 
 const config = getDefaultConfig({
   appName: 'Context Pilot',
@@ -44,20 +45,25 @@ export default function App({ Component, pageProps }) {
   }, []);
 
   return (
-    <Elements stripe={stripePromise}>
-      <WagmiProvider config={config}>
-        <QueryClientProvider client={queryClient}>
-          <RainbowKitProvider theme={darkTheme({
-            accentColor: '#E02424',
-            accentColorForeground: 'white',
-            borderRadius: 'large',
-            fontStack: 'system',
-          })}>
-            <Component {...pageProps} />
-            <Analytics />
-          </RainbowKitProvider>
-        </QueryClientProvider>
-      </WagmiProvider>
-    </Elements>
+    <>
+      <Head>
+        <link href="https://fonts.googleapis.com/css2?family=Irish+Grover&display=swap" rel="stylesheet" />
+      </Head>
+      <Elements stripe={stripePromise}>
+        <WagmiProvider config={config}>
+          <QueryClientProvider client={queryClient}>
+            <RainbowKitProvider theme={darkTheme({
+              accentColor: '#E02424',
+              accentColorForeground: 'white',
+              borderRadius: 'large',
+              fontStack: 'system',
+            })}>
+              <Component {...pageProps} />
+              <Analytics />
+            </RainbowKitProvider>
+          </QueryClientProvider>
+        </WagmiProvider>
+      </Elements>
+    </>
   );
 }
