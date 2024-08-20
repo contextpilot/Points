@@ -54,6 +54,15 @@ const CreditCardModal = ({ evmAddress }) => {
           />
           <div className="left-[47px] top-[241px] absolute text-black text-3xl font-normal font-irish-grover">Credit Score</div>
           <div className="left-[63px] top-[22px] absolute text-black text-3xl font-normal font-irish-grover">Witch Card</div>
+          <div className="left-[47px] top-[375px] absolute text-blue-500 text-sm font-irish-grover underline block">
+            <a
+              href="https://doc.context-pilot.xyz/the-witch-card/credit-score"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              How to get credit score
+            </a>
+          </div>
           <div className="left-[25px] top-[402px] absolute text-black text-xl font-normal font-irish-grover">witch.xxxxx.[eth/bnb/sol/?]</div>
           <div className="left-[71px] top-[310px] absolute text-black text-3xl font-normal font-irish-grover">{creditScore}</div>
           <Image
@@ -87,6 +96,14 @@ const CreditCardModal = ({ evmAddress }) => {
             height={24}
             onClick={handleClick}
           />
+          <a
+            href="https://doc.context-pilot.xyz/the-witch-card/credit-score"
+            className="left-[268px] top-[175px] absolute text-blue-500 text-sm font-irish-grover underline block"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            How to get credit score
+          </a>
         </div>
       )}
     </div>
