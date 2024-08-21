@@ -7,6 +7,7 @@ import {
     faTelegram,
     faDiscord
 } from "@fortawesome/free-brands-svg-icons";
+import { faBook } from "@fortawesome/free-solid-svg-icons";
 
 export default function Footer() {
     return (
@@ -24,13 +25,13 @@ export default function Footer() {
                             <span className="sr-only">VS Code</span>
                         </a>
                         <a 
-                            href="https://youtu.be/MbSJaAMSErU" 
+                            href="https://doc.context-pilot.xyz/" 
                             className="text-gray-400 hover:text-white" 
                             target="_blank" 
                             rel="noopener noreferrer"
                         >
-                            <FontAwesomeIcon icon={faYoutube} className="mr-2" />
-                            <span className="sr-only">YouTube channel</span>
+                            <FontAwesomeIcon icon={faBook} className="mr-2" />
+                            <span className="sr-only">GitBook Documentation</span>
                         </a>
                         <a 
                             href="https://x.com/PilotContext" 
@@ -40,15 +41,6 @@ export default function Footer() {
                         >
                             <FontAwesomeIcon icon={faTwitter} className="mr-2" />
                             <span className="sr-only">Twitter page</span>
-                        </a>
-                        <a 
-                            href="https://github.com/contextpilot" 
-                            className="text-gray-400 hover:text-white" 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                        >
-                            <FontAwesomeIcon icon={faGithub} className="mr-2" />
-                            <span className="sr-only">Github page</span>
                         </a>
                         <a 
                             href="https://t.me/PilotContext" 
@@ -67,6 +59,15 @@ export default function Footer() {
                         >
                             <FontAwesomeIcon icon={faDiscord} className="mr-2" />
                             <span className="sr-only">Discord server</span>
+                        </a>
+                        <a 
+                            href="https://github.com/contextpilot" 
+                            className="text-gray-400 hover:text-white" 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                        >
+                            <FontAwesomeIcon icon={faGithub} className="mr-2" />
+                            <span className="sr-only">Github page</span>
                         </a>
                     </div>
                     <span className="text-sm text-gray-300 mb-4">
