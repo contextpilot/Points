@@ -338,6 +338,12 @@ export default function SeedSale() {
                 {showAirdropMessage && airdropError && (
                     <div className="my-4 text-sm bg-red-500 text-white p-2 rounded relative">
                         Error: {airdropError}
+                        Airdrop rules: <a href={`https://doc.context-pilot.xyz/the-witch-card/g-airdrop`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="underline text-blue-200">
+                                            doc link
+                                        </a>
                         <button 
                             onClick={() => setShowAirdropMessage(false)} 
                             className="absolute top-0 right-0 mt-2 mr-2 bg-white text-black text-sm px-2 rounded"
@@ -354,6 +360,12 @@ export default function SeedSale() {
                                             rel="noopener noreferrer"
                                             className="underline text-blue-200">
                                             transaction link
+                                        </a>
+                        Airdrop rules: <a href={`https://doc.context-pilot.xyz/the-witch-card/g-airdrop`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="underline text-blue-200">
+                                            doc link
                                         </a>
                         <button 
                             onClick={() => setShowAirdropMessage(false)} 
