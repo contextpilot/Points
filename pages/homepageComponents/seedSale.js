@@ -45,6 +45,10 @@ export default function SeedSale() {
     const [correctAnswers, setCorrectAnswers] = useState(0);
     const [totalAnswers, setTotalAnswers] = useState(0);
     const [points, setPoints] = useState(0);
+    const [loadingAirdrop, setLoadingAirdrop] = useState(false);
+    const [airdropResult, setAirdropResult] = useState(null); // Added state for airdrop result
+    const [airdropError, setAirdropError] = useState(null);
+    const [showAirdropMessage, setShowAirdropMessage] = useState(false);
     const { chain } = useAccount();
     const [contractAddress, setContractAddress] = useState(process.env.NEXT_PUBLIC_CONTRACT_ADDRESS);
     const [abi, setAbi] = useState(process.env.NEXT_PUBLIC_CONTRACT_ABI);
@@ -149,6 +153,38 @@ export default function SeedSale() {
         const preSale = new Presale(presaleData);
         setPresaleDataParsed(preSale);
     };
+    const handleGairdrop = async () => {
+        setLoadingAirdrop(true);
+        setAirdropResult(null); // Clear previous result
+        setAirdropError(null);  // Clear previous error
+        setShowAirdropMessage(false); // Clear previous message visibility
+        try {
+            const response = await fetch('https://main-wjaxre4ena-uc.a.run.app/gairdrop', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ to_address: useAccountAddress }),
+            });
+    
+            const data = await response.json();
+    
+            if (!response.ok) {
+                setAirdropError(data.error || 'Error with G airdrop');
+                setShowAirdropMessage(true);
+                throw new Error(data.error || 'Error with G airdrop');
+            }
+    
+            setAirdropResult(data);
+            setShowAirdropMessage(true);
+        } catch (error) {
+            console.error('Error with G airdrop:', error);
+        } finally {
+            setLoadingAirdrop(false);
+        }
+    };
+
+    // ... [Other necessary functions such as fetchApiUsage function] ...
 
     useEffect(() => {
         if (chain) {
@@ -272,15 +308,22 @@ export default function SeedSale() {
     return (
         <div className="text-center">
             <div className="box-cont h-fit w-fit px-14 mb-10 py-8 shadow-md bg-neutral-900 rounded-lg">
-                {/* Replace the existing header with the "Witch Card" button */}
-                <button
-                    onClick={() => setIsCreditCardModalOpen(true)}
-                    className="mt-4 bg-blue-500 text-white px-4 py-2 rounded"
-                >
-                    Witch Card
-                </button>
-    
-                {/* Smaller font size for this section */}
+                <div className="flex space-x-4 justify-center">  {/* Centering the button group */}
+                    <button
+                        onClick={() => setIsCreditCardModalOpen(true)}
+                        className="mt-4 bg-blue-500 text-white px-4 py-2 rounded"
+                    >
+                        Witch Card
+                    </button>
+                    <button
+                        onClick={handleGairdrop}
+                        className="mt-4 bg-green-500 text-white px-4 py-2 rounded"
+                        disabled={loadingAirdrop}
+                    >
+                        {loadingAirdrop ? 'Loading...' : 'G airdrop'}
+                    </button>
+                </div>
+
                 <div className="my-4 text-sm">
                     <p className="text-white">
                         Used / Allowed Tokens: <br /> {usedTokens} / {allowedTokens}
@@ -292,6 +335,29 @@ export default function SeedSale() {
                         Points earned: {points}
                     </p>
                 </div>
+                {showAirdropMessage && airdropError && (
+                    <div className="my-4 text-sm bg-red-500 text-white p-2 rounded relative">
+                        Error: {airdropError}
+                        <button 
+                            onClick={() => setShowAirdropMessage(false)} 
+                            className="absolute top-0 right-0 mt-2 mr-2 bg-white text-black text-sm px-2 rounded"
+                        >
+                            x
+                        </button>
+                    </div>
+                )}
+                {showAirdropMessage && airdropResult && (
+                    <div className="my-4 text-sm bg-green-500 text-white p-2 rounded relative">
+                        Airdrop successful!<br />
+                        Transaction Hash: {airdropResult.transaction_hash}
+                        <button 
+                            onClick={() => setShowAirdropMessage(false)} 
+                            className="absolute top-0 right-0 mt-2 mr-2 bg-white text-black text-sm px-2 rounded"
+                        >
+                            x
+                        </button>
+                    </div>
+                )}
                 {displayPresaleData}
                 <div className="flex place-items-center justify-around">
                     {displayUserVestingData}
@@ -301,7 +367,7 @@ export default function SeedSale() {
                     <ConnectButton />
                 </div>
             </div>
-    
+
             {isCreditCardModalOpen && (
                 <div className="fixed inset-0 flex items-center justify-center z-50">
                     <div className="bg-black opacity-50 absolute inset-0"></div>
