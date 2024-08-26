@@ -349,7 +349,12 @@ export default function SeedSale() {
                 {showAirdropMessage && airdropResult && (
                     <div className="my-4 text-sm bg-green-500 text-white p-2 rounded relative">
                         Airdrop successful!<br />
-                        Transaction Hash: {airdropResult.transaction_hash}
+                        Transaction Hash: <a href={`${airdropResult.transaction_hash}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="underline text-blue-200">
+                                            transaction link
+                                        </a>
                         <button 
                             onClick={() => setShowAirdropMessage(false)} 
                             className="absolute top-0 right-0 mt-2 mr-2 bg-white text-black text-sm px-2 rounded"
