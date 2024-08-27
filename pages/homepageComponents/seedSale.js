@@ -29,6 +29,7 @@ function UserVesting({ userVestingData, userAddress }) {
             </svg>
             <div className="pl-4 text-sm font-normal">
                 You own {new Intl.NumberFormat().format(totalAmount)} Credits<br />
+                Refer link: <br /> <a href={`https://context-pilot/${secretKeyPart}`} target="_blank" rel="noopener noreferrer" className="text-blue-500 underline">https://context-pilot/{secretKeyPart}</a><br />
                 Secret key: {showKey ? secretKeyPart : "****"}
                 <button onClick={toggleKeyVisibility} className="pl-2 text-blue-500">{showKey ? "Hide" : "Show"}</button>
             </div>
@@ -36,7 +37,7 @@ function UserVesting({ userVestingData, userAddress }) {
     );
 }
 
-export default function SeedSale() {
+export default function SeedSale( { slug } ) {
     const { address: useAccountAddress, isConnected: useAccountIsConnected } = useAccount();
     const [isCreditCardModalOpen, setIsCreditCardModalOpen] = useState(false);
     const [allowedTokens, setAllowedTokens] = useState(0);
@@ -285,12 +286,12 @@ export default function SeedSale() {
                         </svg>
                     </div>
                     <div className="flex items-center justify-center mb-6 mt-5">
-                        <BuyWithUsdtModal />
+                        <BuyWithUsdtModal slug={slug} />
                     </div>
                 </>
             );
         }
-    }, [useAccountAddress, presaleDataParsed, userVestingData]);
+    }, [useAccountAddress, presaleDataParsed, userVestingData, slug]);
 
     useEffect(() => {
         const fetchData = async () => {
