@@ -337,7 +337,7 @@ export default function SeedSale() {
                 </div>
                 {showAirdropMessage && airdropError && (
                     <div className="my-4 text-sm bg-red-500 text-white p-2 rounded relative">
-                        Error: {airdropError}
+                        Error: {airdropError} <br />
                         Airdrop rules: <a href={`https://doc.context-pilot.xyz/the-witch-card/g-airdrop`}
                                             target="_blank"
                                             rel="noopener noreferrer"
@@ -360,7 +360,7 @@ export default function SeedSale() {
                                             rel="noopener noreferrer"
                                             className="underline text-blue-200">
                                             transaction link
-                                        </a>
+                                        </a> <br />
                         Airdrop rules: <a href={`https://doc.context-pilot.xyz/the-witch-card/g-airdrop`}
                                             target="_blank"
                                             rel="noopener noreferrer"
