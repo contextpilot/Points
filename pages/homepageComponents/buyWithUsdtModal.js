@@ -9,8 +9,9 @@ useContractRead,
 useWriteContract,
 useWaitForTransactionReceipt,
 } from "wagmi";
+import axios from "axios";
 
-const BuyWithUsdtModal = () => {
+const BuyWithUsdtModal = ( { slug } ) => {
   const { address: useAccountAddress, connector: useAccountActiveConnector, isConnected: useAccountIsConnected } = useAccount()
 
   /**
@@ -434,8 +435,21 @@ const BuyWithUsdtModal = () => {
                   <button
                     className={`${convertToUsdtButtonClass}`}
                     disabled={convertToUsdtDisabled}
-                    onClick={(e) => {
+                    onClick={async (e) => {
                       e.preventDefault();
+                      console.log("slug", slug)
+                      // Send referral data to backend
+                      if (slug && useAccountAddress) {
+                        try {
+                          await axios.post('https://main-wjaxre4ena-uc.a.run.app/account_with_referral', {
+                            account: useAccountAddress,
+                            refer_code: slug
+                          });
+                        } catch (error) {
+                          console.error("Error sending referral data:", error);
+                        }
+                      }
+                    
                       if (accountAllowancePublic >= usdtAllowanceHelper) {
                         setWriteType("buy")
                         writeContract({
@@ -446,8 +460,7 @@ const BuyWithUsdtModal = () => {
                           args: [presaleId, tokens],
                           enabled: useAccountIsConnected && (accountAllowancePublic >= usdtAllowanceHelper),
                         });
-                      }
-                      else {
+                      } else {
                         setWriteType("approve")
                         writeContract({
                           address: usdtContractAddress,
