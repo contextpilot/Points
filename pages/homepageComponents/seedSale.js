@@ -48,6 +48,7 @@ export default function SeedSale( { slug } ) {
     const [totalAnswers, setTotalAnswers] = useState(0);
     const [points, setPoints] = useState(0);
     const [loadingAirdrop, setLoadingAirdrop] = useState(false);
+    const [loadingReferData, setLoadingReferData] = useState(false);
     const [airdropResult, setAirdropResult] = useState(null); // Added state for airdrop result
     const [airdropError, setAirdropError] = useState(null);
     const [showAirdropMessage, setShowAirdropMessage] = useState(false);
@@ -101,6 +102,7 @@ export default function SeedSale( { slug } ) {
 
     // Fetch referral data
     const handleReferralData = async () => {
+        setLoadingReferData(true); // Set loading state to true
         try {
             const response = await fetch(`https://main-wjaxre4ena-uc.a.run.app/api_usage?address=${useAccountAddress}`);
             if (!response.ok) {
@@ -113,9 +115,11 @@ export default function SeedSale( { slug } ) {
             setIsReferralModalOpen(true);
         } catch (error) {
             console.error("Failed to fetch referral data:", error);
+        } finally {
+            setLoadingReferData(false); // Reset loading state
         }
     };
-
+    
     class Presale {
         constructor(presaleData) {
             this.preSaleDataLocal = presaleData;
@@ -332,9 +336,9 @@ export default function SeedSale( { slug } ) {
                     </button>
                 </div>
                 <div className="flex justify-center mt-4"> {/* Centering the Referral button */}
-                    <button onClick={handleReferralData} className="bg-gray-500 text-white px-4 py-2 rounded">
-                        Referral Data
-                    </button>
+                <button onClick={handleReferralData} className="bg-gray-500 text-white px-4 py-2 rounded" disabled={loadingReferData}>
+                    {loadingReferData ? 'Loading...' : 'Referral Data'}
+                </button>
                 </div>
                 {isReferralModalOpen && <ReferralModal referredCreditScores={referredCreditScores} referredBonuses={referredBonuses} idmap={referredIds} toAddress={useAccountAddress} onClose={() => setIsReferralModalOpen(false)} />}
 

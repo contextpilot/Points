@@ -125,6 +125,14 @@ export default function ReferralModal({ referredCreditScores, referredBonuses, i
                         </div>
                     )}
                 </div>
+                <a 
+                    href="https://doc.context-pilot.xyz/getting-started/referral-bonus"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-500 underline mt-4 block"
+                >
+                    Learn more about referral bonuses
+                </a>
                 <button onClick={onClose} className="mt-4 bg-red-500 text-white px-4 py-2 rounded">Close</button>
             </div>
         </div>
