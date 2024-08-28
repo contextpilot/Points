@@ -29,7 +29,7 @@ function UserVesting({ userVestingData, userAddress }) {
             </svg>
             <div className="pl-4 text-sm font-normal">
                 You own {new Intl.NumberFormat().format(totalAmount)} Credits<br />
-                Refer link: <br /> <a href={`https://context-pilot/${secretKeyPart}`} target="_blank" rel="noopener noreferrer" className="text-blue-500 underline">https://context-pilot/{secretKeyPart}</a><br />
+                Refer link: <br /> <a href={`https://context-pilot.xyz/${secretKeyPart}`} target="_blank" rel="noopener noreferrer" className="text-blue-500 underline">https://context-pilot.xyz/{secretKeyPart}</a><br />
                 Secret key: {showKey ? secretKeyPart : "****"}
                 <button onClick={toggleKeyVisibility} className="pl-2 text-blue-500">{showKey ? "Hide" : "Show"}</button>
             </div>
