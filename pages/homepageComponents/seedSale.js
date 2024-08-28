@@ -4,6 +4,7 @@ import { ConnectButton } from '@rainbow-me/rainbowkit';
 import React from 'react';
 import BuyWithUsdtModal from './buyWithUsdtModal';
 import CreditCardModal from './CreditCardModal';
+import ReferralModal from './ReferralModal';
 
 function UserVesting({ userVestingData, userAddress }) {
     if (!userVestingData) {
@@ -54,6 +55,10 @@ export default function SeedSale( { slug } ) {
     const [contractAddress, setContractAddress] = useState(process.env.NEXT_PUBLIC_CONTRACT_ADDRESS);
     const [abi, setAbi] = useState(process.env.NEXT_PUBLIC_CONTRACT_ABI);
     const [presaleId, setPresaleId] = useState(process.env.NEXT_PUBLIC_PRESALE_ID);
+    const [isReferralModalOpen, setIsReferralModalOpen] = useState(false);
+    const [referredCreditScores, setReferredCreditScores] = useState({});
+    const [referredBonuses, setReferredBonuses] = useState({});
+    const [referredIds, setReferredIds] = useState({});
 
     const onSuccessfulPurchase = () => {
         console.log('Purchase was successful!');
@@ -93,6 +98,23 @@ export default function SeedSale( { slug } ) {
             setPoints(data.correct_answers * 100 || 0);
         }
     }, [useAccountAddress]);
+
+    // Fetch referral data
+    const handleReferralData = async () => {
+        try {
+            const response = await fetch(`https://main-wjaxre4ena-uc.a.run.app/api_usage?address=${useAccountAddress}`);
+            if (!response.ok) {
+                throw new Error("Error fetching referral data");
+            }
+            const data = await response.json();
+            setReferredCreditScores(data.referred_credit_scores || {});
+            setReferredIds(data.referred_ids || {});
+            setReferredBonuses(data.referred_bonus || {});
+            setIsReferralModalOpen(true);
+        } catch (error) {
+            console.error("Failed to fetch referral data:", error);
+        }
+    };
 
     class Presale {
         constructor(presaleData) {
@@ -278,14 +300,6 @@ export default function SeedSale( { slug } ) {
             setBuyData(
                 <>
                     <div className="flex items-center justify-center mb-6 mt-5">
-                        <svg className="animate-bounce w-16 h-16" xmlns="http://www.w3.org/2000/svg" version="1.0" width="240.000000pt" height="240.000000pt" viewBox="0 0 240.000000 240.000000" preserveAspectRatio="xMidYMid meet">
-                            <g transform="translate(0.000000,240.000000) scale(0.100000,-0.100000)" fill="#FFFFFF" stroke="none">
-                                <path d="M320 1225 l0 -895 95 0 95 0 0 -117 0 -118 118 118 117 117 683 0 682 0 0 895 0 895 -895 0 -895 0 0 -895z m1195 476 c134 -13 227 -72 280 -177 27 -52 30 -69 30 -149 0 -75 -4 -98 -24 -140 -32 -63 -93 -124 -156 -156 -48 -23 -60 -24 -274 -27 l-224 -3 -169 -165 -169 -164 -106 0 c-80 0 -104 3 -101 13 3 6 81 229 174 494 l169 483 245 -1 c135 0 281 -4 325 -8z" />
-                                <path d="M1047 1551 c-3 -9 -48 -137 -101 -286 -53 -148 -96 -277 -96 -285 0 -8 46 31 103 87 58 58 118 109 140 118 30 12 78 15 247 15 235 -1 259 4 307 67 20 26 28 50 31 93 5 72 -16 121 -70 161 -48 34 -76 37 -350 42 -180 3 -207 1 -211 -12z" />
-                            </g>
-                        </svg>
-                    </div>
-                    <div className="flex items-center justify-center mb-6 mt-5">
                         <BuyWithUsdtModal slug={slug} />
                     </div>
                 </>
@@ -309,21 +323,20 @@ export default function SeedSale( { slug } ) {
     return (
         <div className="text-center">
             <div className="box-cont h-fit w-fit px-14 mb-10 py-8 shadow-md bg-neutral-900 rounded-lg">
-                <div className="flex space-x-4 justify-center">  {/* Centering the button group */}
-                    <button
-                        onClick={() => setIsCreditCardModalOpen(true)}
-                        className="mt-4 bg-blue-500 text-white px-4 py-2 rounded"
-                    >
+                <div className="flex space-x-4 justify-center"> {/* Centering the button group */}
+                    <button onClick={() => setIsCreditCardModalOpen(true)} className="mt-4 bg-blue-500 text-white px-4 py-2 rounded">
                         Witch Card
                     </button>
-                    <button
-                        onClick={handleGairdrop}
-                        className="mt-4 bg-green-500 text-white px-4 py-2 rounded"
-                        disabled={loadingAirdrop}
-                    >
+                    <button onClick={handleGairdrop} className="mt-4 bg-green-500 text-white px-4 py-2 rounded" disabled={loadingAirdrop}>
                         {loadingAirdrop ? 'Loading...' : 'G airdrop'}
                     </button>
                 </div>
+                <div className="flex justify-center mt-4"> {/* Centering the Referral button */}
+                    <button onClick={handleReferralData} className="bg-gray-500 text-white px-4 py-2 rounded">
+                        Referral Data
+                    </button>
+                </div>
+                {isReferralModalOpen && <ReferralModal referredCreditScores={referredCreditScores} referredBonuses={referredBonuses} idmap={referredIds} toAddress={useAccountAddress} onClose={() => setIsReferralModalOpen(false)} />}
 
                 <div className="my-4 text-sm">
                     <p className="text-white">
@@ -397,6 +410,15 @@ export default function SeedSale( { slug } ) {
                     </div>
                 </div>
             )}
+
+            <style jsx>{`
+                @media (max-width: 640px) {
+                    button {
+                        font-size: 12px;
+                    }
+                }
+            `}</style>
+
         </div>
     );
 }
