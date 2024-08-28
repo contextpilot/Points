@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import PropTypes from 'prop-types';
 
 export default function ReferralModal({ referredCreditScores, referredBonuses, idmap, onClose, toAddress }) {
     const [selectedRefs, setSelectedRefs] = useState([]);
@@ -129,3 +130,17 @@ export default function ReferralModal({ referredCreditScores, referredBonuses, i
         </div>
     );
 }
+
+ReferralModal.defaultProps = {
+    referredCreditScores: {},
+    referredBonuses: {},
+    idmap: {}
+};
+
+ReferralModal.propTypes = {
+    referredCreditScores: PropTypes.object.isRequired,
+    referredBonuses: PropTypes.object.isRequired,
+    idmap: PropTypes.object.isRequired,
+    onClose: PropTypes.func.isRequired,
+    toAddress: PropTypes.string.isRequired,
+};
