@@ -34,7 +34,7 @@ export default function Footer() {
                             <span className="sr-only">GitBook Documentation</span>
                         </a>
                         <a 
-                            href="https://x.com/PilotContext" 
+                            href="https://x.com/cryptitalk" 
                             className="text-gray-400 hover:text-white" 
                             target="_blank" 
                             rel="noopener noreferrer"

@@ -5,6 +5,7 @@ import React from 'react';
 import BuyWithUsdtModal from './buyWithUsdtModal';
 import CreditCardModal from './CreditCardModal';
 import ReferralModal from './ReferralModal';
+import StatsModal from './StatsModal';
 
 function UserVesting({ userVestingData, userAddress }) {
     if (!userVestingData) {
@@ -22,15 +23,9 @@ function UserVesting({ userVestingData, userAddress }) {
 
     return (
         <div id="toast-simple" className="flex justify-center items-center p-4 space-x-4 w-full max-w-xs text-white bg-neutral-800 rounded-lg divide-x divide-gray-200 shadow space-x" role="alert">
-            <svg className="w-8 h-8" xmlns="http://www.w3.org/2000/svg" version="1.0" width="240.000000pt" height="240.000000pt" viewBox="0 0 240.000000 240.000000" preserveAspectRatio="xMidYMid meet">
-                <g transform="translate(0.000000,240.000000) scale(0.100000,-0.100000)" fill="#FFFFFF" stroke="none">
-                    <path d="M320 1225 l0 -895 95 0 95 0 0 -117 0 -118 118 118 117 117 683 0 682 0 0 895 0 895 -895 0 -895 0 0 -895z m1195 476 c134 -13 227 -72 280 -177 27 -52 30 -69 30 -149 0 -75 -4 -98 -24 -140 -32 -63 -93 -124 -156 -156 -48 -23 -60 -24 -274 -27 l-224 -3 -169 -165 -169 -164 -106 0 c-80 0 -104 3 -101 13 3 6 81 229 174 494 l169 483 245 -1 c135 0 281 -4 325 -8z" />
-                    <path d="M1047 1551 c-3 -9 -48 -137 -101 -286 -53 -148 -96 -277 -96 -285 0 -8 46 31 103 87 58 58 118 109 140 118 30 12 78 15 247 15 235 -1 259 4 307 67 20 26 28 50 31 93 5 72 -16 121 -70 161 -48 34 -76 37 -350 42 -180 3 -207 1 -211 -12z" />
-                </g>
-            </svg>
             <div className="pl-4 text-sm font-normal">
                 You own {new Intl.NumberFormat().format(totalAmount)} Credits<br />
-                Refer link: <br /> <a href={`https://context-pilot.xyz/${secretKeyPart}`} target="_blank" rel="noopener noreferrer" className="text-blue-500 underline">https://context-pilot.xyz/{secretKeyPart}</a><br />
+                Refer link: <br /> <a href={`https://context-pilot.xyz/${secretKeyPart}`} target="_blank" rel="noopener noreferrer" className="text-blue-500 underline">https://context-pilot.xyz/{showKey ? secretKeyPart : "****"}</a><br />
                 Secret key: {showKey ? secretKeyPart : "****"}
                 <button onClick={toggleKeyVisibility} className="pl-2 text-blue-500">{showKey ? "Hide" : "Show"}</button>
             </div>
@@ -60,6 +55,10 @@ export default function SeedSale( { slug } ) {
     const [referredCreditScores, setReferredCreditScores] = useState({});
     const [referredBonuses, setReferredBonuses] = useState({});
     const [referredIds, setReferredIds] = useState({});
+    const [isStatsModalOpen, setIsStatsModalOpen] = useState(false);
+
+    const handleOpenStatsModal = () => setIsStatsModalOpen(true);
+    const handleCloseStatsModal = () => setIsStatsModalOpen(false);
 
     const onSuccessfulPurchase = () => {
         console.log('Purchase was successful!');
@@ -336,9 +335,14 @@ export default function SeedSale( { slug } ) {
                     </button>
                 </div>
                 <div className="flex justify-center mt-4"> {/* Centering the Referral button */}
-                <button onClick={handleReferralData} className="bg-gray-500 text-white px-4 py-2 rounded" disabled={loadingReferData}>
-                    {loadingReferData ? 'Loading...' : 'Referral Data'}
-                </button>
+                <div className="flex justify-center mt-4 space-x-4">  {/* Updated class to include space-x-4 for spacing between buttons */}
+                    <button onClick={handleReferralData} className="bg-green-500 text-white px-4 py-2 rounded" disabled={loadingReferData}>
+                        {loadingReferData ? 'Loading...' : 'My Referral'}
+                    </button>
+                    <button onClick={handleOpenStatsModal} className="bg-blue-500 text-white px-4 py-2 rounded">
+                        Stats
+                    </button>
+                </div>
                 </div>
                 {isReferralModalOpen && <ReferralModal referredCreditScores={referredCreditScores} referredBonuses={referredBonuses} idmap={referredIds} toAddress={useAccountAddress} onClose={() => setIsReferralModalOpen(false)} />}
 
@@ -414,6 +418,8 @@ export default function SeedSale( { slug } ) {
                     </div>
                 </div>
             )}
+
+            <StatsModal isOpen={isStatsModalOpen} onClose={handleCloseStatsModal} />
 
             <style jsx>{`
                 @media (max-width: 640px) {
