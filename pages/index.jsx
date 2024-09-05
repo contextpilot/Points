@@ -187,22 +187,9 @@ export default function Home() {
 
   return (
     <>
-      <Menu />
-      <main>
-        {/*
-        <HomeSection />
-        <Section2 />
-        <Section3 />
-        */}
+      <main className="flex flex-col min-h-screen">
+        {/* Other sections */}
         <Section4 />
-        {/*
-        <Section5 />
-        <Section6 />
-        <Section7 />
-        <Section8 />
-        <Section9 />
-        */}
-        <Footer />
       </main>
       <div ref={chatWidgetRef}>
         <ChatWidget
