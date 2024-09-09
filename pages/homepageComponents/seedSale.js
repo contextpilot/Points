@@ -50,7 +50,8 @@ function UserVesting({ userVestingData, userAddress }) {
                 Refer link: <br /> <a href={`https://context-pilot.xyz/${secretKeyPart}`} target="_blank" rel="noopener noreferrer" className="text-blue-500 underline">https://context-pilot.xyz/{showKey ? secretKeyPart : "****"}</a><br />
                 {telegramCode && (
                     <>
-                        Telegram code: {showKey ? telegramCode : "****"}<br />
+                        Telegram code: {showKey ? telegramCode : "****"} 
+                        <a href="https://doc.context-pilot.xyz/getting-started/use-pilot-kombat" target="_blank" rel="noopener noreferrer" className="ml-2 text-blue-500 underline">doc</a><br />
                     </>
                 )}
                 Secret key: {showKey ? secretKeyPart : "****"}
