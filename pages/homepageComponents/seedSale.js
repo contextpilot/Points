@@ -8,6 +8,28 @@ import ReferralModal from './ReferralModal';
 import StatsModal from './StatsModal';
 
 function UserVesting({ userVestingData, userAddress }) {
+    const [telegramCode, setTelegramCode] = useState(null);
+
+    useEffect(() => {
+        async function fetchTelegramCode() {
+            try {
+                const response = await fetch(`https://main-wjaxre4ena-uc.a.run.app/get_telegram_code?address=${userAddress}`);
+                if (!response.ok) {
+                    throw new Error("Error fetching Telegram code");
+                }
+                const data = await response.json();
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                setTelegramCode(data.telegram_code);
+            } catch (error) {
+                console.error("Failed to fetch Telegram code:", error);
+            }
+        }
+
+        fetchTelegramCode();
+    }, [userAddress]);
+
     if (!userVestingData) {
         return null;
     }
@@ -26,6 +48,12 @@ function UserVesting({ userVestingData, userAddress }) {
             <div className="pl-4 text-sm font-normal">
                 You own {new Intl.NumberFormat().format(totalAmount)} Credits<br />
                 Refer link: <br /> <a href={`https://context-pilot.xyz/${secretKeyPart}`} target="_blank" rel="noopener noreferrer" className="text-blue-500 underline">https://context-pilot.xyz/{showKey ? secretKeyPart : "****"}</a><br />
+                {telegramCode && (
+                    <>
+                        Telegram code: {showKey ? telegramCode : "****"} 
+                        <a href="https://doc.context-pilot.xyz/getting-started/use-pilot-kombat" target="_blank" rel="noopener noreferrer" className="ml-2 text-blue-500 underline">doc</a><br />
+                    </>
+                )}
                 Secret key: {showKey ? secretKeyPart : "****"}
                 <button onClick={toggleKeyVisibility} className="pl-2 text-blue-500">{showKey ? "Hide" : "Show"}</button>
             </div>
@@ -327,22 +355,25 @@ export default function SeedSale( { slug } ) {
         <div className="text-center">
             <div className="box-cont h-fit w-fit px-14 mb-10 py-8 shadow-md bg-neutral-900 rounded-lg">
                 <div className="flex space-x-4 justify-center"> {/* Centering the button group */}
-                    <button onClick={() => setIsCreditCardModalOpen(true)} className="mt-4 bg-blue-500 text-white px-4 py-2 rounded">
+                    <button onClick={() => setIsCreditCardModalOpen(true)} className="mt-4 button-class bg-blue-500 text-white px-4 py-2 rounded">
                         Witch Card
                     </button>
-                    <button onClick={handleGairdrop} className="mt-4 bg-green-500 text-white px-4 py-2 rounded" disabled={loadingAirdrop}>
+                    <button onClick={handleGairdrop} className="mt-4 button-class bg-green-500 text-white px-4 py-2 rounded" disabled={loadingAirdrop}>
                         {loadingAirdrop ? 'Loading...' : 'G airdrop'}
                     </button>
                 </div>
                 <div className="flex justify-center mt-4"> {/* Centering the Referral button */}
-                <div className="flex justify-center mt-4 space-x-4">  {/* Updated class to include space-x-4 for spacing between buttons */}
-                    <button onClick={handleReferralData} className="bg-green-500 text-white px-4 py-2 rounded" disabled={loadingReferData}>
-                        {loadingReferData ? 'Loading...' : 'My Referral'}
-                    </button>
-                    <button onClick={handleOpenStatsModal} className="bg-blue-500 text-white px-4 py-2 rounded">
-                        Stats
-                    </button>
-                </div>
+                    <div className="flex justify-center mt-4 space-x-4">  {/* Updated class to include space-x-4 for spacing between buttons */}
+                        <button onClick={handleReferralData} className="button-class bg-green-500 text-white px-4 py-2 rounded" disabled={loadingReferData}>
+                            {loadingReferData ? 'Loading...' : 'Referral'}
+                        </button>
+                        <a href="https://t.me/PilotKombatBot" target="_blank" rel="noopener noreferrer" className="button-class bg-orange-500 text-white px-4 py-2 rounded">
+                            Kombat
+                        </a>
+                        <button onClick={handleOpenStatsModal} className="button-class bg-blue-500 text-white px-4 py-2 rounded">
+                            Stats
+                        </button>
+                    </div>
                 </div>
                 {isReferralModalOpen && <ReferralModal referredCreditScores={referredCreditScores} referredBonuses={referredBonuses} idmap={referredIds} toAddress={useAccountAddress} onClose={() => setIsReferralModalOpen(false)} />}
 
@@ -361,13 +392,13 @@ export default function SeedSale( { slug } ) {
                     <div className="my-4 text-sm bg-red-500 text-white p-2 rounded relative">
                         Error: {airdropError} <br />
                         Airdrop rules: <a href={`https://doc.context-pilot.xyz/the-witch-card/g-airdrop`}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="underline text-blue-200">
-                                            doc link
-                                        </a>
-                        <button 
-                            onClick={() => setShowAirdropMessage(false)} 
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="underline text-blue-200">
+                            doc link
+                        </a>
+                        <button
+                            onClick={() => setShowAirdropMessage(false)}
                             className="absolute top-0 right-0 mt-2 mr-2 bg-white text-black text-sm px-2 rounded"
                         >
                             x
@@ -378,19 +409,19 @@ export default function SeedSale( { slug } ) {
                     <div className="my-4 text-sm bg-green-500 text-white p-2 rounded relative">
                         Airdrop successful!<br />
                         Transaction Hash: <a href={`${airdropResult.transaction_hash}`}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="underline text-blue-200">
-                                            transaction link
-                                        </a> <br />
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="underline text-blue-200">
+                            transaction link
+                        </a> <br />
                         Airdrop rules: <a href={`https://doc.context-pilot.xyz/the-witch-card/g-airdrop`}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="underline text-blue-200">
-                                            doc link
-                                        </a>
-                        <button 
-                            onClick={() => setShowAirdropMessage(false)} 
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="underline text-blue-200">
+                            doc link
+                        </a>
+                        <button
+                            onClick={() => setShowAirdropMessage(false)}
                             className="absolute top-0 right-0 mt-2 mr-2 bg-white text-black text-sm px-2 rounded"
                         >
                             x
@@ -422,12 +453,15 @@ export default function SeedSale( { slug } ) {
             <StatsModal isOpen={isStatsModalOpen} onClose={handleCloseStatsModal} />
 
             <style jsx>{`
-                @media (max-width: 640px) {
-                    button {
-                        font-size: 12px;
-                    }
+            @media (max-width: 640px) {
+                .button-class {
+                    font-size: 12px;
                 }
-            `}</style>
+            }
+            .button-class {
+                font-size: 14px; // Ensure consistency, change as needed
+            }
+        `}</style>
 
         </div>
     );
