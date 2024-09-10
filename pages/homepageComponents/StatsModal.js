@@ -117,7 +117,8 @@ const StatsModal = ({ isOpen, onClose }) => {
         <td className="py-1 px-2 border-r text-sm">{String(leader.code)}</td>
         <td className="py-1 px-2 border-r text-sm">{String(leader.allowed_tokens)}</td>
         <td className="py-1 px-2 border-r text-sm">{String(leader.refer_counts)}</td>
-        <td className="py-1 px-2 text-sm">{String(leader.used_tokens)}</td>
+        <td className="py-1 px-2 border-r text-sm">{String(leader.used_tokens)}</td>
+        <td className="py-1 px-2 text-sm">{String(leader.points)}</td>
       </tr>
     ));
 
@@ -131,7 +132,8 @@ const StatsModal = ({ isOpen, onClose }) => {
               <th className="py-1 px-2 border-r cursor-pointer text-sm" onClick={() => handleSort('code')}>Code</th>
               <th className="py-1 px-2 border-r cursor-pointer text-sm" onClick={() => handleSort('allowed_tokens')}>Allowed Tokens</th>
               <th className="py-1 px-2 border-r cursor-pointer text-sm" onClick={() => handleSort('refer_counts')}>Refer Counts</th>
-              <th className="py-1 px-2 cursor-pointer text-sm" onClick={() => handleSort('used_tokens')}>Used Tokens</th>
+              <th className="py-1 px-2 border-r cursor-pointer text-sm" onClick={() => handleSort('used_tokens')}>Used Tokens</th>
+              <th className="py-1 px-2 cursor-pointer text-sm" onClick={() => handleSort('points')}>Kombat Points</th>
             </tr>
           </thead>
           <tbody>
