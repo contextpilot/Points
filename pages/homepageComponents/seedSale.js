@@ -7,32 +7,11 @@ import CreditCardModal from './CreditCardModal';
 import ReferralModal from './ReferralModal';
 import StatsModal from './StatsModal';
 
-function UserVesting({ userVestingData, userAddress }) {
-    const [telegramCode, setTelegramCode] = useState(null);
-
-    useEffect(() => {
-        async function fetchTelegramCode() {
-            try {
-                const response = await fetch(`https://main-wjaxre4ena-uc.a.run.app/get_telegram_code?address=${userAddress}`);
-                if (!response.ok) {
-                    throw new Error("Error fetching Telegram code");
-                }
-                const data = await response.json();
-                if (data.error) {
-                    throw new Error(data.error);
-                }
-                setTelegramCode(data.telegram_code);
-            } catch (error) {
-                console.error("Failed to fetch Telegram code:", error);
-            }
-        }
-
-        fetchTelegramCode();
-    }, [userAddress]);
-
+function UserVesting({ userVestingData, userAddress, telegramCode }) {
     if (!userVestingData) {
         return null;
     }
+
     const userVestingSplit = userVestingData.toString().split(',');
     let counter = 0;
     const totalAmount = userVestingSplit[counter++];
@@ -61,7 +40,7 @@ function UserVesting({ userVestingData, userAddress }) {
     );
 }
 
-export default function SeedSale( { slug } ) {
+export default function SeedSale({ slug }) {
     const { address: useAccountAddress, isConnected: useAccountIsConnected } = useAccount();
     const [isCreditCardModalOpen, setIsCreditCardModalOpen] = useState(false);
     const [allowedTokens, setAllowedTokens] = useState(0);
@@ -98,6 +77,32 @@ export default function SeedSale( { slug } ) {
         const today = new Date(timeElapsed);
         console.log(today.toUTCString() + " | " + stringToLog);
     }
+
+    const [userTelegramCode, setUserTelegramCode] = useState(null);
+    const [presaleDataMultiChain, setPresaleDataMultiChain] = useState(null);
+
+    // Fetch the telegram code
+    useEffect(() => {
+        if (!useAccountAddress) return;
+
+        async function fetchTelegramCode() {
+            try {
+                const response = await fetch(`https://main-wjaxre4ena-uc.a.run.app/get_telegram_code?address=${useAccountAddress}`);
+                if (!response.ok) {
+                    throw new Error("Error fetching Telegram code");
+                }
+                const data = await response.json();
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                setUserTelegramCode(data.telegram_code);
+            } catch (error) {
+                console.error("Failed to fetch Telegram code:", error);
+            }
+        }
+
+        fetchTelegramCode();
+    }, [useAccountAddress]);
 
     async function fetchApiUsage(address) {
         try {
@@ -240,6 +245,94 @@ export default function SeedSale( { slug } ) {
 
     // ... [Other necessary functions such as fetchApiUsage function] ...
 
+    const payload = { 
+        "chains": [
+            {
+                "presale_id": 1,
+                "rpc_endpoint": "https://bsc-mainnet.nodereal.io/v1/9e1db4557198415aa3b2f017b9e8e403",
+                "contract_address": "0x83a823a40cC652a8d841e6561fe223aE700299ae",
+                "chain_id": 56
+            },
+            {
+                "presale_id": 1,
+                "rpc_endpoint": "https://opbnb-mainnet.nodereal.io/v1/9e1db4557198415aa3b2f017b9e8e403",
+                "contract_address": "0x879cD4f2558cF27cb8FC5492241DD14B952957Be",
+                "chain_id": 204
+            }
+        ]
+    };
+    async function fetchPresaleData() {
+        try {
+            const response = await fetch('https://main-wjaxre4ena-uc.a.run.app/get_presale_data', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(payload),
+            });
+    
+            if (!response.ok) {
+                throw new Error("Error fetching presale data");
+            }
+    
+            const data = await response.json();
+    
+            // Assuming the data structure is as provided in the response
+            setPresaleDataMultiChain(data);
+    
+        } catch (error) {
+            console.error("Failed to fetch presale data:", error);
+        }
+    }
+
+    useEffect(() => {
+        fetchPresaleData();
+    }, []);
+    
+    const chainIdToNameMap = {
+        56: "BSC",
+        204: "opBNB",
+        // Add more chain IDs and names if needed
+    };
+    
+    const renderDisplayPresaleData = () => {
+        if (useAccountAddress || !presaleDataMultiChain || presaleDataMultiChain.length === 0) return null;
+    
+        return presaleDataMultiChain.map((dataItem, index) => {
+            const { chain, presale_data } = dataItem;
+            const salePercentage = (presale_data.inSale / presale_data.tokensToSell) * 100;
+    
+            const tokensSold = presale_data.tokensToSell - presale_data.inSale;
+            const priceInHumanReadableForm = presale_data.price / (10 ** 30);
+            const raisedAmount = tokensSold * priceInHumanReadableForm;
+            const presaleGoal = presale_data.tokensToSell * priceInHumanReadableForm;
+    
+            // Format to human-friendly numbers
+            const formattedRaisedAmount = raisedAmount.toLocaleString(undefined, { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
+            const formattedPresaleGoal = presaleGoal.toLocaleString(undefined, { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
+    
+            // Get the chain name from the mapping or fallback to the chain ID if not found
+            const chainName = chainIdToNameMap[chain.chain_id] || `Chain ID: ${chain.chain_id}`;
+    
+            return (
+                <div key={index} className="mb-6">
+                    <h2 className="text-white text-xs mb-2">{chainName}</h2>
+                    <div className="w-full bg-gray-200 rounded-full dark:bg-gray-700 mb-3">
+                        <div className="bg-red-600 text-xs font-small font-bold text-neutral-900 text-center p-0.5 leading-none rounded-full"
+                            style={{ width: `${salePercentage}%` }}>
+                            {`${salePercentage.toFixed(2)}%`}
+                        </div>
+                    </div>
+                    <p className="text-white text-xs">
+                        Raised — {formattedRaisedAmount}
+                        /
+                        {formattedPresaleGoal}
+                    </p>
+                </div>
+            );
+        });
+    };
+
     useEffect(() => {
         if (chain) {
             if (chain.id === 56) { // BNB
@@ -327,7 +420,7 @@ export default function SeedSale( { slug } ) {
             setDisplayUserVestingData(null);
         } else {
             setDisplayPresaleData(null);
-            setDisplayUserVestingData(<UserVesting userVestingData={userVestingData} userAddress={useAccountAddress} />);
+            setDisplayUserVestingData(<UserVesting userVestingData={userVestingData} userAddress={useAccountAddress} telegramCode={userTelegramCode} />);
             setBuyData(
                 <>
                     <div className="flex items-center justify-center mb-6 mt-5">
@@ -336,7 +429,7 @@ export default function SeedSale( { slug } ) {
                 </>
             );
         }
-    }, [useAccountAddress, presaleDataParsed, userVestingData, slug]);
+    }, [useAccountAddress, presaleDataParsed, userVestingData, userTelegramCode, slug]);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -428,7 +521,7 @@ export default function SeedSale( { slug } ) {
                         </button>
                     </div>
                 )}
-                {displayPresaleData}
+                {renderDisplayPresaleData()}
                 <div className="flex place-items-center justify-around">
                     {displayUserVestingData}
                 </div>
@@ -461,7 +554,7 @@ export default function SeedSale( { slug } ) {
             .button-class {
                 font-size: 14px; // Ensure consistency, change as needed
             }
-        `}</style>
+            `}</style>
 
         </div>
     );
