@@ -7,32 +7,11 @@ import CreditCardModal from './CreditCardModal';
 import ReferralModal from './ReferralModal';
 import StatsModal from './StatsModal';
 
-function UserVesting({ userVestingData, userAddress }) {
-    const [telegramCode, setTelegramCode] = useState(null);
-
-    useEffect(() => {
-        async function fetchTelegramCode() {
-            try {
-                const response = await fetch(`https://main-wjaxre4ena-uc.a.run.app/get_telegram_code?address=${userAddress}`);
-                if (!response.ok) {
-                    throw new Error("Error fetching Telegram code");
-                }
-                const data = await response.json();
-                if (data.error) {
-                    throw new Error(data.error);
-                }
-                setTelegramCode(data.telegram_code);
-            } catch (error) {
-                console.error("Failed to fetch Telegram code:", error);
-            }
-        }
-
-        fetchTelegramCode();
-    }, [userAddress]);
-
+function UserVesting({ userVestingData, userAddress, telegramCode }) {
     if (!userVestingData) {
         return null;
     }
+
     const userVestingSplit = userVestingData.toString().split(',');
     let counter = 0;
     const totalAmount = userVestingSplit[counter++];
@@ -61,7 +40,7 @@ function UserVesting({ userVestingData, userAddress }) {
     );
 }
 
-export default function SeedSale( { slug } ) {
+export default function SeedSale({ slug }) {
     const { address: useAccountAddress, isConnected: useAccountIsConnected } = useAccount();
     const [isCreditCardModalOpen, setIsCreditCardModalOpen] = useState(false);
     const [allowedTokens, setAllowedTokens] = useState(0);
@@ -98,6 +77,31 @@ export default function SeedSale( { slug } ) {
         const today = new Date(timeElapsed);
         console.log(today.toUTCString() + " | " + stringToLog);
     }
+
+    const [userTelegramCode, setUserTelegramCode] = useState(null);
+
+    // Fetch the telegram code
+    useEffect(() => {
+        if (!useAccountAddress) return;
+
+        async function fetchTelegramCode() {
+            try {
+                const response = await fetch(`https://main-wjaxre4ena-uc.a.run.app/get_telegram_code?address=${useAccountAddress}`);
+                if (!response.ok) {
+                    throw new Error("Error fetching Telegram code");
+                }
+                const data = await response.json();
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                setUserTelegramCode(data.telegram_code);
+            } catch (error) {
+                console.error("Failed to fetch Telegram code:", error);
+            }
+        }
+
+        fetchTelegramCode();
+    }, [useAccountAddress]);
 
     async function fetchApiUsage(address) {
         try {
@@ -327,7 +331,7 @@ export default function SeedSale( { slug } ) {
             setDisplayUserVestingData(null);
         } else {
             setDisplayPresaleData(null);
-            setDisplayUserVestingData(<UserVesting userVestingData={userVestingData} userAddress={useAccountAddress} />);
+            setDisplayUserVestingData(<UserVesting userVestingData={userVestingData} userAddress={useAccountAddress} telegramCode={userTelegramCode} />);
             setBuyData(
                 <>
                     <div className="flex items-center justify-center mb-6 mt-5">
@@ -336,7 +340,7 @@ export default function SeedSale( { slug } ) {
                 </>
             );
         }
-    }, [useAccountAddress, presaleDataParsed, userVestingData, slug]);
+    }, [useAccountAddress, presaleDataParsed, userVestingData, userTelegramCode, slug]);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -461,7 +465,7 @@ export default function SeedSale( { slug } ) {
             .button-class {
                 font-size: 14px; // Ensure consistency, change as needed
             }
-        `}</style>
+            `}</style>
 
         </div>
     );
