@@ -14,6 +14,7 @@ import dynamic from "next/dynamic";
 import '@ryaneewx/react-chat-widget/lib/styles.css';
 import { useAccount } from 'wagmi';
 import axios from "axios";
+import NotificationBanner from "./homepageComponents/NotificationBanner";
 
 // Dynamically import the Chat Widget component
 const ChatWidget = dynamic(() => import('@ryaneewx/react-chat-widget').then((mod) => mod.Widget), { ssr: false });
@@ -187,6 +188,8 @@ export default function Home() {
 
   return (
     <>
+      {/* Use the NotificationBanner component */}
+      <NotificationBanner />
       <main className="flex flex-col min-h-screen">
         {/* Other sections */}
         <Section4 />

@@ -11,7 +11,9 @@ import { faBook } from "@fortawesome/free-solid-svg-icons";
 export default function Footer() {
     return (
         <>
-                <div className="flex justify-center space-x-6 mb-4">
+            <div className="flex flex-col items-center space-y-4 mb-4">
+                {/* First Row */}
+                <div className="flex justify-center space-x-6">
                     <a
                         href="https://marketplace.visualstudio.com/items?itemName=CryptiTalk.context-pilot"
                         className="text-gray-400 hover:text-white"
@@ -39,6 +41,10 @@ export default function Footer() {
                         <FontAwesomeIcon icon={faTwitter} className="mr-2" />
                         <span className="sr-only">Twitter page</span>
                     </a>
+                </div>
+
+                {/* Second Row */}
+                <div className="flex justify-center space-x-6">
                     <a
                         href="https://t.me/PilotContext"
                         className="text-gray-400 hover:text-white"
@@ -67,6 +73,7 @@ export default function Footer() {
                         <span className="sr-only">Github page</span>
                     </a>
                 </div>
+            </div>
         </>
     );
 }
