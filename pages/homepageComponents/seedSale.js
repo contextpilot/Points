@@ -134,7 +134,7 @@ export default function SeedSale({ slug }) {
             setUsedTokens(data.used_tokens);
             setCorrectAnswers(data.correct_answers || 0);
             setTotalAnswers(data.total_answers || 0);
-            setReferredBy(data.referredBy || "");
+            setReferredBy(data.refered_by || "");
         }
     }, [useAccountAddress]);
 
