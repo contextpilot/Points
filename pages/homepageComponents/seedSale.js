@@ -49,7 +49,7 @@ export default function SeedSale({ slug }) {
     const [presaleDataParsed, setPresaleDataParsed] = useState(null);
     const [correctAnswers, setCorrectAnswers] = useState(0);
     const [totalAnswers, setTotalAnswers] = useState(0);
-    const [points, setPoints] = useState(0);
+    const [referredBy, setReferredBy] = useState(null);
     const [loadingAirdrop, setLoadingAirdrop] = useState(false);
     const [loadingReferData, setLoadingReferData] = useState(false);
     const [airdropResult, setAirdropResult] = useState(null); // Added state for airdrop result
@@ -134,7 +134,7 @@ export default function SeedSale({ slug }) {
             setUsedTokens(data.used_tokens);
             setCorrectAnswers(data.correct_answers || 0);
             setTotalAnswers(data.total_answers || 0);
-            setPoints(data.correct_answers * 100 || 0);
+            setReferredBy(data.referredBy || "");
         }
     }, [useAccountAddress]);
 
@@ -484,7 +484,7 @@ export default function SeedSale({ slug }) {
                         Correct / Total Answers: <br /> {correctAnswers} / {totalAnswers}
                     </p>
                     <p className="text-white">
-                        Points earned: {points}
+                        Referred by: {referredBy}
                     </p>
                 </div>
                 {showAirdropMessage && airdropError && (
