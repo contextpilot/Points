@@ -6,6 +6,7 @@ import BuyWithUsdtModal from './buyWithUsdtModal';
 import CreditCardModal from './CreditCardModal';
 import ReferralModal from './ReferralModal';
 import StatsModal from './StatsModal';
+import KombatModal from './KombatModal';
 
 function UserVesting({ userVestingData, userAddress, telegramCode }) {
     if (!userVestingData) {
@@ -67,9 +68,14 @@ export default function SeedSale({ slug }) {
     const handleOpenStatsModal = () => setIsStatsModalOpen(true);
     const handleCloseStatsModal = () => setIsStatsModalOpen(false);
 
-    const onSuccessfulPurchase = () => {
-        console.log('Purchase was successful!');
-        setBuyWithCreditCardModalOpen(false);
+    const [isKombatModalOpen, setIsKombatModalOpen] = useState(false); // Add state for KombatModal
+
+    const handleOpenKombatModal = () => {
+        setIsKombatModalOpen(true); // Open KombatModal
+    };
+
+    const handleCloseKombatModal = () => {
+        setIsKombatModalOpen(false); // Close KombatModal
     };
 
     function Log(stringToLog) {
@@ -460,9 +466,9 @@ export default function SeedSale({ slug }) {
                         <button onClick={handleReferralData} className="button-class bg-green-500 text-white px-4 py-2 rounded" disabled={loadingReferData}>
                             {loadingReferData ? 'Loading...' : 'Referral'}
                         </button>
-                        <a href="https://t.me/PilotKombatBot" target="_blank" rel="noopener noreferrer" className="button-class bg-orange-500 text-white px-4 py-2 rounded">
+                        <button onClick={handleOpenKombatModal} className="button-class bg-orange-500 text-white px-4 py-2 rounded">
                             Kombat
-                        </a>
+                        </button>
                         <button onClick={handleOpenStatsModal} className="button-class bg-blue-500 text-white px-4 py-2 rounded">
                             Stats
                         </button>
@@ -541,6 +547,14 @@ export default function SeedSale({ slug }) {
                         </button>
                     </div>
                 </div>
+            )}
+
+            {isKombatModalOpen && (
+                <KombatModal
+                    isOpen={isKombatModalOpen}
+                    onClose={handleCloseKombatModal}
+                    telegram_code={userTelegramCode}
+                />
             )}
 
             <StatsModal isOpen={isStatsModalOpen} onClose={handleCloseStatsModal} />
