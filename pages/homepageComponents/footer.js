@@ -15,6 +15,37 @@ export default function Footer() {
                 {/* First Row */}
                 <div className="flex justify-center space-x-6">
                     <a
+                        href="https://x.com/cryptitalk"
+                        className="text-gray-400 hover:text-white"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        <FontAwesomeIcon icon={faTwitter} className="mr-2" />
+                        <span className="sr-only">Twitter page</span>
+                    </a>
+                    <a
+                        href="https://discord.com/invite/qX9SxjDw"
+                        className="text-gray-400 hover:text-white"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        <FontAwesomeIcon icon={faDiscord} className="mr-2" />
+                        <span className="sr-only">Discord server</span>
+                    </a>
+                    <a
+                        href="https://t.me/PilotContext"
+                        className="text-gray-400 hover:text-white"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        <FontAwesomeIcon icon={faTelegram} className="mr-2" />
+                        <span className="sr-only">Telegram channel</span>
+                    </a>
+                </div>
+
+                {/* Second Row */}
+                <div className="flex justify-center space-x-6">
+                    <a
                         href="https://marketplace.visualstudio.com/items?itemName=CryptiTalk.context-pilot"
                         className="text-gray-400 hover:text-white"
                         target="_blank"
@@ -31,37 +62,6 @@ export default function Footer() {
                     >
                         <FontAwesomeIcon icon={faBook} className="mr-2" />
                         <span className="sr-only">GitBook Documentation</span>
-                    </a>
-                    <a
-                        href="https://x.com/cryptitalk"
-                        className="text-gray-400 hover:text-white"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                    >
-                        <FontAwesomeIcon icon={faTwitter} className="mr-2" />
-                        <span className="sr-only">Twitter page</span>
-                    </a>
-                </div>
-
-                {/* Second Row */}
-                <div className="flex justify-center space-x-6">
-                    <a
-                        href="https://t.me/PilotContext"
-                        className="text-gray-400 hover:text-white"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                    >
-                        <FontAwesomeIcon icon={faTelegram} className="mr-2" />
-                        <span className="sr-only">Telegram channel</span>
-                    </a>
-                    <a
-                        href="https://discord.com/invite/qX9SxjDw"
-                        className="text-gray-400 hover:text-white"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                    >
-                        <FontAwesomeIcon icon={faDiscord} className="mr-2" />
-                        <span className="sr-only">Discord server</span>
                     </a>
                     <a
                         href="https://github.com/contextpilot"
