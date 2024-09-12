@@ -11,9 +11,11 @@ Chart.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 const StatsModal = ({ isOpen, onClose }) => {
   const [data, setData] = useState(null);
   const [leaders, setLeaders] = useState(null);
+  const [kombatData, setKombatData] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [loadingStats, setLoadingStats] = useState(false);
   const [loadingLeaders, setLoadingLeaders] = useState(false);
+  const [loadingKombat, setLoadingKombat] = useState(false);
   const [error, setError] = useState(null);
   const [sortConfig, setSortConfig] = useState({ key: 'code', direction: 'ascending' });
   const itemsPerPage = 10;
@@ -21,20 +23,22 @@ const StatsModal = ({ isOpen, onClose }) => {
   // Refs for the chart instances
   const evmAccessChartRef = useRef(null);
   const evmRecordChartRef = useRef(null);
+  const kombatActiveAddressesChartRef = useRef(null);
+  const kombatAddedAddressesChartRef = useRef(null);
+  const kombatTotalPointsChartRef = useRef(null);
 
   useEffect(() => {
     if (isOpen) {
       fetchGeneralStats();
       fetchLeaders();
+      fetchKombatStats();
     }
   }, [isOpen]);
 
   const fetchGeneralStats = async () => {
     setLoadingStats(true);
     try {
-      const response = await axios.get(
-        "https://main-wjaxre4ena-uc.a.run.app/general_stats"
-      );
+      const response = await axios.get("https://main-wjaxre4ena-uc.a.run.app/general_stats");
       setData(response.data);
     } catch (error) {
       setError("Failed to fetch general stats");
@@ -47,13 +51,26 @@ const StatsModal = ({ isOpen, onClose }) => {
   const fetchLeaders = async () => {
     setLoadingLeaders(true);
     try {
-      const response = await axios.get("https://main-wjaxre4ena-uc.a.run.app/leaders"); // replace with actual endpoint
+      const response = await axios.get("https://main-wjaxre4ena-uc.a.run.app/leaders");
       setLeaders(response.data);
     } catch (error) {
       setError("Failed to fetch leaders data");
       console.error("Failed to fetch leaders data", error);
     } finally {
       setLoadingLeaders(false);
+    }
+  };
+
+  const fetchKombatStats = async () => {
+    setLoadingKombat(true);
+    try {
+      const response = await axios.get("https://main-wjaxre4ena-uc.a.run.app/kombat_stats_all_days");
+      setKombatData(response.data);
+    } catch (error) {
+      setError("Failed to fetch Kombat stats");
+      console.error("Failed to fetch Kombat stats", error);
+    } finally {
+      setLoadingKombat(false);
     }
   };
 
@@ -70,6 +87,20 @@ const StatsModal = ({ isOpen, onClose }) => {
         {
           label: "Count",
           data: Object.values(obj),
+          backgroundColor: "rgba(75, 192, 192, 0.6)",
+        },
+      ],
+    };
+  };
+
+  const prepareKombatChartData = (array, key) => {
+    if (!array) return { labels: [], datasets: [] };
+    return {
+      labels: array.map(item => new Date(item.date).toLocaleDateString()),
+      datasets: [
+        {
+          label: key.replace(/_/g, ' ').toUpperCase(),
+          data: array.map(item => item[key]),
           backgroundColor: "rgba(75, 192, 192, 0.6)",
         },
       ],
@@ -172,6 +203,15 @@ const StatsModal = ({ isOpen, onClose }) => {
       if (evmRecordChartRef.current) {
         evmRecordChartRef.current.destroy();
       }
+      if (kombatActiveAddressesChartRef.current) {
+        kombatActiveAddressesChartRef.current.destroy();
+      }
+      if (kombatAddedAddressesChartRef.current) {
+        kombatAddedAddressesChartRef.current.destroy();
+      }
+      if (kombatTotalPointsChartRef.current) {
+        kombatTotalPointsChartRef.current.destroy();
+      }
     };
   }, []);
 
@@ -181,18 +221,19 @@ const StatsModal = ({ isOpen, onClose }) => {
     <div className="fixed inset-0 flex items-center justify-center z-50 bg-gray-900 bg-opacity-50">
       <div className="bg-white p-6 rounded shadow-lg w-full max-w-4xl h-4/5 overflow-auto">
         {error && <p className="text-red-500">{error}</p>}
-        {loadingStats ? (
+        {loadingStats || loadingKombat ? (
           <p>Loading stats...</p>
         ) : (
-          data && (
+          (data || kombatData) && (
             <Tabs>
               <TabList>
                 <Tab>General Stats</Tab>
                 <Tab>Leaders</Tab>
+                <Tab>Kombat Stats</Tab>
               </TabList>
 
               <TabPanel>
-                <h2 className="text-2xl font-bold mb-4">Stats</h2>
+                <h2 className="text-2xl font-bold mb-4">General Stats</h2>
                 <div className="mb-6">
                   <p>
                     <strong>Total Paid Addresses: </strong>
@@ -216,6 +257,23 @@ const StatsModal = ({ isOpen, onClose }) => {
               <TabPanel>
                 <h2 className="text-2xl font-bold mb-4">Leaders</h2>
                 {renderLeadersTable}
+              </TabPanel>
+
+              <TabPanel>
+                <h2 className="text-2xl font-bold mb-4">Kombat Stats</h2>
+                <div className="mb-6"></div>
+                <div>
+                  <h3 className="text-xl font-bold mb-4">Daily Active Addresses</h3>
+                  <Bar data={prepareKombatChartData(kombatData, "daily_active_addresses")} ref={kombatActiveAddressesChartRef} />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold mt-6 mb-4">Daily Added Addresses</h3>
+                  <Bar data={prepareKombatChartData(kombatData, "daily_added_addresses")} ref={kombatAddedAddressesChartRef} />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold mt-6 mb-4">Daily Total Points</h3>
+                  <Bar data={prepareKombatChartData(kombatData, "daily_total_points")} ref={kombatTotalPointsChartRef} />
+                </div>
               </TabPanel>
             </Tabs>
           )
