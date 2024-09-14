@@ -15,11 +15,6 @@ const ResumeModal = ({ isOpen, onClose, usedTokens, allowedTokens, correctAnswer
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    // Refs for the chart instances
-    const answeredQuestionsChartRef = useRef(null);
-    const chatRecordsChartRef = useRef(null);
-    const kombatPointsChartRef = useRef(null);
-
     useEffect(() => {
         if (isOpen) {
             fetchData();
@@ -39,15 +34,40 @@ const ResumeModal = ({ isOpen, onClose, usedTokens, allowedTokens, correctAnswer
         }
     };
 
-    const processDataForChart = (data) => {
+    const processAnsweredQuestionsData = (data) => {
         if (!data || Object.keys(data).length === 0) return { labels: [], datasets: [] };
         const labels = Object.keys(data);
-        const values = labels.map(label => Object.keys(data[label]).length);
+        const correctValues = labels.map(label => data[label].correct);
+        const totalValues = labels.map(label => data[label].total - data[label].correct); // Total minus correct gives incorrect
+
         return {
             labels,
             datasets: [
                 {
-                    label: 'Count',
+                    label: 'Correct Answers',
+                    data: correctValues,
+                    backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                    stack: 'Stack 0',
+                },
+                {
+                    label: 'Incorrect Answers',
+                    data: totalValues,
+                    backgroundColor: 'rgba(192, 75, 75, 0.6)',
+                    stack: 'Stack 0',
+                }
+            ]
+        };
+    };
+
+    const processChatRecordsData = (data) => {
+        if (!data || Object.keys(data).length === 0) return { labels: [], datasets: [] };
+        const labels = Object.keys(data);
+        const values = labels.map(label => data[label].reduce((acc, record) => acc + record.num_tokens, 0));
+        return {
+            labels,
+            datasets: [
+                {
+                    label: 'Tokens',
                     data: values,
                     backgroundColor: 'rgba(75, 192, 192, 0.6)',
                 }
@@ -55,9 +75,25 @@ const ResumeModal = ({ isOpen, onClose, usedTokens, allowedTokens, correctAnswer
         };
     };
 
-    const answeredQuestionsData = useMemo(() => processDataForChart(data?.answered_questions_by_date), [data]);
-    const chatRecordsData = useMemo(() => processDataForChart(data?.chat_records_by_date), [data]);
-    const kombatPointsData = useMemo(() => processDataForChart(data?.kombat_points_by_date), [data]);
+    const processKombatPointsData = (data) => {
+        if (!data || Object.keys(data).length === 0) return { labels: [], datasets: [] };
+        const labels = Object.keys(data);
+        const values = labels.map(label => data[label]);
+        return {
+            labels,
+            datasets: [
+                {
+                    label: 'Kombat Points',
+                    data: values,
+                    backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                }
+            ]
+        };
+    };
+
+    const answeredQuestionsData = useMemo(() => processAnsweredQuestionsData(data?.answered_questions_by_date), [data]);
+    const chatRecordsData = useMemo(() => processChatRecordsData(data?.chat_records_by_date), [data]);
+    const kombatPointsData = useMemo(() => processKombatPointsData(data?.kombat_points_by_date), [data]);
 
     if (!isOpen) return null;
     if (loading) return <div className="text-center">Loading...</div>;
@@ -83,17 +119,43 @@ const ResumeModal = ({ isOpen, onClose, usedTokens, allowedTokens, correctAnswer
 
                     <TabPanel>
                         <h2 className="text-xl font-bold mb-4">Answered Questions by Date</h2>
-                        <Bar data={answeredQuestionsData} ref={answeredQuestionsChartRef} />
+                        <Bar 
+                            data={answeredQuestionsData} 
+                            options={{
+                                plugins: {
+                                    tooltip: {
+                                        callbacks: {
+                                            label: (context) => {
+                                                let label = context.dataset.label || '';
+                                                if (label) {
+                                                    label += ': ';
+                                                }
+                                                label += context.raw;
+                                                return label;
+                                            }
+                                        }
+                                    }
+                                },
+                                scales: {
+                                    x: {
+                                        stacked: true,
+                                    },
+                                    y: {
+                                        stacked: true,
+                                    },
+                                }
+                            }} 
+                        />
                     </TabPanel>
 
                     <TabPanel>
                         <h2 className="text-xl font-bold mb-4">Chat Records by Date</h2>
-                        <Bar data={chatRecordsData} ref={chatRecordsChartRef} />
+                        <Bar data={chatRecordsData} />
                     </TabPanel>
 
                     <TabPanel>
                         <h2 className="text-xl font-bold mb-4">Kombat Points by Date</h2>
-                        <Bar data={kombatPointsData} ref={kombatPointsChartRef} />
+                        <Bar data={kombatPointsData} />
                     </TabPanel>
                 </Tabs>
                 <button onClick={onClose} className="mt-4 bg-red-500 text-white px-4 py-2 rounded">
