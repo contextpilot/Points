@@ -7,6 +7,7 @@ import CreditCardModal from './CreditCardModal';
 import ReferralModal from './ReferralModal';
 import StatsModal from './StatsModal';
 import KombatModal from './KombatModal';
+import TokenUsageModal from './TokenUsageModal';
 
 function UserVesting({ userVestingData, userAddress, telegramCode }) {
     if (!userVestingData) {
@@ -64,6 +65,9 @@ export default function SeedSale({ slug }) {
     const [referredBonuses, setReferredBonuses] = useState({});
     const [referredIds, setReferredIds] = useState({});
     const [isStatsModalOpen, setIsStatsModalOpen] = useState(false);
+    const [isTokenUsageModalOpen, setIsTokenUsageModalOpen] = useState(false);
+    const handleOpenTokenUsageModal = () => setIsTokenUsageModalOpen(true);
+    const handleCloseTokenUsageModal = () => setIsTokenUsageModalOpen(false);
 
     const handleOpenStatsModal = () => setIsStatsModalOpen(true);
     const handleCloseStatsModal = () => setIsStatsModalOpen(false);
@@ -453,16 +457,19 @@ export default function SeedSale({ slug }) {
     return (
         <div className="text-center">
             <div className="box-cont h-fit w-fit px-14 mb-10 py-8 shadow-md bg-neutral-900 rounded-lg">
-                <div className="flex space-x-4 justify-center"> {/* Centering the button group */}
-                    <button onClick={() => setIsCreditCardModalOpen(true)} className="mt-4 button-class bg-blue-500 text-white px-4 py-2 rounded">
-                        Witch Card
-                    </button>
-                    <button onClick={handleGairdrop} className="mt-4 button-class bg-green-500 text-white px-4 py-2 rounded" disabled={loadingAirdrop}>
-                        {loadingAirdrop ? 'Loading...' : 'G airdrop'}
-                    </button>
-                </div>
-                <div className="flex justify-center mt-4"> {/* Centering the Referral button */}
-                    <div className="flex justify-center mt-4 space-x-4">  {/* Updated class to include space-x-4 for spacing between buttons */}
+                <div className="flex flex-col items-center space-y-4">
+                    {/* First button group */}
+                    <div className="flex justify-center space-x-4 mb-6">
+                        <button onClick={() => setIsCreditCardModalOpen(true)} className="mt-4 button-class bg-blue-500 text-white px-4 py-2 rounded">
+                            Witch Card
+                        </button>
+                        <button onClick={handleGairdrop} className="mt-4 button-class bg-green-500 text-white px-4 py-2 rounded" disabled={loadingAirdrop}>
+                            {loadingAirdrop ? 'Loading...' : 'G airdrop'}
+                        </button>
+                    </div>
+    
+                    {/* Second button group */}
+                    <div className="flex justify-center space-x-4 mb-6">
                         <button onClick={handleReferralData} className="button-class bg-green-500 text-white px-4 py-2 rounded" disabled={loadingReferData}>
                             {loadingReferData ? 'Loading...' : 'Referral'}
                         </button>
@@ -473,20 +480,26 @@ export default function SeedSale({ slug }) {
                             Stats
                         </button>
                     </div>
+    
+                    {/* Resume block */}
+                    <div onClick={handleOpenTokenUsageModal} className="cursor-pointer flex items-center justify-center w-[200px] h-[76px] relative mb-10 ml-4">
+                        <div className="w-[200px] h-[76px] left-0 top-0 absolute bg-[#abd72e] rounded-[22.5px]"></div>
+                        <img className="w-[57px] h-[60px] left-[8px] top-[8px] absolute rounded-[13.5px]" src="https://storage.googleapis.com/cryptitalk/little_witch.png" />
+                        <div className="left-[80px] top-[20px] absolute text-black text-small font-large font-irish-grover">Your Resume</div>
+                    </div>
                 </div>
+                
                 {isReferralModalOpen && <ReferralModal referredCreditScores={referredCreditScores} referredBonuses={referredBonuses} idmap={referredIds} toAddress={useAccountAddress} onClose={() => setIsReferralModalOpen(false)} />}
-
-                <div className="my-4 text-sm">
-                    <p className="text-white">
-                        Used / Allowed Tokens: <br /> {usedTokens} / {allowedTokens}
-                    </p>
-                    <p className="text-white">
-                        Correct / Total Answers: <br /> {correctAnswers} / {totalAnswers}
-                    </p>
-                    <p className="text-white">
-                        Referred by: {referredBy}
-                    </p>
-                </div>
+    
+                <TokenUsageModal
+                    isOpen={isTokenUsageModalOpen}
+                    onClose={handleCloseTokenUsageModal}
+                    usedTokens={usedTokens}
+                    allowedTokens={allowedTokens}
+                    correctAnswers={correctAnswers}
+                    totalAnswers={totalAnswers}
+                    referredBy={referredBy}
+                />
                 {showAirdropMessage && airdropError && (
                     <div className="my-4 text-sm bg-red-500 text-white p-2 rounded relative">
                         Error: {airdropError} <br />
@@ -527,16 +540,27 @@ export default function SeedSale({ slug }) {
                         </button>
                     </div>
                 )}
-                {renderDisplayPresaleData()}
-                <div className="flex place-items-center justify-around">
+    
+                {/* Add margin to the presale data section */}
+                <div className="mb-4">
+                    {renderDisplayPresaleData()}
+                </div>
+                
+                <div className="flex place-items-center justify-around mb-4">
                     {displayUserVestingData}
                 </div>
-                {displayBuyData}
+                
+                {displayBuyData && (
+                    <div className="flex place-items-center justify-around mb-4">
+                        {displayBuyData}
+                    </div>
+                )}
+    
                 <div className="flex place-items-center justify-around">
                     <ConnectButton />
                 </div>
             </div>
-
+    
             {isCreditCardModalOpen && (
                 <div className="fixed inset-0 flex items-center justify-center z-50">
                     <div className="bg-black opacity-50 absolute inset-0"></div>
@@ -548,7 +572,7 @@ export default function SeedSale({ slug }) {
                     </div>
                 </div>
             )}
-
+    
             {isKombatModalOpen && (
                 <KombatModal
                     isOpen={isKombatModalOpen}
@@ -556,9 +580,9 @@ export default function SeedSale({ slug }) {
                     telegram_code={userTelegramCode}
                 />
             )}
-
+    
             <StatsModal isOpen={isStatsModalOpen} onClose={handleCloseStatsModal} />
-
+    
             <style jsx>{`
             @media (max-width: 640px) {
                 .button-class {
@@ -569,7 +593,6 @@ export default function SeedSale({ slug }) {
                 font-size: 14px; // Ensure consistency, change as needed
             }
             `}</style>
-
         </div>
     );
 }
