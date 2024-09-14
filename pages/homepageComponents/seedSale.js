@@ -7,7 +7,7 @@ import CreditCardModal from './CreditCardModal';
 import ReferralModal from './ReferralModal';
 import StatsModal from './StatsModal';
 import KombatModal from './KombatModal';
-import TokenUsageModal from './TokenUsageModal';
+import ResumeModal from './ResumeModal';
 
 function UserVesting({ userVestingData, userAddress, telegramCode }) {
     if (!userVestingData) {
@@ -65,9 +65,9 @@ export default function SeedSale({ slug }) {
     const [referredBonuses, setReferredBonuses] = useState({});
     const [referredIds, setReferredIds] = useState({});
     const [isStatsModalOpen, setIsStatsModalOpen] = useState(false);
-    const [isTokenUsageModalOpen, setIsTokenUsageModalOpen] = useState(false);
-    const handleOpenTokenUsageModal = () => setIsTokenUsageModalOpen(true);
-    const handleCloseTokenUsageModal = () => setIsTokenUsageModalOpen(false);
+    const [isResumeModalOpen, setIsResumeModalOpen] = useState(false);
+    const handleOpenResumeModal = () => setIsResumeModalOpen(true);
+    const handleCloseResumeModal = () => setIsResumeModalOpen(false);
 
     const handleOpenStatsModal = () => setIsStatsModalOpen(true);
     const handleCloseStatsModal = () => setIsStatsModalOpen(false);
@@ -482,7 +482,7 @@ export default function SeedSale({ slug }) {
                     </div>
     
                     {/* Resume block */}
-                    <div onClick={handleOpenTokenUsageModal} className="cursor-pointer flex items-center justify-center w-[200px] h-[76px] relative mb-10 ml-4">
+                    <div onClick={handleOpenResumeModal} className="cursor-pointer flex items-center justify-center w-[200px] h-[76px] relative mb-10 ml-4">
                         <div className="w-[200px] h-[76px] left-0 top-0 absolute bg-[#abd72e] rounded-[22.5px]"></div>
                         <img className="w-[57px] h-[60px] left-[8px] top-[8px] absolute rounded-[13.5px]" src="https://storage.googleapis.com/cryptitalk/little_witch.png" />
                         <div className="left-[80px] top-[20px] absolute text-black text-small font-large font-irish-grover">Your Resume</div>
@@ -491,14 +491,15 @@ export default function SeedSale({ slug }) {
                 
                 {isReferralModalOpen && <ReferralModal referredCreditScores={referredCreditScores} referredBonuses={referredBonuses} idmap={referredIds} toAddress={useAccountAddress} onClose={() => setIsReferralModalOpen(false)} />}
     
-                <TokenUsageModal
-                    isOpen={isTokenUsageModalOpen}
-                    onClose={handleCloseTokenUsageModal}
+                <ResumeModal
+                    isOpen={isResumeModalOpen}
+                    onClose={handleCloseResumeModal}
                     usedTokens={usedTokens}
                     allowedTokens={allowedTokens}
                     correctAnswers={correctAnswers}
                     totalAnswers={totalAnswers}
                     referredBy={referredBy}
+                    evmAddress={useAccountAddress}
                 />
                 {showAirdropMessage && airdropError && (
                     <div className="my-4 text-sm bg-red-500 text-white p-2 rounded relative">
