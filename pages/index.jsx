@@ -188,8 +188,7 @@ export default function Home() {
 
   return (
     <>
-      {/* Use the NotificationBanner component */}
-      <NotificationBanner />
+      {/* Use the NotificationBanner component <NotificationBanner /> */}
       <main className="flex flex-col min-h-screen">
         {/* Other sections */}
         <Section4 />
