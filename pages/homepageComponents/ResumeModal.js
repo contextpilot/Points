@@ -24,7 +24,7 @@ const ResumeModal = ({ isOpen, onClose, usedTokens, allowedTokens, correctAnswer
     const fetchData = async () => {
         setLoading(true);
         try {
-            const response = await axios.get(`https://crypti-talk-500474063246.us-central1.run.app/resume?evm_address=${evmAddress}`);
+            const response = await axios.get(`https://main-wjaxre4ena-uc.a.run.app//resume?evm_address=${evmAddress}`);
             setData(response.data);
         } catch (error) {
             setError('Failed to fetch data');
