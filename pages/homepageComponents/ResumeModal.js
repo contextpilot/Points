@@ -6,6 +6,7 @@ import axios from 'axios';
 import { Chart, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import 'react-tabs/style/react-tabs.css';
+import ChatRecordModal from './ChatRecordModal';
 
 // Register necessary components
 Chart.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
@@ -14,12 +15,19 @@ const ResumeModal = ({ isOpen, onClose, usedTokens, allowedTokens, correctAnswer
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [chatRecordModalOpen, setChatRecordModalOpen] = useState(false);
+    const [selectedSessionIds, setSelectedSessionIds] = useState([]);
 
     useEffect(() => {
         if (isOpen) {
             fetchData();
         }
     }, [isOpen, evmAddress]);
+
+    const handleBarClick = (sessionIds) => {
+        setSelectedSessionIds(sessionIds);
+        setChatRecordModalOpen(true);
+    };
 
     const fetchData = async () => {
         setLoading(true);
@@ -75,7 +83,7 @@ const ResumeModal = ({ isOpen, onClose, usedTokens, allowedTokens, correctAnswer
         };
     };
 
-    const processChatModelCountsData = data => {
+    const processChatModelCountsData = (data, handleBarClick) => {
         if (!data || Object.keys(data).length === 0) return { labels: [], datasets: [] };
 
         const labels = Object.keys(data);
@@ -87,19 +95,31 @@ const ResumeModal = ({ isOpen, onClose, usedTokens, allowedTokens, correctAnswer
                     modelCounts[record.model] = {};
                 }
                 if (!modelCounts[record.model][date]) {
-                    modelCounts[record.model][date] = 0;
+                    modelCounts[record.model][date] = [];
                 }
-                modelCounts[record.model][date] += 1;
+                modelCounts[record.model][date].push(record.session_id);
             });
         });
 
         const datasets = Object.keys(modelCounts).map(model => ({
             label: model,
-            data: labels.map(label => modelCounts[model][label] || 0),
+            data: labels.map(label => modelCounts[model][label] ? modelCounts[model][label].length : 0),
             backgroundColor: `rgba(${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, 0.6)`,
         }));
 
-        return { labels, datasets };
+        return {
+            labels,
+            datasets,
+            onClick: (e, elements) => {
+                if (elements && elements.length > 0) {
+                    const chart = elements[0];
+                    const model = datasets[chart.datasetIndex].label;
+                    const date = labels[chart.index];
+                    const sessionIds = modelCounts[model][date];
+                    handleBarClick(sessionIds);
+                }
+            },
+        };
     };
 
     const processKombatPointsData = data => {
@@ -120,72 +140,36 @@ const ResumeModal = ({ isOpen, onClose, usedTokens, allowedTokens, correctAnswer
 
     const answeredQuestionsData = useMemo(() => processAnsweredQuestionsData(data?.answered_questions_by_date), [data]);
     const chatTokensData = useMemo(() => processChatTokensData(data?.chat_records_by_date), [data]);
-    const chatModelCountsData = useMemo(() => processChatModelCountsData(data?.chat_records_by_date), [data]);
+    const chatModelCountsData = useMemo(() => processChatModelCountsData(data?.chat_records_by_date, handleBarClick), [data]);
     const kombatPointsData = useMemo(() => processKombatPointsData(data?.kombat_points_by_date), [data]);
 
     if (!isOpen) return null;
     if (loading) return <div className="text-center">Loading...</div>;
 
     return (
-        <div className="fixed inset-0 flex items-center justify-center z-50 bg-gray-900 bg-opacity-50">
-            <div className="bg-white p-6 rounded shadow-lg w-full max-w-4xl h-4/5 overflow-auto">
-                {error && <p className="text-red-500">{error}</p>}
-                <Tabs>
-                    <TabList>
-                        <Tab>Token Usage</Tab>
-                        <Tab>Answered Questions</Tab>
-                        <Tab>Chat Records</Tab>
-                        <Tab>Kombat Points</Tab>
-                    </TabList>
+        <>
+            <div className="fixed inset-0 flex items-center justify-center z-50 bg-gray-900 bg-opacity-50">
+                <div className="bg-white p-6 rounded shadow-lg w-full max-w-4xl h-4/5 overflow-auto">
+                    {error && <p className="text-red-500">{error}</p>}
+                    <Tabs>
+                        <TabList>
+                            <Tab>Token Usage</Tab>
+                            <Tab>Answered Questions</Tab>
+                            <Tab>Chat Records</Tab>
+                            <Tab>Kombat Points</Tab>
+                        </TabList>
 
-                    <TabPanel>
-                        <h2 className="text-lg font-bold mb-4">Token Usage</h2>
-                        <p>Used / Allowed Tokens: {usedTokens} / {allowedTokens}</p>
-                        <p>Correct / Total Answers: {correctAnswers} / {totalAnswers}</p>
-                        <p>Referred by: {referredBy}</p>
-                    </TabPanel>
+                        <TabPanel>
+                            <h2 className="text-lg font-bold mb-4">Token Usage</h2>
+                            <p>Used / Allowed Tokens: {usedTokens} / {allowedTokens}</p>
+                            <p>Correct / Total Answers: {correctAnswers} / {totalAnswers}</p>
+                            <p>Referred by: {referredBy}</p>
+                        </TabPanel>
 
-                    <TabPanel>
-                        <h2 className="text-xl font-bold mb-4">Answered Questions by Date</h2>
-                        <Bar
-                            data={answeredQuestionsData}
-                            options={{
-                                plugins: {
-                                    tooltip: {
-                                        callbacks: {
-                                            label: context => {
-                                                let label = context.dataset.label || '';
-                                                if (label) {
-                                                    label += ': ';
-                                                }
-                                                label += context.raw;
-                                                return label;
-                                            },
-                                        },
-                                    },
-                                },
-                                scales: {
-                                    x: {
-                                        stacked: true,
-                                    },
-                                    y: {
-                                        stacked: true,
-                                    },
-                                },
-                            }}
-                        />
-                    </TabPanel>
-
-                    <TabPanel>
-                        <h2 className="text-xl font-bold mb-4">Chat Records by Date</h2>
-                        <div className="mb-6">
-                            <h3 className="text-lg font-bold mb-2">Tokens</h3>
-                            <Bar data={chatTokensData} />
-                        </div>
-                        <div>
-                            <h3 className="text-lg font-bold mb-2">Model Counts</h3>
+                        <TabPanel>
+                            <h2 className="text-xl font-bold mb-4">Answered Questions by Date</h2>
                             <Bar
-                                data={chatModelCountsData}
+                                data={answeredQuestionsData}
                                 options={{
                                     plugins: {
                                         tooltip: {
@@ -211,10 +195,48 @@ const ResumeModal = ({ isOpen, onClose, usedTokens, allowedTokens, correctAnswer
                                     },
                                 }}
                             />
-                        </div>
-                    </TabPanel>
+                        </TabPanel>
 
-                    <TabPanel>
+                        <TabPanel>
+                            <h2 className="text-xl font-bold mb-4">Chat Records by Date</h2>
+                            <div className="mb-6">
+                                <h3 className="text-lg font-bold mb-2">Tokens</h3>
+                                <Bar data={chatTokensData} />
+                            </div>
+                            <div>
+                                <h3 className="text-lg font-bold mb-2">Model Counts</h3>
+                                <Bar
+                                    data={chatModelCountsData}
+                                    options={{
+                                        onClick: chatModelCountsData.onClick,
+                                        plugins: {
+                                            tooltip: {
+                                                callbacks: {
+                                                    label: context => {
+                                                        let label = context.dataset.label || '';
+                                                        if (label) {
+                                                            label += ': ';
+                                                        }
+                                                        label += context.raw;
+                                                        return label;
+                                                    },
+                                                },
+                                            },
+                                        },
+                                        scales: {
+                                            x: {
+                                                stacked: true,
+                                            },
+                                            y: {
+                                                stacked: true,
+                                            },
+                                        },
+                                    }}
+                                />
+                            </div>
+                        </TabPanel>
+
+                        <TabPanel>
                         <h2 className="text-xl font-bold mb-4">Kombat Points by Date</h2>
                         <Bar data={kombatPointsData} />
                     </TabPanel>
@@ -222,8 +244,16 @@ const ResumeModal = ({ isOpen, onClose, usedTokens, allowedTokens, correctAnswer
                 <button onClick={onClose} className="mt-4 bg-red-500 text-white px-4 py-2 rounded">
                     Close
                 </button>
+                </div>
             </div>
-        </div>
+
+            {/* Render ChatRecordModal */}
+            <ChatRecordModal
+                isOpen={chatRecordModalOpen}
+                onClose={() => setChatRecordModalOpen(false)}
+                sessionIds={selectedSessionIds}
+            />
+        </>
     );
 };
 
