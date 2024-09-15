@@ -155,7 +155,7 @@ const ResumeModal = ({ isOpen, onClose, usedTokens, allowedTokens, correctAnswer
                         <TabList>
                             <Tab>Token Usage</Tab>
                             <Tab>Answered Questions</Tab>
-                            <Tab>Chat Records</Tab>
+                            <Tab>Model Records</Tab>
                             <Tab>Kombat Points</Tab>
                         </TabList>
 
