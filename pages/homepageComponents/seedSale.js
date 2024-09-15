@@ -459,7 +459,7 @@ export default function SeedSale({ slug }) {
             <div className="box-cont h-fit w-fit px-14 mb-10 py-8 shadow-md bg-neutral-900 rounded-lg">
                 <div className="flex flex-col items-center space-y-4">
                     {/* First button group */}
-                    <div className="flex justify-center space-x-4 mb-6">
+                    <div className="flex justify-center space-x-4 mb-0">
                         <button onClick={() => setIsCreditCardModalOpen(true)} className="mt-4 button-class bg-blue-500 text-white px-4 py-2 rounded">
                             Witch Card
                         </button>
@@ -467,9 +467,9 @@ export default function SeedSale({ slug }) {
                             {loadingAirdrop ? 'Loading...' : 'G airdrop'}
                         </button>
                     </div>
-    
+
                     {/* Second button group */}
-                    <div className="flex justify-center space-x-4 mb-6">
+                    <div className="flex justify-center space-x-4 mb-0">
                         <button onClick={handleReferralData} className="button-class bg-green-500 text-white px-4 py-2 rounded" disabled={loadingReferData}>
                             {loadingReferData ? 'Loading...' : 'Referral'}
                         </button>
@@ -480,7 +480,7 @@ export default function SeedSale({ slug }) {
                             Stats
                         </button>
                     </div>
-    
+
                     {/* Resume block */}
                     <div onClick={handleOpenResumeModal} className="cursor-pointer flex items-center justify-center w-[200px] h-[76px] relative mb-10 ml-4">
                         <div className="w-[200px] h-[76px] left-0 top-0 absolute bg-[#abd72e] rounded-[22.5px]"></div>
