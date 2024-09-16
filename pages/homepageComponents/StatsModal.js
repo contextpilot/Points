@@ -1,11 +1,19 @@
 import React, { useEffect, useState, useMemo, useRef } from "react";
 import axios from "axios";
 import { Bar } from "react-chartjs-2";
-import { Chart, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
-import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
-import 'react-tabs/style/react-tabs.css';
+import {
+  Chart,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+} from "chart.js";
+import { Tab, Tabs, TabList, TabPanel } from "react-tabs";
+import "react-tabs/style/react-tabs.css";
+import { format } from 'date-fns';
 
-// Register necessary components
 Chart.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 const StatsModal = ({ isOpen, onClose }) => {
@@ -17,10 +25,12 @@ const StatsModal = ({ isOpen, onClose }) => {
   const [loadingLeaders, setLoadingLeaders] = useState(false);
   const [loadingKombat, setLoadingKombat] = useState(false);
   const [error, setError] = useState(null);
-  const [sortConfig, setSortConfig] = useState({ key: 'code', direction: 'ascending' });
+  const [sortConfig, setSortConfig] = useState({
+    key: "code",
+    direction: "ascending",
+  });
   const itemsPerPage = 10;
 
-  // Refs for the chart instances
   const evmAccessChartRef = useRef(null);
   const evmRecordChartRef = useRef(null);
   const kombatActiveAddressesChartRef = useRef(null);
@@ -38,7 +48,9 @@ const StatsModal = ({ isOpen, onClose }) => {
   const fetchGeneralStats = async () => {
     setLoadingStats(true);
     try {
-      const response = await axios.get("https://main-wjaxre4ena-uc.a.run.app/general_stats");
+      const response = await axios.get(
+        "https://main-wjaxre4ena-uc.a.run.app/general_stats"
+      );
       setData(response.data);
     } catch (error) {
       setError("Failed to fetch general stats");
@@ -51,7 +63,9 @@ const StatsModal = ({ isOpen, onClose }) => {
   const fetchLeaders = async () => {
     setLoadingLeaders(true);
     try {
-      const response = await axios.get("https://main-wjaxre4ena-uc.a.run.app/leaders");
+      const response = await axios.get(
+        "https://main-wjaxre4ena-uc.a.run.app/leaders"
+      );
       setLeaders(response.data);
     } catch (error) {
       setError("Failed to fetch leaders data");
@@ -64,7 +78,9 @@ const StatsModal = ({ isOpen, onClose }) => {
   const fetchKombatStats = async () => {
     setLoadingKombat(true);
     try {
-      const response = await axios.get("https://main-wjaxre4ena-uc.a.run.app/kombat_stats_all_days");
+      const response = await axios.get(
+        "https://main-wjaxre4ena-uc.a.run.app/kombat_stats_all_days"
+      );
       setKombatData(response.data);
     } catch (error) {
       setError("Failed to fetch Kombat stats");
@@ -93,10 +109,10 @@ const StatsModal = ({ isOpen, onClose }) => {
     };
   };
 
-  const prepareKombatChartData = (array, key) => {
+  const prepareKombatChartData = (array, key, dateFormat = 'yyyy-MM-dd') => {
     if (!array) return { labels: [], datasets: [] };
     return {
-      labels: array.map(item => new Date(item.date).toLocaleDateString()),
+      labels: array.map(item => format(new Date(item.date), dateFormat)), // Custom date format
       datasets: [
         {
           label: key.replace(/_/g, ' ').toUpperCase(),
@@ -108,9 +124,9 @@ const StatsModal = ({ isOpen, onClose }) => {
   };
 
   const handleSort = (key) => {
-    let direction = 'ascending';
-    if (sortConfig.key === key && sortConfig.direction === 'ascending') {
-      direction = 'descending';
+    let direction = "ascending";
+    if (sortConfig.key === key && sortConfig.direction === "ascending") {
+      direction = "descending";
     }
     setSortConfig({ key, direction });
   };
@@ -125,10 +141,10 @@ const StatsModal = ({ isOpen, onClose }) => {
 
     sortableLeaders.sort((a, b) => {
       if (a[sortConfig.key] < b[sortConfig.key]) {
-        return sortConfig.direction === 'ascending' ? -1 : 1;
+        return sortConfig.direction === "ascending" ? -1 : 1;
       }
       if (a[sortConfig.key] > b[sortConfig.key]) {
-        return sortConfig.direction === 'ascending' ? 1 : -1;
+        return sortConfig.direction === "ascending" ? 1 : -1;
       }
       return 0;
     });
@@ -141,14 +157,26 @@ const StatsModal = ({ isOpen, onClose }) => {
     if (!leaders) return <p>No data available...</p>;
 
     const startIndex = (currentPage - 1) * itemsPerPage;
-    const currentLeaders = sortedLeaders.slice(startIndex, startIndex + itemsPerPage);
+    const currentLeaders = sortedLeaders.slice(
+      startIndex,
+      startIndex + itemsPerPage
+    );
 
     const rows = currentLeaders.map((leader) => (
       <tr key={leader.code} className="border-b">
         <td className="py-1 px-2 border-r text-sm">{String(leader.code)}</td>
-        <td className="py-1 px-2 border-r text-sm">{String(leader.allowed_tokens)}</td>
-        <td className="py-1 px-2 border-r text-sm">{String(leader.refer_counts)}</td>
-        <td className="py-1 px-2 border-r text-sm">{String(leader.used_tokens)}</td>
+        <td className="py-1 px-2 border-r text-sm">
+          {String(leader.allowed_tokens)}
+        </td>
+        <td className="py-1 px-2 border-r text-sm">
+          {String(leader.refer_counts)}
+        </td>
+        <td className="py-1 px-2 border-r text-sm">
+          {String(leader.unredeemed_counts)}
+        </td>
+        <td className="py-1 px-2 border-r text-sm">
+          {String(leader.used_tokens)}
+        </td>
         <td className="py-1 px-2 text-sm">{String(leader.points)}</td>
       </tr>
     ));
@@ -160,22 +188,51 @@ const StatsModal = ({ isOpen, onClose }) => {
         <table className="min-w-full bg-white border">
           <thead>
             <tr className="border-b">
-              <th className="py-1 px-2 border-r cursor-pointer text-sm" onClick={() => handleSort('code')}>Code</th>
-              <th className="py-1 px-2 border-r cursor-pointer text-sm" onClick={() => handleSort('allowed_tokens')}>Allowed Tokens</th>
-              <th className="py-1 px-2 border-r cursor-pointer text-sm" onClick={() => handleSort('refer_counts')}>Refer Counts</th>
-              <th className="py-1 px-2 border-r cursor-pointer text-sm" onClick={() => handleSort('used_tokens')}>Used Tokens</th>
-              <th className="py-1 px-2 cursor-pointer text-sm" onClick={() => handleSort('points')}>Kombat Points</th>
+              <th
+                className="py-1 px-2 border-r cursor-pointer text-sm"
+                onClick={() => handleSort("code")}
+              >
+                Code
+              </th>
+              <th
+                className="py-1 px-2 border-r cursor-pointer text-sm"
+                onClick={() => handleSort("allowed_tokens")}
+              >
+                Allowed Tokens
+              </th>
+              <th
+                className="py-1 px-2 border-r cursor-pointer text-sm"
+                onClick={() => handleSort("refer_counts")}
+              >
+                Refer Counts
+              </th>
+              <th
+                className="py-1 px-2 border-r cursor-pointer text-sm"
+                onClick={() => handleSort("unredeemed_counts")}
+              >
+                Unredeemed Counts
+              </th>
+              <th
+                className="py-1 px-2 border-r cursor-pointer text-sm"
+                onClick={() => handleSort("used_tokens")}
+              >
+                Used Tokens
+              </th>
+              <th
+                className="py-1 px-2 cursor-pointer text-sm"
+                onClick={() => handleSort("points")}
+              >
+                Kombat Points
+              </th>
             </tr>
           </thead>
-          <tbody>
-            {rows}
-          </tbody>
+          <tbody>{rows}</tbody>
         </table>
         <div className="mt-4 flex justify-center">
           <button
             className="px-3 py-1 mx-1 text-white bg-blue-500 rounded"
             disabled={currentPage === 1}
-            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
           >
             Previous
           </button>
@@ -185,7 +242,7 @@ const StatsModal = ({ isOpen, onClose }) => {
           <button
             className="px-3 py-1 mx-1 text-white bg-blue-500 rounded"
             disabled={currentPage === totalPages}
-            onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+            onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
           >
             Next
           </button>
@@ -195,7 +252,6 @@ const StatsModal = ({ isOpen, onClose }) => {
   }, [sortedLeaders, currentPage, loadingLeaders, sortConfig]);
 
   useEffect(() => {
-    // Cleanup function to destroy chart instances when component gets unmounted or re-rendered
     return () => {
       if (evmAccessChartRef.current) {
         evmAccessChartRef.current.destroy();
@@ -246,11 +302,19 @@ const StatsModal = ({ isOpen, onClose }) => {
                 </div>
                 <div>
                   <h3 className="text-xl font-bold mb-4">Paid Addresses by Date</h3>
-                  <Bar data={prepareChartData(data.evm_access)} ref={evmAccessChartRef} />
+                  <Bar
+                    data={prepareChartData(data.evm_access)}
+                    ref={evmAccessChartRef}
+                  />
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold mt-6 mb-4">Chat Record By Date</h3>
-                  <Bar data={prepareChartData(data.evm_record)} ref={evmRecordChartRef} />
+                  <h3 className="text-xl font-bold mt-6 mb-4">
+                    Chat Record By Date
+                  </h3>
+                  <Bar
+                    data={prepareChartData(data.evm_record)}
+                    ref={evmRecordChartRef}
+                  />
                 </div>
               </TabPanel>
 
@@ -263,16 +327,37 @@ const StatsModal = ({ isOpen, onClose }) => {
                 <h2 className="text-2xl font-bold mb-4">Kombat Stats</h2>
                 <div className="mb-6"></div>
                 <div>
-                  <h3 className="text-xl font-bold mb-4">Daily Active Addresses</h3>
-                  <Bar data={prepareKombatChartData(kombatData, "daily_active_addresses")} ref={kombatActiveAddressesChartRef} />
+                  <h3 className="text-xl font-bold mb-4">
+                    Daily Active Addresses
+                  </h3>
+                  <Bar
+                    data={prepareKombatChartData(
+                      kombatData,
+                      "daily_active_addresses"
+                    )}
+                    ref={kombatActiveAddressesChartRef}
+                  />
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold mt-6 mb-4">Daily Added Addresses</h3>
-                  <Bar data={prepareKombatChartData(kombatData, "daily_added_addresses")} ref={kombatAddedAddressesChartRef} />
+                  <h3 className="text-xl font-bold mt-6 mb-4">
+                    Daily Added Addresses
+                  </h3>
+                  <Bar
+                    data={prepareKombatChartData(
+                      kombatData,
+                      "daily_added_addresses"
+                    )}
+                    ref={kombatAddedAddressesChartRef}
+                  />
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold mt-6 mb-4">Daily Total Points</h3>
-                  <Bar data={prepareKombatChartData(kombatData, "daily_total_points")} ref={kombatTotalPointsChartRef} />
+                  <h3 className="text-xl font-bold mt-6 mb-4">
+                    Daily Total Points
+                  </h3>
+                  <Bar
+                    data={prepareKombatChartData(kombatData, "daily_total_points")}
+                    ref={kombatTotalPointsChartRef}
+                  />
                 </div>
               </TabPanel>
             </Tabs>
