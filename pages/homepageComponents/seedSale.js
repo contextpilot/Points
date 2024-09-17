@@ -9,7 +9,7 @@ import StatsModal from './StatsModal';
 import KombatModal from './KombatModal';
 import ResumeModal from './ResumeModal';
 
-function UserVesting({ userVestingData, userAddress, telegramCode }) {
+function UserVesting({ userVestingData, userAddress, telegramCode, apiKey }) {
     if (!userVestingData) {
         return null;
     }
@@ -35,7 +35,7 @@ function UserVesting({ userVestingData, userAddress, telegramCode }) {
                         <a href="https://doc.context-pilot.xyz/getting-started/use-pilot-kombat" target="_blank" rel="noopener noreferrer" className="ml-2 text-blue-500 underline">doc</a><br />
                     </>
                 )}
-                Secret key: {showKey ? secretKeyPart : "****"}
+                Secret key: {showKey ? apiKey : "****"}
                 <button onClick={toggleKeyVisibility} className="pl-2 text-blue-500">{showKey ? "Hide" : "Show"}</button>
             </div>
         </div>
@@ -89,6 +89,7 @@ export default function SeedSale({ slug }) {
     }
 
     const [userTelegramCode, setUserTelegramCode] = useState(null);
+    const [userApiKey, setUserApiKey] = useState(null);
     const [presaleDataMultiChain, setPresaleDataMultiChain] = useState(null);
 
     // Fetch the telegram code
@@ -139,6 +140,7 @@ export default function SeedSale({ slug }) {
             setCorrectAnswers(data.correct_answers || 0);
             setTotalAnswers(data.total_answers || 0);
             setReferredBy(data.refered_by || "");
+            setUserApiKey(data.api_key)
         }
     }, [useAccountAddress]);
 
@@ -430,7 +432,7 @@ export default function SeedSale({ slug }) {
             setDisplayUserVestingData(null);
         } else {
             setDisplayPresaleData(null);
-            setDisplayUserVestingData(<UserVesting userVestingData={userVestingData} userAddress={useAccountAddress} telegramCode={userTelegramCode} />);
+            setDisplayUserVestingData(<UserVesting userVestingData={userVestingData} userAddress={useAccountAddress} telegramCode={userTelegramCode} apiKey={userApiKey} />);
             setBuyData(
                 <>
                     <div className="flex items-center justify-center mb-6 mt-5">
