@@ -441,7 +441,7 @@ export default function SeedSale({ slug }) {
                 </>
             );
         }
-    }, [useAccountAddress, presaleDataParsed, userVestingData, userTelegramCode, slug]);
+    }, [useAccountAddress, presaleDataParsed, userVestingData, userTelegramCode, userApiKey, slug]);
 
     useEffect(() => {
         const fetchData = async () => {
