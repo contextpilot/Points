@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo, useRef } from "react";
 import axios from "axios";
-import { Bar } from "react-chartjs-2";
+import { Bar, Scatter } from "react-chartjs-2";
 import {
   Chart,
   CategoryScale,
@@ -9,22 +9,25 @@ import {
   Title,
   Tooltip,
   Legend,
+  PointElement
 } from "chart.js";
 import { Tab, Tabs, TabList, TabPanel } from "react-tabs";
 import "react-tabs/style/react-tabs.css";
 import { format } from "date-fns";
 import ResumeModal from "./ResumeModal";
 
-Chart.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
+Chart.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, PointElement);
 
 const StatsModal = ({ isOpen, onClose }) => {
   const [data, setData] = useState(null);
   const [leaders, setLeaders] = useState(null);
   const [kombatData, setKombatData] = useState(null);
+  const [creditScores, setCreditScores] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [loadingStats, setLoadingStats] = useState(false);
   const [loadingLeaders, setLoadingLeaders] = useState(false);
   const [loadingKombat, setLoadingKombat] = useState(false);
+  const [loadingCreditScores, setLoadingCreditScores] = useState(false);
   const [error, setError] = useState(null);
   const [sortConfig, setSortConfig] = useState({
     key: "address",
@@ -40,12 +43,14 @@ const StatsModal = ({ isOpen, onClose }) => {
   const kombatActiveAddressesChartRef = useRef(null);
   const kombatAddedAddressesChartRef = useRef(null);
   const kombatTotalPointsChartRef = useRef(null);
+  const creditScoresChartRef = useRef(null);
 
   useEffect(() => {
     if (isOpen) {
       fetchGeneralStats();
       fetchLeaders();
       fetchKombatStats();
+      fetchCreditScores();
     }
   }, [isOpen]);
 
@@ -94,6 +99,19 @@ const StatsModal = ({ isOpen, onClose }) => {
     }
   };
 
+  const fetchCreditScores = async () => {
+    setLoadingCreditScores(true);
+    try {
+      const response = await axios.get("https://main-wjaxre4ena-uc.a.run.app/all_credit_scores");
+      setCreditScores(response.data);
+    } catch (error) {
+      setError("Failed to fetch credit scores");
+      console.error("Failed to fetch credit scores", error);
+    } finally {
+      setLoadingCreditScores(false);
+    }
+  };
+
   const getTotal = (obj) => {
     if (!obj) return 0;
     return Object.values(obj).reduce((acc, num) => acc + num, 0);
@@ -121,6 +139,25 @@ const StatsModal = ({ isOpen, onClose }) => {
         {
           label: key.replace(/_/g, " ").toUpperCase(),
           data: array.map((item) => item[key]),
+          backgroundColor: "rgba(75, 192, 192, 0.6)",
+        },
+      ],
+    };
+  };
+
+  const prepareCreditScoresChartData = (creditScores) => {
+    if (!creditScores) return { datasets: [] };
+
+    const scores = creditScores.map(score => ({
+      x: Math.random(), // Random x value for the dot plot
+      y: score.credit_score,
+    }));
+
+    return {
+      datasets: [
+        {
+          label: "Credit Scores",
+          data: scores,
           backgroundColor: "rgba(75, 192, 192, 0.6)",
         },
       ],
@@ -293,8 +330,16 @@ const StatsModal = ({ isOpen, onClose }) => {
       if (kombatTotalPointsChartRef.current) {
         kombatTotalPointsChartRef.current.destroy();
       }
+      if (creditScoresChartRef.current) {
+        creditScoresChartRef.current.destroy();
+      }
     };
   }, []);
+
+  const creditScoresChartData = useMemo(
+    () => prepareCreditScoresChartData(creditScores),
+    [creditScores]
+  );
 
   if (!isOpen) return null;
 
@@ -303,15 +348,16 @@ const StatsModal = ({ isOpen, onClose }) => {
       <div className="fixed inset-0 flex items-center justify-center z-50 bg-gray-900 bg-opacity-50">
         <div className="bg-white p-6 rounded shadow-lg w-full max-w-4xl h-4/5 overflow-auto">
           {error && <p className="text-red-500">{error}</p>}
-          {loadingStats || loadingKombat ? (
+          {(loadingStats || loadingKombat || loadingCreditScores) ? (
             <p>Loading stats...</p>
           ) : (
-            (data || kombatData) && (
+            (data || kombatData || creditScores) && (
               <Tabs>
                 <TabList>
                   <Tab>General Stats</Tab>
                   <Tab>Leaders</Tab>
                   <Tab>Kombat Stats</Tab>
+                  <Tab>Credit Scores</Tab>
                 </TabList>
 
                 <TabPanel>
@@ -385,6 +431,27 @@ const StatsModal = ({ isOpen, onClose }) => {
                     <Bar
                       data={prepareKombatChartData(kombatData, "daily_total_points")}
                       ref={kombatTotalPointsChartRef}
+                    />
+                  </div>
+                </TabPanel>
+
+                <TabPanel>
+                  <h2 className="text-2xl font-bold mb-4">Credit Scores</h2>
+                  <div>
+                    <Scatter
+                      data={creditScoresChartData}
+                      options={{ 
+                        plugins: {
+                          tooltip: {
+                            callbacks: {
+                              label: (context) => {
+                                return `Credit Score: ${context.raw.y}`;
+                              },
+                            },
+                          },
+                        } 
+                      }}
+                      ref={creditScoresChartRef}
                     />
                   </div>
                 </TabPanel>
