@@ -25,18 +25,34 @@ export default function Home() {
   const router = useRouter();
   const { slug } = router.query; // Destructure slug from router.query
 
-  // State to maintain the entire conversation
+  const [userApiKey, setUserApiKey] = useState(null);
   const [conversation, setConversation] = useState([
     { role: "system", content: "I am an active bot" },
     { role: "user", content: "Welcome to our chat!" },
   ]);
 
-  // Function to toggle chat visibility
+  useEffect(() => {
+    if (!useAccountAddress) return;
+
+    async function fetchApiUsage() {
+      try {
+        const response = await axios.get(`https://main-wjaxre4ena-uc.a.run.app/api_usage?address=${useAccountAddress}`);
+        if (response.status !== 200) throw new Error("Failed to fetch API key");
+
+        const data = response.data;
+        setUserApiKey(data.api_key);
+      } catch (error) {
+        console.error("Failed to fetch API key:", error);
+      }
+    }
+
+    fetchApiUsage();
+  }, [useAccountAddress]);
+
   const handleChatToggle = () => {
     setIsChatOpen((prev) => !prev);
   };
 
-  // Function to initialize a streaming session and get a session ID
   const initStreamingSession = async (messageJson) => {
     try {
       const response = await axios.post("https://main-wjaxre4ena-uc.a.run.app/streaminit", { message_json: messageJson });
@@ -48,8 +64,12 @@ export default function Home() {
   };
 
   const streamChatMessage = async (sessionId, newMessage) => {
-    const secretKey = useAccountAddress.slice(-6);
-    const url = `https://main-wjaxre4ena-uc.a.run.app/streamchat?session_id=${sessionId}&secret_key=${secretKey}`;
+    if (!userApiKey) {
+      console.error("API key is not available");
+      throw new Error("API key is not available");
+    }
+
+    const url = `https://main-wjaxre4ena-uc.a.run.app/streamchat?session_id=${sessionId}&secret_key=${userApiKey}`;
     try {
       const response = await axios.get(url);
       return response.data; // Modify based on your backend response structure
@@ -75,7 +95,7 @@ export default function Home() {
 
     const initialMessage = {
       model: "cryptiqa",
-      message: conversation
+      message: conversation,
     };
 
     try {
@@ -99,7 +119,7 @@ export default function Home() {
       console.log("address", useAccountAddress, "isConnected", useAccountIsConnected);
       initiateChatOnOpen();
     }
-  }, [isChatOpen, useAccountAddress, useAccountIsConnected]);
+  }, [isChatOpen, useAccountAddress, useAccountIsConnected, userApiKey]);
 
   useEffect(() => {
     if (chatWidgetRef.current) {
