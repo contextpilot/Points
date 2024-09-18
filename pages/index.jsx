@@ -23,19 +23,35 @@ export default function Home() {
   const [isChatOpen, setIsChatOpen] = useState(false);
   const { address: useAccountAddress, isConnected: useAccountIsConnected } = useAccount();
   const chatWidgetRef = useRef(null);
-
-  // State to maintain the entire conversation
+  
+  const [userApiKey, setUserApiKey] = useState(null);
   const [conversation, setConversation] = useState([
     { role: "system", content: "I am an active bot" },
     { role: "user", content: "Welcome to our chat!" },
   ]);
 
-  // Function to toggle chat visibility
+  useEffect(() => {
+    if (!useAccountAddress) return;
+
+    async function fetchApiUsage() {
+      try {
+        const response = await axios.get(`https://main-wjaxre4ena-uc.a.run.app/api_usage?address=${useAccountAddress}`);
+        if (response.status !== 200) throw new Error("Failed to fetch API key");
+
+        const data = response.data;
+        setUserApiKey(data.api_key);
+      } catch (error) {
+        console.error("Failed to fetch API key:", error);
+      }
+    }
+
+    fetchApiUsage();
+  }, [useAccountAddress]);
+
   const handleChatToggle = () => {
     setIsChatOpen((prev) => !prev);
   };
 
-  // Function to initialize a streaming session and get a session ID
   const initStreamingSession = async (messageJson) => {
     try {
       const response = await axios.post("https://main-wjaxre4ena-uc.a.run.app/streaminit", { message_json: messageJson });
@@ -46,10 +62,13 @@ export default function Home() {
     }
   };
 
-  // Function to interact with the chat streaming endpoint 
   const streamChatMessage = async (sessionId, newMessage) => {
-    const secretKey = useAccountAddress.slice(-6);
-    const url = `https://main-wjaxre4ena-uc.a.run.app/streamchat?session_id=${sessionId}&secret_key=${secretKey}`;
+    if (!userApiKey) {
+      console.error("API key is not available");
+      throw new Error("API key is not available");
+    }
+
+    const url = `https://main-wjaxre4ena-uc.a.run.app/streamchat?session_id=${sessionId}&secret_key=${userApiKey}`;
     try {
       const response = await axios.get(url);
       return response.data; // Modify based on your backend response structure
@@ -59,7 +78,6 @@ export default function Home() {
     }
   };
 
-  // Function to initiate chat when chat widget is opened
   const initiateChatOnOpen = async () => {
     if (!useAccountAddress) {
       console.warn("User address is not connected.");
@@ -69,7 +87,6 @@ export default function Home() {
       return;
     }
 
-    // Check if the conversation length is larger than 2
     if (conversation.length > 2) {
       console.warn("Conversation length is larger than 2. No action will be taken.");
       return;
@@ -77,19 +94,14 @@ export default function Home() {
 
     const initialMessage = {
       model: "cryptiqa",
-      message: conversation
+      message: conversation,
     };
 
     try {
-      // Step 1: Initialize the streaming session
       const sessionId = await initStreamingSession(JSON.stringify(initialMessage));
-
-      // Step 2: Stream the chat message to get a response
       const response = await streamChatMessage(sessionId, "Welcome to our chat!");
 
       setConversation(prev => [...prev, { role: "assistant", content: response.content, question_id: response.question_id }]);
-
-      // Handle the backend response and display it in the chat widget
       import("@ryaneewx/react-chat-widget").then(({ addResponseMessage }) => {
         addResponseMessage(response.content); // Adjust based on your backend response structure
       });
@@ -103,12 +115,9 @@ export default function Home() {
 
   useEffect(() => {
     if (isChatOpen) {
-      console.log("address", useAccountAddress, "isConnected", useAccountIsConnected);
-
-      // Initiate chat when the chat widget is opened
       initiateChatOnOpen();
     }
-  }, [isChatOpen, useAccountAddress, useAccountIsConnected]);
+  }, [isChatOpen, useAccountAddress, userApiKey]);
 
   useEffect(() => {
     if (chatWidgetRef.current) {
@@ -157,7 +166,6 @@ export default function Home() {
     }
   }, []);
 
-  // Custom handler for new user messages
   const handleNewUserMessage = async (newMessage) => {
     const updatedConversation = [...conversation, { role: "user", content: newMessage }];
     const initialMessage = {
@@ -166,15 +174,11 @@ export default function Home() {
     };
 
     try {
-      // Step 1: Initialize the streaming session
       const sessionId = await initStreamingSession(JSON.stringify(initialMessage));
-
-      // Step 2: Stream the chat message to get a response
       const response = await streamChatMessage(sessionId, newMessage);
 
       setConversation(prev => [...prev, { role: "assistant", content: response.content, question_id: response.question_id }]);
 
-      // Handle the backend response and display it in the chat widget
       import("@ryaneewx/react-chat-widget").then(({ addResponseMessage }) => {
         addResponseMessage(response.content); // Adjust based on your backend response structure
       });
@@ -190,7 +194,6 @@ export default function Home() {
     <>
       {/* Use the NotificationBanner component <NotificationBanner /> */}
       <main className="flex flex-col min-h-screen">
-        {/* Other sections */}
         <Section4 />
       </main>
       <div ref={chatWidgetRef}>
