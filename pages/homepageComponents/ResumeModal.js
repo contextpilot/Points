@@ -1,4 +1,3 @@
-// pages/homepageComponents/ResumeModal.js
 import React, { useEffect, useState, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { Bar } from 'react-chartjs-2';
@@ -157,6 +156,7 @@ const ResumeModal = ({ isOpen, onClose, usedTokens, allowedTokens, correctAnswer
                             <Tab>Answered Questions</Tab>
                             <Tab>Model Records</Tab>
                             <Tab>Kombat Points</Tab>
+                            <Tab>Sybil Graph</Tab> {/* New Tab */}
                         </TabList>
 
                         <TabPanel>
@@ -237,13 +237,18 @@ const ResumeModal = ({ isOpen, onClose, usedTokens, allowedTokens, correctAnswer
                         </TabPanel>
 
                         <TabPanel>
-                        <h2 className="text-xl font-bold mb-4">Kombat Points by Date</h2>
-                        <Bar data={kombatPointsData} />
-                    </TabPanel>
-                </Tabs>
-                <button onClick={onClose} className="mt-4 bg-red-500 text-white px-4 py-2 rounded">
-                    Close
-                </button>
+                            <h2 className="text-xl font-bold mb-4">Kombat Points by Date</h2>
+                            <Bar data={kombatPointsData} />
+                        </TabPanel>
+
+                        <TabPanel>
+                            <h2 className="text-xl font-bold mb-4">Sybil Graph</h2>
+                            <img src={`https://storage.googleapis.com/crypti-cdn/bigraph/${evmAddress.toLowerCase()}.png`} alt="Sybil Graph" className="mx-auto"/>
+                        </TabPanel>
+                    </Tabs>
+                    <button onClick={onClose} className="mt-4 bg-red-500 text-white px-4 py-2 rounded">
+                        Close
+                    </button>
                 </div>
             </div>
 
