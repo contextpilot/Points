@@ -243,7 +243,10 @@ const ResumeModal = ({ isOpen, onClose, usedTokens, allowedTokens, correctAnswer
 
                         <TabPanel>
                             <h2 className="text-xl font-bold mb-4">Sybil Graph</h2>
-                            <img src={`https://storage.googleapis.com/crypti-cdn/bigraph/${evmAddress.toLowerCase()}.png`} alt="Sybil Graph" className="mx-auto"/>
+                            <h3 className="text-lg font-bold mb-2">Bigraph</h3> {/* Title for Bigraph */}
+                            <img src={`https://storage.googleapis.com/crypti-cdn/bigraph/${evmAddress.toLowerCase()}.png`} alt="Sybil Graph" className="mx-auto mb-4" />
+                            <h3 className="text-lg font-bold mb-2">Transfer Graph</h3> {/* Title for Transfer Graph */}
+                            <img src={`https://storage.googleapis.com/crypti-cdn/transfer/${evmAddress.toLowerCase()}.png`} alt="Transfer Graph" className="mx-auto" />
                         </TabPanel>
                     </Tabs>
                     <button onClick={onClose} className="mt-4 bg-red-500 text-white px-4 py-2 rounded">
