@@ -24,7 +24,7 @@ export default function Footer() {
                         <span className="sr-only">Twitter page</span>
                     </a>
                     <a
-                        href="https://discord.com/invite/qX9SxjDw"
+                        href="https://discord.com/invite/7Turx2nBCd"
                         className="text-gray-400 hover:text-white"
                         target="_blank"
                         rel="noopener noreferrer"
