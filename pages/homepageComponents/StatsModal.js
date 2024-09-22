@@ -131,10 +131,10 @@ const StatsModal = ({ isOpen, onClose }) => {
     };
   };
 
-  const prepareKombatChartData = (array, key, dateFormat = "yyyy-MM-dd") => {
+  const prepareKombatChartData = (array, key) => {
     if (!array) return { labels: [], datasets: [] };
     return {
-      labels: array.map((item) => format(new Date(item.date), dateFormat)),
+      labels: array.map((item) => item.date),
       datasets: [
         {
           label: key.replace(/_/g, " ").toUpperCase(),
