@@ -239,6 +239,9 @@ const StatsModal = ({ isOpen, onClose }) => {
         <td className="py-1 px-2 border-r text-sm">
           {String(leader.used_tokens)}
         </td>
+        <td className="py-1 px-2 border-r text-sm">
+          {String(leader.withdrawed_points)}
+        </td>
         <td className="py-1 px-2 text-sm">{String(leader.points)}</td>
       </tr>
     ));
@@ -279,6 +282,12 @@ const StatsModal = ({ isOpen, onClose }) => {
                 onClick={() => handleSort("used_tokens")}
               >
                 Used Tokens
+              </th>
+              <th
+                className="py-1 px-2 border-r cursor-pointer text-sm"
+                onClick={() => handleSort("withdrawed_points")}
+              >
+                Withdrawed Points
               </th>
               <th
                 className="py-1 px-2 cursor-pointer text-sm"
