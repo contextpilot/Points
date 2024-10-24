@@ -15,6 +15,7 @@ import { Tab, Tabs, TabList, TabPanel } from "react-tabs";
 import "react-tabs/style/react-tabs.css";
 import { format } from "date-fns";
 import ResumeModal from "./ResumeModal";
+import CreditScoreDetailModal from "./CreditScoreDetailModal";
 
 Chart.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, PointElement);
 
@@ -35,6 +36,7 @@ const StatsModal = ({ isOpen, onClose }) => {
   });
   const [resumeModalOpen, setResumeModalOpen] = useState(false);
   const [selectedLeader, setSelectedLeader] = useState(null);
+  const [selectedCreditScores, setSelectedCreditScores] = useState(null);
 
   const itemsPerPage = 10;
 
@@ -44,6 +46,13 @@ const StatsModal = ({ isOpen, onClose }) => {
   const kombatAddedAddressesChartRef = useRef(null);
   const kombatTotalPointsChartRef = useRef(null);
   const creditScoresChartRef = useRef(null);
+  const [currentCreditScorePage, setCurrentCreditScorePage] = useState(1);
+  const [creditScoreSortConfig, setCreditScoreSortConfig] = useState({
+    key: "evm_address",
+    direction: "ascending",
+  });
+  const [creditScoreModalOpen, setCreditScoreModalOpen] = useState(false);
+  const [itemizedCreditScores, setItemizedCreditScores] = useState(null);
 
   useEffect(() => {
     if (isOpen) {
@@ -147,12 +156,12 @@ const StatsModal = ({ isOpen, onClose }) => {
 
   const prepareCreditScoresChartData = (creditScores) => {
     if (!creditScores) return { datasets: [] };
-
+  
     const scores = creditScores.map(score => ({
       x: Math.random(), // Random x value for the dot plot
-      y: score.credit_score,
+      y: score.credit_score.credit_score,
     }));
-
+  
     return {
       datasets: [
         {
@@ -163,6 +172,117 @@ const StatsModal = ({ isOpen, onClose }) => {
       ],
     };
   };
+
+  const handleCreditScoreClick = (creditScore, type) => {
+    if(type === 'address'){
+      // Logic for handling address click
+      setResumeModalOpen(true);
+    } else if(type === 'score') {
+      setItemizedCreditScores(creditScore.credit_score);
+      setCreditScoreModalOpen(true);
+    }
+  };
+  
+  // Sorting function for credit scores
+  const handleCreditScoreSort = (key) => {
+    let direction = "ascending";
+    if (creditScoreSortConfig.key === key && creditScoreSortConfig.direction === "ascending") {
+      direction = "descending";
+    }
+    setCreditScoreSortConfig({ key, direction });
+  };
+
+  // Sorted and paginated credit scores
+  const sortedCreditScores = useMemo(() => {
+    if (!creditScores) return [];
+  
+    const sortableCreditScores = [...creditScores];
+  
+    sortableCreditScores.sort((a, b) => {
+      const aValue = a.credit_score[creditScoreSortConfig.key] || a[creditScoreSortConfig.key];
+      const bValue = b.credit_score[creditScoreSortConfig.key] || b[creditScoreSortConfig.key];
+  
+      if (aValue < bValue) {
+        return creditScoreSortConfig.direction === "ascending" ? -1 : 1;
+      }
+      if (aValue > bValue) {
+        return creditScoreSortConfig.direction === "ascending" ? 1 : -1;
+      }
+      return 0;
+    });
+  
+    return sortableCreditScores;
+  }, [creditScores, creditScoreSortConfig]);
+  
+  const renderCreditScoresTable = useMemo(() => {
+    if (loadingCreditScores) return <p>Loading...</p>;
+    if (!creditScores) return <p>No data available...</p>;
+  
+    const startIndex = (currentCreditScorePage - 1) * itemsPerPage;
+    const currentCreditScores = sortedCreditScores.slice(startIndex, startIndex + itemsPerPage);
+  
+    const rows = currentCreditScores.map((creditScore) => (
+      <tr key={creditScore.evm_address} className="border-b">
+        <td
+          className="py-1 px-2 border-r text-sm text-blue-500 underline cursor-pointer"
+          onClick={() => handleCreditScoreClick(creditScore, 'address')}
+        >
+          {creditScore.evm_address}
+        </td>
+        <td
+          className="py-1 px-2 border-r text-sm text-blue-500 underline cursor-pointer"
+          onClick={() => handleCreditScoreClick(creditScore, 'score')}
+        >
+          {creditScore.credit_score.credit_score}
+        </td>
+      </tr>
+    ));
+  
+    const totalPages = Math.ceil(sortedCreditScores.length / itemsPerPage);
+  
+    return (
+      <>
+        <table className="min-w-full bg-white border">
+          <thead>
+            <tr className="border-b">
+              <th
+                className="py-1 px-2 border-r cursor-pointer text-sm"
+                onClick={() => handleCreditScoreSort("evm_address")}
+              >
+                EVM Address
+              </th>
+              <th
+                className="py-1 px-2 border-r cursor-pointer text-sm"
+                onClick={() => handleCreditScoreSort("credit_score")}
+              >
+                Credit Score
+              </th>
+            </tr>
+          </thead>
+          <tbody>{rows}</tbody>
+        </table>
+        <div className="mt-4 flex justify-center">
+          <button
+            className="px-3 py-1 mx-1 text-white bg-blue-500 rounded"
+            disabled={currentCreditScorePage === 1}
+            onClick={() => setCurrentCreditScorePage((prev) => Math.max(prev - 1, 1))}
+          >
+            Previous
+          </button>
+          <span className="px-3 py-1 mx-1">
+            Page {currentCreditScorePage} of {totalPages}
+          </span>
+          <button
+            className="px-3 py-1 mx-1 text-white bg-blue-500 rounded"
+            disabled={currentCreditScorePage === totalPages}
+            onClick={() => setCurrentCreditScorePage((prev) => Math.min(prev + 1, totalPages))}
+          >
+            Next
+          </button>
+        </div>
+      </>
+    );
+  }, [sortedCreditScores, currentCreditScorePage, loadingCreditScores]);
 
   const handleSort = (key) => {
     let direction = "ascending";
@@ -463,6 +583,22 @@ const StatsModal = ({ isOpen, onClose }) => {
                       ref={creditScoresChartRef}
                     />
                   </div>
+                  <div className="mt-6">
+                    {renderCreditScoresTable}
+                  </div>
+                  {selectedCreditScores && (
+                    <div className="mt-6 p-4 bg-gray-100 rounded">
+                      <h3 className="font-bold">Itemized Scores</h3>
+                      <ul>
+                        {Object.entries(selectedCreditScores).map(([key, value]) => (
+                          <li key={key} className="flex justify-between">
+                            <span>{key.replace(/_/g, ' ')}:</span>
+                            <span>{value}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
                 </TabPanel>
               </Tabs>
             )
@@ -482,8 +618,18 @@ const StatsModal = ({ isOpen, onClose }) => {
           onClose={() => setResumeModalOpen(false)}
           evmAddress={selectedLeader.address}  // Using leader's full address
           // Add more properties as needed based on `selectedLeader`
-        />
+        />   
       )}
+      <ResumeModal
+        isOpen={resumeModalOpen}
+        onClose={() => setResumeModalOpen(false)}
+        evmAddress={selectedLeader ? selectedLeader.address : ''}
+      />
+      <CreditScoreDetailModal
+        isOpen={creditScoreModalOpen}
+        onClose={() => setCreditScoreModalOpen(false)}
+        creditScores={itemizedCreditScores}
+      />
     </>
   );
 };
