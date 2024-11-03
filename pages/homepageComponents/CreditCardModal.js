@@ -188,13 +188,22 @@ const CreditCardModal = ({ evmAddress }) => {
           />
           <div className="left-[47px] top-[241px] absolute text-black text-3xl font-normal font-irish-grover">Credit Score</div>
           <div className="left-[63px] top-[22px] absolute text-black text-3xl font-normal font-irish-grover">Witch Card</div>
-          <div className="left-[47px] top-[375px] absolute text-blue-500 text-sm font-irish-grover underline block">
+          <div className="left-[40px] top-[355px] absolute text-blue-500 text-sm font-irish-grover underline block">
             <a
               href="https://doc.context-pilot.xyz/the-witch-card/credit-score"
               target="_blank"
               rel="noopener noreferrer"
             >
-              How to get credit score
+              How credit score is calculated
+            </a>
+            <br />
+            <a
+              className="mt-2"  // Add margin-top class here
+              href="https://doc.context-pilot.xyz/the-witch-card/witch-domain/mint-credit-score-on-chain"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              How to mint credit score
             </a>
           </div>
           <div className="left-[25px] top-[402px] absolute text-black text-xl font-normal font-irish-grover">witchcard.{bnbDomainName}</div>
@@ -230,14 +239,23 @@ const CreditCardModal = ({ evmAddress }) => {
             height={24}
             onClick={handleClick}
           />
-          <a
-            href="https://doc.context-pilot.xyz/the-witch-card/credit-score"
-            className="left-[268px] top-[175px] absolute text-blue-500 text-sm font-irish-grover underline block"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            How to get credit score
-          </a>
+          <div className="left-[268px] top-[165px] absolute text-blue-500 text-sm font-irish-grover underline block flex flex-col">
+            <a
+              href="https://doc.context-pilot.xyz/the-witch-card/credit-score"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              How credit score is calculated
+            </a>
+            <a
+              className="mt-2"  // Add margin-top class here
+              href="https://doc.context-pilot.xyz/the-witch-card/witch-domain/mint-credit-score-on-chain"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              How to mint credit score
+            </a>
+          </div>
         </div>
       )}
       {isConfirmingMint && (
