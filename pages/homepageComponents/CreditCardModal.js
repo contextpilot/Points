@@ -5,6 +5,7 @@ const CreditCardModal = ({ evmAddress }) => {
   const [isMobile, setIsMobile] = useState(false);
   const [creditScore, setCreditScore] = useState('***');
   const [isClicked, setIsClicked] = useState(false);
+  const [bnbDomainName, setBnbDomainName] = useState('Fetching...');
 
   useEffect(() => {
     const handleResize = () => {
@@ -31,6 +32,34 @@ const CreditCardModal = ({ evmAddress }) => {
       console.error('There was a problem with the fetch operation:', error);
     }
   };
+
+  const fetchEnsNameFromAPI = async (address) => {
+    try {
+      // Make an API call to the space.id service for reverse name resolution
+      const response = await fetch(`https://api.prd.space.id/v1/getName?tld=bnb&address=${address}`);
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch ENS name');
+      }
+
+      const data = await response.json();
+
+      // Assuming the API returns a JSON object with 'name' key
+      if (data.code === 0 && data.name) {
+        console.log('name is', data.name)
+        setBnbDomainName(data.name);
+      } else {
+        setBnbDomainName('No ENS name found');
+      }
+    } catch (error) {
+      console.error('Error fetching ENS name:', error);
+      setBnbDomainName('Error fetching ENS name');
+    }
+  };
+
+  useEffect(() => {
+    fetchEnsNameFromAPI(evmAddress);
+  }, [evmAddress]); // Re-fetch whenever the address changes
 
   const handleClick = () => {
     setIsClicked(true);
@@ -63,7 +92,7 @@ const CreditCardModal = ({ evmAddress }) => {
               How to get credit score
             </a>
           </div>
-          <div className="left-[25px] top-[402px] absolute text-black text-xl font-normal font-irish-grover">witch.xxxxx.[eth/bnb/sol/?]</div>
+          <div className="left-[25px] top-[402px] absolute text-black text-xl font-normal font-irish-grover">witchcard.{bnbDomainName}</div>
           <div className="left-[71px] top-[310px] absolute text-black text-3xl font-normal font-irish-grover">{creditScore}</div>
           <Image
             className={`left-[137px] top-[315px] absolute rounded-[15px] cursor-pointer ${isClicked ? 'opacity-50' : ''}`}
@@ -86,7 +115,7 @@ const CreditCardModal = ({ evmAddress }) => {
           />
           <div className="left-[268px] top-[52px] absolute text-black text-3xl font-normal font-irish-grover">Credit Score</div>
           <div className="left-[24px] top-[213px] absolute text-black text-3xl font-normal font-irish-grover">Witch Card</div>
-          <div className="left-[238px] top-[219px] absolute text-black text-xl font-normal font-irish-grover">witch.xxxxx.[eth/bnb/sol/?]</div>
+          <div className="left-[238px] top-[219px] absolute text-black text-xl font-normal font-irish-grover">witchcard.{bnbDomainName}</div>
           <div className="left-[299px] top-[125px] absolute text-black text-3xl font-normal font-irish-grover">{creditScore}</div>
           <Image
             className={`left-[359px] top-[129px] absolute rounded-[15px] cursor-pointer ${isClicked ? 'opacity-50' : ''}`}
