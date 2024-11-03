@@ -2,7 +2,6 @@ import Image from 'next/image';
 import { useEffect, useState } from 'react';
 
 const ConfirmationModal = ({ onCancel, onConfirm, transactionHashes, isMinting }) => {
-  // Define the link texts for each transaction
   const transactionLinkTexts = [
     "Set Space ID domain",
     "Set Credit Score",
@@ -13,34 +12,40 @@ const ConfirmationModal = ({ onCancel, onConfirm, transactionHashes, isMinting }
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
       <div className="bg-white p-4 rounded shadow-lg">
         <h2 className="text-lg font-semibold">Confirm Mint</h2>
-        <p>We will charge you 1000 points to mint. Do you want to proceed?</p>
+        <p>We will charge you 1000 tokens to mint. Do you want to proceed?</p>
+        
         {transactionHashes && (
           <div className="mt-2">
-            <h3 className="font-medium">Transaction Hashes:</h3>
+            <h3 className="font-medium">Transaction Result:</h3>
             <ul>
-              {Object.values(transactionHashes).map((txHash, index) => (
-                <li key={index} className="break-all">
-                  <a
-                    href={`https://bscscan.com/tx/${txHash}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-600 underline"
-                  >
-                    {transactionLinkTexts[index] || txHash} {/* Use custom link text based on the index */}
-                  </a>
-                </li>
-              ))}
+              {transactionHashes.error ? (  // Check if transactionHashes has an error property
+                <li className="text-red-500">{transactionHashes.error}</li> // Display the error message
+              ) : (
+                Object.values(transactionHashes).map((txHash, index) => (
+                  <li key={index} className="break-all">
+                    <a
+                      href={`https://bscscan.com/tx/${txHash}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 underline"
+                    >
+                      {transactionLinkTexts[index] || txHash} {/* Use custom link text based on the index */}
+                    </a>
+                  </li>
+                ))
+              )}
             </ul>
           </div>
         )}
+
         <div className="flex justify-end mt-4">
           <button className="mr-2 px-4 py-2 text-white bg-gray-500 rounded" onClick={onCancel}>Cancel</button>
           <button 
             className={`px-4 py-2 text-white ${isMinting ? 'bg-orange-500' : 'bg-blue-500'} rounded`} 
             onClick={onConfirm} 
-            disabled={isMinting} // Disable button during minting
+            disabled={isMinting} 
           >
-            {isMinting ? 'Minting...' : 'Proceed'} {/* Change button text based on minting status */}
+            {isMinting ? 'Minting...' : 'Proceed'}
           </button>
         </div>
       </div>
