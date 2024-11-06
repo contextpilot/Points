@@ -297,7 +297,7 @@ const CreditCardModal = ({ evmAddress }) => {
       {isBorrowingVisible && (
         <CreditBorrowModal 
           onClose={handleCloseBorrowModal} 
-          bnbDomainName={bnbDomainName} 
+          address={evmAddress} 
         />
       )}
     </div>
