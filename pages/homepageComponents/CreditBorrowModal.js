@@ -5,7 +5,9 @@ const CreditBorrowModal = ({ onClose, address }) => {
     const [borrowRecords, setBorrowRecords] = useState([]);
     const [creditBasedAllowance, setCreditBasedAllowance] = useState(0);
     const [remainAllowance, setRemainAllowance] = useState("0.0");
+    const [inputAmount, setInputAmount] = useState(0); // Track input amount
     const [loading, setLoading] = useState(true); // Track loading state
+    const [warning, setWarning] = useState(""); // Warning message for invalid input
 
     useEffect(() => {
         const handleResize = () => {
@@ -37,6 +39,18 @@ const CreditBorrowModal = ({ onClose, address }) => {
         fetchBorrowStatus();
     }, [address]);
 
+    const handleInputChange = (e) => {
+        const value = parseFloat(e.target.value);
+        setInputAmount(value);
+        if (value > creditBasedAllowance) {
+            setWarning("illegal number!");
+        } else {
+            setWarning("");
+            const updatedRemainAllowance = Math.max(0, (creditBasedAllowance - value).toFixed(2));
+            setRemainAllowance(updatedRemainAllowance);
+        }
+    };
+
     return (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
             {loading ? ( // Show loading message while fetching
@@ -45,18 +59,30 @@ const CreditBorrowModal = ({ onClose, address }) => {
                 <div className="w-[275px] h-[499px] relative">
                     <div className="w-[499px] h-[275px] left-0 top-[499px] absolute origin-top-left -rotate-90 bg-[#3962a0] rounded-[15px] shadow border border-black" />
                     <div className="left-[44px] top-[56px] absolute text-black text-3xl font-normal font-['Irish Grover']">Credit Borrow</div>
-                    <div className="w-[72px] h-6 left-[161px] top-[130px] absolute">
-                        <img className="w-[72px] h-6 left-0 top-0 absolute rounded-[15px] shadow" src="https://via.placeholder.com/72x24" />
-                        <div className="w-[54px] h-3.5 left-[9px] top-[5px] absolute bg-[#acdff6]" />
-                        <div className="left-[22px] top-[5px] absolute text-black text-xs font-normal font-['Istok Web']">Borrow</div>
+                    
+                    <div className="left-[47px] top-[90px] absolute text-black text-lg font-normal font-['Istok Web']">
+                        Total: {creditBasedAllowance}
                     </div>
-                    <input 
-                        type="number" 
-                        max={remainAllowance}
-                        className="left-[47px] top-[122px] absolute w-[94px] h-[41px] text-black text-xl font-normal font-['Irish Grover'] bg-white border border-black rounded p-1 text-center"
-                        value={remainAllowance} 
-                        readOnly // Set to true to make it read-only for display
-                    />
+                    <div className="left-[47px] top-[110px] absolute text-black text-lg font-normal font-['Istok Web']">
+                        Remaining: {remainAllowance}
+                    </div>
+
+                    <div className="flex items-center left-[47px] top-[150px] absolute">
+                        <input 
+                            type="number"
+                            className="w-[94px] h-[41px] text-black text-xl font-normal font-['Irish Grover'] bg-white border border-black rounded p-1 text-center"
+                            value={inputAmount}
+                            onChange={handleInputChange} // Allow editing
+                        />
+                        <button className="ml-2 w-[72px] h-[41px] bg-[#acdff6] rounded-[15px] shadow text-black text-xs font-normal font-['Istok Web']">
+                            Borrow
+                        </button>
+                    </div>
+                    {warning && (
+                        <div className="left-[47px] top-[200px] absolute text-red-600 text-sm font-normal font-['Istok Web']">
+                            {warning}
+                        </div>
+                    )}
                     
                     <div
                         className="left-[243px] top-[11px] absolute text-xl font-normal font-['Istok Web'] cursor-pointer"
@@ -70,19 +96,31 @@ const CreditBorrowModal = ({ onClose, address }) => {
                 <div className="bg-white p-4 rounded shadow-lg w-[499px] h-[275px] relative">
                     <div className="w-[499px] h-[275px] left-0 top-0 absolute bg-[#3962a0] rounded-[15px] shadow border border-black" />
                     <div className="left-[27px] top-[30px] absolute text-black text-3xl font-normal font-['Irish Grover']">Credit Borrow</div>
-
-                    <div className="w-[72px] h-6 left-[152px] top-[132px] absolute">
-                        <img className="w-[72px] h-6 left-0 top-0 absolute rounded-[15px] shadow" src="https://via.placeholder.com/72x24" alt="Borrow Icon" />
-                        <div className="w-[54px] h-3.5 left-[9px] top-[5px] absolute bg-[#acdff6]" />
-                        <div className="left-[22px] top-[5px] absolute text-black text-xs font-normal font-['Istok Web']">Borrow</div>
+                    
+                    <div className="left-[35px] top-[90px] absolute text-black text-lg font-normal font-['Istok Web']">
+                        Total: {creditBasedAllowance}
                     </div>
-                    <input 
-                        type="number" 
-                        max={remainAllowance}
-                        className="left-[35px] top-[124px] absolute w-[94px] h-[41px] text-black text-xl font-normal font-['Istok Web'] bg-white border border-black rounded p-1 text-center"
-                        value={remainAllowance} 
-                        readOnly // Set to true to make it read-only for display
-                    />
+                    <div className="left-[35px] top-[110px] absolute text-black text-lg font-normal font-['Istok Web']">
+                        Remaining: {remainAllowance}
+                    </div>
+
+                    <div className="flex items-center left-[35px] top-[150px] absolute">
+                        <input 
+                            type="number"
+                            className="w-[94px] h-[41px] text-black text-xl font-normal font-['Istok Web'] bg-white border border-black rounded p-1 text-center"
+                            value={inputAmount}
+                            onChange={handleInputChange} // Allow editing
+                        />
+                        <button className="ml-2 w-[72px] h-[41px] bg-[#acdff6] rounded-[15px] shadow text-black text-xs font-normal font-['Istok Web']">
+                            Borrow
+                        </button>
+                    </div>
+                    {warning && (
+                        <div className="left-[35px] top-[200px] absolute text-red-600 text-sm font-normal font-['Istok Web']">
+                            {warning}
+                        </div>
+                    )}
+                    
                     <div
                         className="left-[464px] top-[16px] absolute text-xl font-normal font-['Istok Web'] cursor-pointer"
                         onClick={onClose}
