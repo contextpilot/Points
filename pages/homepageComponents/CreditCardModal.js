@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
+import CreditBorrowModal from './CreditBorrowModal';
 
 const ConfirmationModal = ({ onCancel, onConfirm, transactionHashes, isMinting }) => {
   const transactionLinkTexts = [
@@ -62,7 +63,16 @@ const CreditCardModal = ({ evmAddress }) => {
   const [buttonText, setButtonText] = useState('Refresh');
   const [isConfirmingMint, setIsConfirmingMint] = useState(false);
   const [transactionHashes, setTransactionHashes] = useState(null);
-  const [isMinting, setIsMinting] = useState(false); // State to track minting progress
+  const [isMinting, setIsMinting] = useState(false);
+  const [isBorrowingVisible, setIsBorrowingVisible] = useState(false);
+
+  const handleOpenBorrowModal = () => {
+    setIsBorrowingVisible(true);
+  };
+
+  const handleCloseBorrowModal = () => {
+    setIsBorrowingVisible(false);
+  };
 
   useEffect(() => {
     const handleResize = () => {
@@ -206,7 +216,16 @@ const CreditCardModal = ({ evmAddress }) => {
               How to mint credit score
             </a>
           </div>
-          <div className="left-[25px] top-[402px] absolute text-black text-xl font-normal font-irish-grover">witchcard.{bnbDomainName}</div>
+          <div className="left-[25px] top-[402px] absolute text-black text-xl font-normal font-irish-grover">
+            {bnbDomainName !== 'Fetching...' && (
+              <a 
+                onClick={handleOpenBorrowModal} // Make sure this function is defined
+                className="cursor-pointer text-blue-500 underline"
+              >
+                witchcard.{bnbDomainName}
+              </a>
+            )}
+          </div>
           <div className="left-[71px] top-[310px] absolute text-black text-3xl font-normal font-irish-grover">{creditScore}</div>
           <Image
             className={`left-[137px] top-[315px] absolute rounded-[15px] cursor-pointer ${isClicked ? 'opacity-50' : ''}`}
@@ -229,7 +248,16 @@ const CreditCardModal = ({ evmAddress }) => {
           />
           <div className="left-[268px] top-[52px] absolute text-black text-3xl font-normal font-irish-grover">Credit Score</div>
           <div className="left-[24px] top-[213px] absolute text-black text-3xl font-normal font-irish-grover">Witch Card</div>
-          <div className="left-[238px] top-[219px] absolute text-black text-xl font-normal font-irish-grover">witchcard.{bnbDomainName}</div>
+          <div className="left-[238px] top-[219px] absolute text-black text-xl font-normal font-irish-grover">
+            {bnbDomainName !== 'Fetching...' && (
+              <a 
+                onClick={handleOpenBorrowModal} // Make sure this function is defined
+                className="cursor-pointer text-blue-500 underline"
+              >
+                witchcard.{bnbDomainName}
+              </a>
+            )}
+          </div>
           <div className="left-[299px] top-[125px] absolute text-black text-3xl font-normal font-irish-grover">{creditScore}</div>
           <Image
             className={`left-[359px] top-[129px] absolute rounded-[15px] cursor-pointer ${isClicked ? 'opacity-50' : ''}`}
@@ -264,6 +292,12 @@ const CreditCardModal = ({ evmAddress }) => {
           onConfirm={handleMintConfirm}
           transactionHashes={transactionHashes}
           isMinting={isMinting} // Pass minting state to the modal
+        />
+      )}
+      {isBorrowingVisible && (
+        <CreditBorrowModal 
+          onClose={handleCloseBorrowModal} 
+          address={evmAddress} 
         />
       )}
     </div>
