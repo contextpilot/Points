@@ -1,7 +1,8 @@
+// StreamDotModal.js
 import React from 'react';
 
-const StreamDotModal = ({ onClose, record }) => {
-    const { stream_status, streamed } = record; // Destructuring the relevant properties from record
+const StreamDotModal = ({ onClose, record = {} }) => {
+    const { stream_status, streamed } = record;
 
     return (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">

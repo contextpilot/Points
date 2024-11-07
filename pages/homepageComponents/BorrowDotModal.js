@@ -1,8 +1,8 @@
 // BorrowDotModal.js
 import React from 'react';
 
-const BorrowDotModal = ({ onClose, record }) => {
-    const { borrow_status, borrowed, streamed } = record; // Destructuring the relevant properties from record
+const BorrowDotModal = ({ onClose, record = {} }) => {
+    const { borrow_status, stream_status, streamed } = record;
 
     return (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
