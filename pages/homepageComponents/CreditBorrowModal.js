@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import StreamDotModal from './StreamDotModal'; // Adjust the import path
+import BorrowDotModal from './BorrowDotModal'; // Adjust the import path
 
-const CreditBorrowTable = ({ borrowRecords }) => {
+const CreditBorrowTable = ({ borrowRecords, onStreamDotClicked, onBorrowDotClicked }) => {
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 3;
 
@@ -41,8 +43,16 @@ const CreditBorrowTable = ({ borrowRecords }) => {
                             {/* Status Cell */}
                             <td className="text-center px-4 py-2">
                                 <div className="flex justify-center space-x-2">
-                                    <div className="inline-block w-3 h-3 rounded-full animate-pulse" style={{ backgroundColor: record.borrow_status ? '#00FF00' : '#FF0000' }} />
-                                    <div className="inline-block w-3 h-3 rounded-full animate-pulse" style={{ backgroundColor: record.stream_status ? '#00FF00' : '#FF0000' }} />
+                                    <div
+                                        className="inline-block w-3 h-3 rounded-full animate-pulse cursor-pointer"
+                                        style={{ backgroundColor: record.borrow_status ? '#00FF00' : '#FF0000' }}
+                                        onClick={() => onBorrowDotClicked(record)}
+                                    />
+                                    <div
+                                        className="inline-block w-3 h-3 rounded-full animate-pulse cursor-pointer"
+                                        style={{ backgroundColor: record.stream_status ? '#00FF00' : '#FF0000' }}
+                                        onClick={() => onStreamDotClicked(record)}
+                                    />
                                 </div>
                             </td>
                         </tr>
@@ -81,6 +91,9 @@ const CreditBorrowModal = ({ onClose, address }) => {
     const [loading, setLoading] = useState(true);
     const [warning, setWarning] = useState("");
     const [borrowLoading, setBorrowLoading] = useState(false);
+    const [showStreamModal, setShowStreamModal] = useState(false);
+    const [showBorrowModal, setShowBorrowModal] = useState(false);
+    const [selectedRecord, setSelectedRecord] = useState(null);
 
     useEffect(() => {
         const handleResize = () => {
@@ -162,6 +175,16 @@ const CreditBorrowModal = ({ onClose, address }) => {
         }
     };
 
+    const handleStreamDotClick = (record) => {
+        setSelectedRecord(record);
+        setShowStreamModal(true);
+    };
+
+    const handleBorrowDotClick = (record) => {
+        setSelectedRecord(record);
+        setShowBorrowModal(true);
+    };
+
     return (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
             {loading ? (
@@ -205,7 +228,11 @@ const CreditBorrowModal = ({ onClose, address }) => {
                         X
                     </div>
                     <div className="w-[170px] h-[197px] left-[56px] top-[238px] absolute">
-                        <CreditBorrowTable borrowRecords={borrowRecords} />
+                        <CreditBorrowTable
+                            borrowRecords={borrowRecords}
+                            onStreamDotClicked={handleStreamDotClick}
+                            onBorrowDotClicked={handleBorrowDotClick}
+                        />
                     </div>
                 </div>
             ) : (
@@ -247,9 +274,28 @@ const CreditBorrowModal = ({ onClose, address }) => {
                         X
                     </div>
                     <div className="w-[170px] h-[197px] left-[286px] top-[52px] absolute">
-                        <CreditBorrowTable borrowRecords={borrowRecords} />
+                        <CreditBorrowTable
+                            borrowRecords={borrowRecords}
+                            onStreamDotClicked={handleStreamDotClick}
+                            onBorrowDotClicked={handleBorrowDotClick}
+                        />
                     </div>
                 </div>
+            )}
+            {/* Stream Dot Modal */}
+            {showStreamModal && (
+                <StreamDotModal 
+                    onClose={() => setShowStreamModal(false)} 
+                    record={selectedRecord} 
+                />
+            )}
+
+            {/* Borrow Dot Modal */}
+            {showBorrowModal && (
+                <BorrowDotModal 
+                    onClose={() => setShowBorrowModal(false)} 
+                    record={selectedRecord} 
+                />
             )}
         </div>
     );
