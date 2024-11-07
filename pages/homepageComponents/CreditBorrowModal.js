@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-const CreditBorrowTable = ({ borrowRecords }) => {
+const CreditBorrowTable = ({ borrowRecords, onStreamDotClicked, onBorrowDotClicked }) => {
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 3;
 
@@ -41,8 +41,16 @@ const CreditBorrowTable = ({ borrowRecords }) => {
                             {/* Status Cell */}
                             <td className="text-center px-4 py-2">
                                 <div className="flex justify-center space-x-2">
-                                    <div className="inline-block w-3 h-3 rounded-full animate-pulse" style={{ backgroundColor: record.borrow_status ? '#00FF00' : '#FF0000' }} />
-                                    <div className="inline-block w-3 h-3 rounded-full animate-pulse" style={{ backgroundColor: record.stream_status ? '#00FF00' : '#FF0000' }} />
+                                    <div
+                                        className="inline-block w-3 h-3 rounded-full animate-pulse cursor-pointer"
+                                        style={{ backgroundColor: record.borrow_status ? '#00FF00' : '#FF0000' }}
+                                        onClick={() => onBorrowDotClicked(record)}
+                                    />
+                                    <div
+                                        className="inline-block w-3 h-3 rounded-full animate-pulse cursor-pointer"
+                                        style={{ backgroundColor: record.stream_status ? '#00FF00' : '#FF0000' }}
+                                        onClick={() => onStreamDotClicked(record)}
+                                    />
                                 </div>
                             </td>
                         </tr>
@@ -162,6 +170,14 @@ const CreditBorrowModal = ({ onClose, address }) => {
         }
     };
 
+    const handleStreamDotClick = (record) => {
+        console.log("Stream dot clicked for record:", record);
+    };
+
+    const handleBorrowDotClick = (record) => {
+        console.log("Borrow dot clicked for record:", record);
+    };
+
     return (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
             {loading ? (
@@ -205,7 +221,11 @@ const CreditBorrowModal = ({ onClose, address }) => {
                         X
                     </div>
                     <div className="w-[170px] h-[197px] left-[56px] top-[238px] absolute">
-                        <CreditBorrowTable borrowRecords={borrowRecords} />
+                        <CreditBorrowTable
+                            borrowRecords={borrowRecords}
+                            onStreamDotClicked={handleStreamDotClick}
+                            onBorrowDotClicked={handleBorrowDotClick}
+                        />
                     </div>
                 </div>
             ) : (
@@ -247,7 +267,11 @@ const CreditBorrowModal = ({ onClose, address }) => {
                         X
                     </div>
                     <div className="w-[170px] h-[197px] left-[286px] top-[52px] absolute">
-                        <CreditBorrowTable borrowRecords={borrowRecords} />
+                        <CreditBorrowTable
+                            borrowRecords={borrowRecords}
+                            onStreamDotClicked={handleStreamDotClick}
+                            onBorrowDotClicked={handleBorrowDotClick}
+                        />
                     </div>
                 </div>
             )}
