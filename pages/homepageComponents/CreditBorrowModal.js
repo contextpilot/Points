@@ -45,13 +45,13 @@ const CreditBorrowTable = ({ borrowRecords, onStreamDotClicked, onBorrowDotClick
                                 <div className="flex justify-center space-x-2">
                                     <div
                                         className="inline-block w-3 h-3 rounded-full animate-pulse cursor-pointer"
-                                        style={{ backgroundColor: record.borrow_status ? '#00FF00' : '#FF0000' }}
-                                        onClick={() => onBorrowDotClicked(record)}
+                                        style={{ backgroundColor: record.stream_status ? '#00FF00' : '#FF0000' }}
+                                        onClick={() => onStreamDotClicked(record)}
                                     />
                                     <div
                                         className="inline-block w-3 h-3 rounded-full animate-pulse cursor-pointer"
-                                        style={{ backgroundColor: record.stream_status ? '#00FF00' : '#FF0000' }}
-                                        onClick={() => onStreamDotClicked(record)}
+                                        style={{ backgroundColor: record.borrow_status ? '#00FF00' : '#FF0000' }}
+                                        onClick={() => onBorrowDotClicked(record)}
                                     />
                                 </div>
                             </td>
