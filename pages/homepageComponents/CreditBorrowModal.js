@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import StreamDotModal from './StreamDotModal'; // Adjust the import path
+import BorrowDotModal from './BorrowDotModal'; // Adjust the import path
 
 const CreditBorrowTable = ({ borrowRecords, onStreamDotClicked, onBorrowDotClicked }) => {
     const [currentPage, setCurrentPage] = useState(1);
@@ -89,6 +91,9 @@ const CreditBorrowModal = ({ onClose, address }) => {
     const [loading, setLoading] = useState(true);
     const [warning, setWarning] = useState("");
     const [borrowLoading, setBorrowLoading] = useState(false);
+    const [showStreamModal, setShowStreamModal] = useState(false);
+    const [showBorrowModal, setShowBorrowModal] = useState(false);
+    const [selectedRecord, setSelectedRecord] = useState(null);
 
     useEffect(() => {
         const handleResize = () => {
@@ -171,11 +176,13 @@ const CreditBorrowModal = ({ onClose, address }) => {
     };
 
     const handleStreamDotClick = (record) => {
-        console.log("Stream dot clicked for record:", record);
+        setSelectedRecord(record);
+        setShowStreamModal(true);
     };
 
     const handleBorrowDotClick = (record) => {
-        console.log("Borrow dot clicked for record:", record);
+        setSelectedRecord(record);
+        setShowBorrowModal(true);
     };
 
     return (
@@ -274,6 +281,21 @@ const CreditBorrowModal = ({ onClose, address }) => {
                         />
                     </div>
                 </div>
+            )}
+            {/* Stream Dot Modal */}
+            {showStreamModal && (
+                <StreamDotModal 
+                    onClose={() => setShowStreamModal(false)} 
+                    record={selectedRecord} 
+                />
+            )}
+
+            {/* Borrow Dot Modal */}
+            {showBorrowModal && (
+                <BorrowDotModal 
+                    onClose={() => setShowBorrowModal(false)} 
+                    record={selectedRecord} 
+                />
             )}
         </div>
     );
