@@ -1,32 +1,73 @@
 import React, { useState, useEffect } from 'react';
 
 const CreditBorrowTable = ({ borrowRecords }) => {
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 3;
+
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentRecords = borrowRecords.slice(indexOfFirstItem, indexOfLastItem);
+
+    const totalPages = Math.ceil(borrowRecords.length / itemsPerPage);
+
+    const handleNextPage = () => {
+        if (currentPage < totalPages) {
+            setCurrentPage(currentPage + 1);
+        }
+    };
+
+    const handlePreviousPage = () => {
+        if (currentPage > 1) {
+            setCurrentPage(currentPage - 1);
+        }
+    };
+
     return (
-        <table className="w-full table-auto border-collapse border border-gray-300">
-            <thead className="bg-gray-100">
-                <tr>
-                    <th className="text-left px-2 py-1 text-black font-semibold border-b border-gray-300">Amount</th>
-                    <th className="text-left px-2 py-1 text-black font-semibold border-b border-gray-300">Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                {borrowRecords.map((record, index) => (
-                    <tr key={index} className="border-b border-gray-200 hover:bg-gray-50">
-                        {/* Amount Cell */}
-                        <td className="text-center px-4 py-2 text-black" style={{ minWidth: '100px' }}>
-                            {parseFloat(record.allowance).toFixed(2)}
-                        </td>
-                        {/* Status Cell */}
-                        <td className="text-center px-4 py-2" style={{ minWidth: '50px' }}>
-                            <div className="flex justify-center space-x-2">
-                                <div className="inline-block w-3 h-3 rounded-full animate-pulse" style={{ backgroundColor: record.borrow_status ? '#00FF00' : '#FF0000' }} />
-                                <div className="inline-block w-3 h-3 rounded-full animate-pulse" style={{ backgroundColor: record.stream_status ? '#00FF00' : '#FF0000' }} />
-                            </div>
-                        </td>
+        <div className="relative">
+            <table className="w-full table-auto border-collapse border border-gray-300">
+                <thead className="bg-gray-100">
+                    <tr>
+                        <th className="text-left px-2 py-1 text-black font-semibold border-b border-gray-300">Amount</th>
+                        <th className="text-left px-2 py-1 text-black font-semibold border-b border-gray-300">Status</th>
                     </tr>
-                ))}
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    {currentRecords.map((record, index) => (
+                        <tr key={index} className="border-b border-gray-200 hover:bg-gray-50">
+                            {/* Amount Cell */}
+                            <td className="text-center px-4 py-2 text-black" style={{ minWidth: '100px' }}>
+                                {parseFloat(record.allowance).toFixed(2)}
+                            </td>
+                            {/* Status Cell */}
+                            <td className="text-center px-4 py-2">
+                                <div className="flex justify-center space-x-2">
+                                    <div className="inline-block w-3 h-3 rounded-full animate-pulse" style={{ backgroundColor: record.borrow_status ? '#00FF00' : '#FF0000' }} />
+                                    <div className="inline-block w-3 h-3 rounded-full animate-pulse" style={{ backgroundColor: record.stream_status ? '#00FF00' : '#FF0000' }} />
+                                </div>
+                            </td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+            <div className="absolute top-1/2 -translate-y-1/2 -left-8">
+                <button
+                    className="text-black text-xl disabled:opacity-50"
+                    onClick={handlePreviousPage}
+                    disabled={currentPage === 1}
+                >
+                    &#9664;
+                </button>
+            </div>
+            <div className="absolute top-1/2 -translate-y-1/2 -right-8">
+                <button
+                    className="text-black text-xl disabled:opacity-50"
+                    onClick={handleNextPage}
+                    disabled={currentPage === totalPages}
+                >
+                    &#9654;
+                </button>
+            </div>
+        </div>
     );
 };
 
@@ -39,6 +80,7 @@ const CreditBorrowModal = ({ onClose, address }) => {
     const [inputAmount, setInputAmount] = useState(0);
     const [loading, setLoading] = useState(true);
     const [warning, setWarning] = useState("");
+    const [borrowLoading, setBorrowLoading] = useState(false);
 
     useEffect(() => {
         const handleResize = () => {
@@ -51,23 +93,23 @@ const CreditBorrowModal = ({ onClose, address }) => {
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
+    const fetchBorrowStatus = async () => {
+        try {
+            const response = await fetch(`https://main-wjaxre4ena-uc.a.run.app/get_borrow_status?evm_address=${address}`);
+            const data = await response.json();
+
+            setBorrowRecords(data.borrow_records || []);
+            setCreditBasedAllowance(data.credit_based_allowance || 0);
+            setRemainAllowance(parseFloat(data.remain_allowance || "0.00").toFixed(2));
+            setTempRemainAllowance(parseFloat(data.remain_allowance || "0.00").toFixed(2));
+        } catch (error) {
+            console.error("Error fetching borrow status:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     useEffect(() => {
-        const fetchBorrowStatus = async () => {
-            try {
-                const response = await fetch(`https://main-wjaxre4ena-uc.a.run.app/get_borrow_status?evm_address=${address}`);
-                const data = await response.json();
-
-                setBorrowRecords(data.borrow_records || []);
-                setCreditBasedAllowance(data.credit_based_allowance || 0);
-                setRemainAllowance(parseFloat(data.remain_allowance || "0.00").toFixed(2));
-                setTempRemainAllowance(parseFloat(data.remain_allowance || "0.00").toFixed(2));
-            } catch (error) {
-                console.error("Error fetching borrow status:", error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
         fetchBorrowStatus();
     }, [address]);
 
@@ -80,6 +122,43 @@ const CreditBorrowModal = ({ onClose, address }) => {
             setWarning("");
             const updatedTempRemainAllowance = Math.max(0, (parseFloat(remainAllowance) - value).toFixed(2));
             setTempRemainAllowance(updatedTempRemainAllowance);
+        }
+    };
+
+    const handleBorrow = async () => {
+        if (!inputAmount || isNaN(inputAmount) || inputAmount <= 0) {
+            setWarning("Please enter a valid amount to borrow!");
+            return;
+        }
+
+        setBorrowLoading(true);
+        try {
+            const response = await fetch('https://main-wjaxre4ena-uc.a.run.app/credit_borrow', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    address: address,
+                    amount: inputAmount,
+                }),
+            });
+
+            const responseData = await response.json();
+
+            if (response.ok && responseData.init_stream) {
+                // Refresh the borrow status after the borrowing action
+                await fetchBorrowStatus();
+                setInputAmount(0); // Reset input amount after successful borrow
+                setWarning(""); // Clear any warning messages
+            } else {
+                throw new Error(responseData.message || 'Failed to borrow');
+            }
+        } catch (error) {
+            console.error("Error borrowing:", error);
+            setWarning("Borrowing failed! Please try again.");
+        } finally {
+            setBorrowLoading(false);
         }
     };
 
@@ -103,9 +182,14 @@ const CreditBorrowModal = ({ onClose, address }) => {
                             className="w-[94px] h-[41px] text-black text-xl font-normal font-['Irish Grover'] bg-white border border-black rounded p-1 text-center"
                             value={inputAmount}
                             onChange={handleInputChange}
+                            disabled={borrowLoading}
                         />
-                        <button className="ml-2 w-[72px] h-[41px] bg-[#acdff6] rounded-[15px] shadow text-black text-xs font-normal font-['Istok Web']">
-                            Borrow
+                        <button 
+                            className="ml-2 w-[72px] h-[41px] bg-[#acdff6] rounded-[15px] shadow text-black text-xs font-normal font-['Istok Web']"
+                            onClick={handleBorrow}
+                            disabled={borrowLoading}
+                        >
+                            {borrowLoading ? 'Borrowing...' : 'Borrow'}
                         </button>
                     </div>
                     {warning && (
@@ -140,9 +224,14 @@ const CreditBorrowModal = ({ onClose, address }) => {
                             className="w-[94px] h-[41px] text-black text-xl font-normal font-['Istok Web'] bg-white border border-black rounded p-1 text-center"
                             value={inputAmount}
                             onChange={handleInputChange}
+                            disabled={borrowLoading}
                         />
-                        <button className="ml-2 w-[72px] h-[41px] bg-[#acdff6] rounded-[15px] shadow text-black text-xs font-normal font-['Istok Web']">
-                            Borrow
+                        <button
+                            className="ml-2 w-[72px] h-[41px] bg-[#acdff6] rounded-[15px] shadow text-black text-xs font-normal font-['Istok Web']"
+                            onClick={handleBorrow}
+                            disabled={borrowLoading}
+                        >
+                            {borrowLoading ? 'Borrowing...' : 'Borrow'}
                         </button>
                     </div>
                     {warning && (
