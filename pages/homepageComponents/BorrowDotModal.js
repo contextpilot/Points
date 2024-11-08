@@ -16,12 +16,12 @@ const BorrowDotModal = ({ onClose, record = {} }) => {
                             <p>
                                 Token Hash: 
                                 <a 
-                                    href={`https://bscscan.io/tx/${token_hash}`} 
+                                    href={`https://bscscan.com/tx/${token_hash}`} 
                                     className="text-blue-500 underline" 
                                     target="_blank" 
                                     rel="noopener noreferrer"
                                 >
-                                    {` ${token_hash}`}
+                                    {`Visit BSCScan`}
                                 </a>
                             </p>
                         )}
