@@ -35,10 +35,10 @@ const StreamDotModal = ({ onClose, record = {}, credit_based_allowance=0 }) => {
                             </a> 
                             <br />
                             to send a stream of 
-                            <strong> {(credit_based_allowance).toFixed(2)} </strong>
+                            <strong> {(credit_based_allowance*1.1).toFixed(2)} </strong>
                             Yearly rate 
                             <br />
-                            to address 
+                            USDCx to address 
                             <strong> 0xe9627177fCf4fB212bA20f8ebf184e91E5Aeccdf</strong>, 
                             <br />
                             and maintain the stream for <strong> 1 year </strong> to pay off.
