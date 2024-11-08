@@ -14,13 +14,13 @@ const ConfirmationModal = ({ onCancel, onConfirm, transactionHashes, isMinting }
       <div className="bg-white p-4 rounded shadow-lg">
         <h2 className="text-lg font-semibold">Confirm Mint</h2>
         <p>We will charge you 1000 tokens to mint. Do you want to proceed?</p>
-        
+
         {transactionHashes && (
           <div className="mt-2">
             <h3 className="font-medium">Transaction Result:</h3>
             <ul>
-              {transactionHashes.error ? (  // Check if transactionHashes has an error property
-                <li className="text-red-500">{transactionHashes.error}</li> // Display the error message
+              {transactionHashes.error ? (
+                <li className="text-red-500">{transactionHashes.error}</li>
               ) : (
                 Object.values(transactionHashes).map((txHash, index) => (
                   <li key={index} className="break-all">
@@ -30,7 +30,7 @@ const ConfirmationModal = ({ onCancel, onConfirm, transactionHashes, isMinting }
                       rel="noopener noreferrer"
                       className="text-blue-600 underline"
                     >
-                      {transactionLinkTexts[index] || txHash} {/* Use custom link text based on the index */}
+                      {transactionLinkTexts[index] || txHash}
                     </a>
                   </li>
                 ))
@@ -41,10 +41,10 @@ const ConfirmationModal = ({ onCancel, onConfirm, transactionHashes, isMinting }
 
         <div className="flex justify-end mt-4">
           <button className="mr-2 px-4 py-2 text-white bg-gray-500 rounded" onClick={onCancel}>Cancel</button>
-          <button 
-            className={`px-4 py-2 text-white ${isMinting ? 'bg-orange-500' : 'bg-blue-500'} rounded`} 
-            onClick={onConfirm} 
-            disabled={isMinting} 
+          <button
+            className={`px-4 py-2 text-white ${isMinting ? 'bg-orange-500' : 'bg-blue-500'} rounded`}
+            onClick={onConfirm}
+            disabled={isMinting}
           >
             {isMinting ? 'Minting...' : 'Proceed'}
           </button>
@@ -94,11 +94,9 @@ const CreditCardModal = ({ evmAddress }) => {
       const data = await response.json();
       setCreditScore(data.credit_score);
       setDomainExists(data.domain_exists);
+
       // Check conditions for button text
-      if (
-        data.credit_score > 600 &&
-        bnbDomainName.toLowerCase().includes('bnb')
-      ) {
+      if (data.credit_score > 600 && bnbDomainName.toLowerCase().includes('bnb')) {
         setButtonText('Mint Credit');
       } else {
         setButtonText('Refresh');
@@ -118,17 +116,22 @@ const CreditCardModal = ({ evmAddress }) => {
       const data = await response.json();
       if (data.code === 0 && data.name) {
         setBnbDomainName(data.name);
+        setDomainExists(true); // Set domainExists to true if a domain is found
       } else {
         setBnbDomainName('No ENS name found');
+        setDomainExists(false); // Set domainExists to false if no domain is found
       }
     } catch (error) {
       console.error('Error fetching ENS name:', error);
       setBnbDomainName('Error fetching ENS name');
+      setDomainExists(false);
     }
   };
 
   useEffect(() => {
-    fetchEnsNameFromAPI(evmAddress);
+    if (evmAddress) {
+      fetchEnsNameFromAPI(evmAddress);
+    }
   }, [evmAddress]);
 
   const handleMintCredit = async () => {
@@ -158,7 +161,6 @@ const CreditCardModal = ({ evmAddress }) => {
     if (buttonText === 'Refresh') {
       fetchCreditScore();
     } else {
-      // Show the confirmation pop-up
       setIsConfirmingMint(true);
     }
 
@@ -169,19 +171,18 @@ const CreditCardModal = ({ evmAddress }) => {
 
   const handleMintConfirm = async () => {
     try {
-      setIsMinting(true); // Mark as minting
-      const data = await handleMintCredit(); // Call the mint function
+      setIsMinting(true);
+      const data = await handleMintCredit();
       setTransactionHashes(data);
     } catch (err) {
       console.error('Error minting credit:', err);
-      // Optionally handle the error state here if needed
     } finally {
-      setIsMinting(false); // Reset minting state after operation
+      setIsMinting(false);
     }
   };
-  
+
   const handleMintCancel = () => {
-    setIsConfirmingMint(false); // Close the confirmation modal
+    setIsConfirmingMint(false);
   };
 
   return (
@@ -208,7 +209,7 @@ const CreditCardModal = ({ evmAddress }) => {
             </a>
             <br />
             <a
-              className="mt-2"  // Add margin-top class here
+              className="mt-2"
               href="https://doc.context-pilot.xyz/the-witch-card/witch-domain/mint-credit-score-on-chain"
               target="_blank"
               rel="noopener noreferrer"
@@ -217,13 +218,28 @@ const CreditCardModal = ({ evmAddress }) => {
             </a>
           </div>
           <div className="left-[25px] top-[402px] absolute text-black text-xl font-normal font-irish-grover">
-            {bnbDomainName !== 'Fetching...' && (
-              <a 
-                onClick={handleOpenBorrowModal} // Make sure this function is defined
+            {domainExists ? (
+              <a
+                onClick={handleOpenBorrowModal}
                 className="cursor-pointer text-blue-500 underline"
               >
                 witchcard.{bnbDomainName}
               </a>
+            ) : (
+              bnbDomainName.includes('.bnb') ? (
+                <span className="text-red-500 text-sm">
+                  Please mint witchcard.{bnbDomainName}
+                </span>
+              ) : (
+                <a
+                  href="https://space.id"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-500 underline"
+                >
+                  Please register .bnb domain
+                </a>
+              )
             )}
           </div>
           <div className="left-[71px] top-[310px] absolute text-black text-3xl font-normal font-irish-grover">{creditScore}</div>
@@ -249,13 +265,28 @@ const CreditCardModal = ({ evmAddress }) => {
           <div className="left-[268px] top-[52px] absolute text-black text-3xl font-normal font-irish-grover">Credit Score</div>
           <div className="left-[24px] top-[213px] absolute text-black text-3xl font-normal font-irish-grover">Witch Card</div>
           <div className="left-[238px] top-[219px] absolute text-black text-xl font-normal font-irish-grover">
-            {bnbDomainName !== 'Fetching...' && (
-              <a 
-                onClick={handleOpenBorrowModal} // Make sure this function is defined
+            {domainExists ? (
+              <a
+                onClick={handleOpenBorrowModal}
                 className="cursor-pointer text-blue-500 underline"
               >
                 witchcard.{bnbDomainName}
               </a>
+            ) : (
+              bnbDomainName.includes('.bnb') ? (
+                <span className="text-red-500 text-sm">
+                  Please mint witchcard.{bnbDomainName}
+                </span>
+              ) : (
+                <a
+                  href="https://space.id"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-red-500 text-sm underline"
+                >
+                  Please register .bnb domain
+                </a>
+              )
             )}
           </div>
           <div className="left-[299px] top-[125px] absolute text-black text-3xl font-normal font-irish-grover">{creditScore}</div>
@@ -276,7 +307,7 @@ const CreditCardModal = ({ evmAddress }) => {
               How credit score is calculated
             </a>
             <a
-              className="mt-2"  // Add margin-top class here
+              className="mt-2"
               href="https://doc.context-pilot.xyz/the-witch-card/witch-domain/mint-credit-score-on-chain"
               target="_blank"
               rel="noopener noreferrer"
@@ -291,13 +322,13 @@ const CreditCardModal = ({ evmAddress }) => {
           onCancel={handleMintCancel}
           onConfirm={handleMintConfirm}
           transactionHashes={transactionHashes}
-          isMinting={isMinting} // Pass minting state to the modal
+          isMinting={isMinting}
         />
       )}
       {isBorrowingVisible && (
-        <CreditBorrowModal 
-          onClose={handleCloseBorrowModal} 
-          address={evmAddress} 
+        <CreditBorrowModal
+          onClose={handleCloseBorrowModal}
+          address={evmAddress}
         />
       )}
     </div>
