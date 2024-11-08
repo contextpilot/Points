@@ -207,7 +207,7 @@ const CreditBorrowModal = ({ onClose, address }) => {
                             onChange={handleInputChange}
                             disabled={borrowLoading}
                         />
-                        <button 
+                        <button
                             className="ml-2 w-[72px] h-[41px] bg-[#acdff6] rounded-[15px] shadow text-black text-xs font-normal font-['Istok Web']"
                             onClick={handleBorrow}
                             disabled={borrowLoading}
@@ -282,19 +282,17 @@ const CreditBorrowModal = ({ onClose, address }) => {
                     </div>
                 </div>
             )}
-            {/* Stream Dot Modal */}
             {showStreamModal && (
-                <StreamDotModal 
-                    onClose={() => setShowStreamModal(false)} 
-                    record={selectedRecord} 
+                <StreamDotModal
+                    onClose={() => setShowStreamModal(false)}
+                    record={selectedRecord}
+                    credit_based_allowance={creditBasedAllowance} // Pass the credit_based_allowance here
                 />
             )}
-
-            {/* Borrow Dot Modal */}
             {showBorrowModal && (
-                <BorrowDotModal 
-                    onClose={() => setShowBorrowModal(false)} 
-                    record={selectedRecord} 
+                <BorrowDotModal
+                    onClose={() => setShowBorrowModal(false)}
+                    record={selectedRecord}
                 />
             )}
         </div>
