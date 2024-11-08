@@ -1,7 +1,7 @@
 // StreamDotModal.js
 import React from 'react';
 
-const StreamDotModal = ({ onClose, record = {}, credit_based_allowance }) => {
+const StreamDotModal = ({ onClose, record = {}, credit_based_allowance=0 }) => {
     const { stream_status, streamed } = record;
 
     return (
