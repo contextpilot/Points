@@ -1,7 +1,7 @@
 // StreamDotModal.js
 import React from 'react';
 
-const StreamDotModal = ({ onClose, record = {} }) => {
+const StreamDotModal = ({ onClose, record = {}, credit_based_allowance }) => {
     const { stream_status, streamed } = record;
 
     return (
@@ -28,8 +28,8 @@ const StreamDotModal = ({ onClose, record = {} }) => {
                             </a> 
                             <br />
                             to send a stream of 
-                            <strong> {(10 * streamed).toFixed(2)} </strong>
-                            monthly rate 
+                            <strong> {(credit_based_allowance).toFixed(2)} </strong>
+                            Yearly rate 
                             <br />
                             to address 
                             <strong> 0xe9627177fCf4fB212bA20f8ebf184e91E5Aeccdf</strong>, 
