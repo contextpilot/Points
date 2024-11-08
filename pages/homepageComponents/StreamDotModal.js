@@ -12,7 +12,14 @@ const StreamDotModal = ({ onClose, record = {}, credit_based_allowance }) => {
                     <div>
                         <p>The stream is active.</p>
                         <p>Details about the stream:</p>
-                        <pre>{JSON.stringify(record, null, 2)}</pre>
+                        <a 
+                                href="https://app.superfluid.finance/" 
+                                className="text-blue-500 underline" 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                            >
+                                {" Superfluid"}
+                            </a> 
                     </div>
                 ) : (
                     <div>
@@ -34,7 +41,7 @@ const StreamDotModal = ({ onClose, record = {}, credit_based_allowance }) => {
                             to address 
                             <strong> 0xe9627177fCf4fB212bA20f8ebf184e91E5Aeccdf</strong>, 
                             <br />
-                            and maintain the stream for <strong> 1 month </strong> to pay off.
+                            and maintain the stream for <strong> 1 year </strong> to pay off.
                         </p>
                     </div>
                 )}
