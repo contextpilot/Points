@@ -224,36 +224,6 @@ export default function SeedSale({ slug }) {
         const preSale = new Presale(presaleData);
         setPresaleDataParsed(preSale);
     };
-    const handleGairdrop = async () => {
-        setLoadingAirdrop(true);
-        setAirdropResult(null); // Clear previous result
-        setAirdropError(null);  // Clear previous error
-        setShowAirdropMessage(false); // Clear previous message visibility
-        try {
-            const response = await fetch('https://main-wjaxre4ena-uc.a.run.app/gairdrop', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ to_address: useAccountAddress }),
-            });
-    
-            const data = await response.json();
-    
-            if (!response.ok) {
-                setAirdropError(data.error || 'Error with G airdrop');
-                setShowAirdropMessage(true);
-                throw new Error(data.error || 'Error with G airdrop');
-            }
-    
-            setAirdropResult(data);
-            setShowAirdropMessage(true);
-        } catch (error) {
-            console.error('Error with G airdrop:', error);
-        } finally {
-            setLoadingAirdrop(false);
-        }
-    };
 
     // ... [Other necessary functions such as fetchApiUsage function] ...
 
@@ -464,9 +434,6 @@ export default function SeedSale({ slug }) {
                     <div className="flex justify-center space-x-4 mb-0">
                         <button onClick={() => setIsCreditCardModalOpen(true)} className="mt-4 button-class bg-blue-500 text-white px-4 py-2 rounded">
                             Witch Card
-                        </button>
-                        <button onClick={handleGairdrop} className="mt-4 button-class bg-green-500 text-white px-4 py-2 rounded" disabled={loadingAirdrop}>
-                            {loadingAirdrop ? 'Loading...' : 'G airdrop'}
                         </button>
                     </div>
 
