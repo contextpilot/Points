@@ -351,12 +351,6 @@ const StatsModal = ({ isOpen, onClose }) => {
           {String(leader.allowed_tokens)}
         </td>
         <td className="py-1 px-2 border-r text-sm">
-          {String(leader.refer_counts)}
-        </td>
-        <td className="py-1 px-2 border-r text-sm">
-          {String(leader.unredeemed_counts)}
-        </td>
-        <td className="py-1 px-2 border-r text-sm">
           {String(leader.used_tokens)}
         </td>
         <td className="py-1 px-2 border-r text-sm">
@@ -384,18 +378,6 @@ const StatsModal = ({ isOpen, onClose }) => {
                 onClick={() => handleSort("allowed_tokens")}
               >
                 Allowed Tokens
-              </th>
-              <th
-                className="py-1 px-2 border-r cursor-pointer text-sm"
-                onClick={() => handleSort("refer_counts")}
-              >
-                Refer Counts
-              </th>
-              <th
-                className="py-1 px-2 border-r cursor-pointer text-sm"
-                onClick={() => handleSort("unredeemed_counts")}
-              >
-                Unredeemed Counts
               </th>
               <th
                 className="py-1 px-2 border-r cursor-pointer text-sm"
