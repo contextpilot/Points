@@ -143,26 +143,6 @@ export default function SeedSale({ slug }) {
             setUserApiKey(data.api_key)
         }
     }, [useAccountAddress]);
-
-    // Fetch referral data
-    const handleReferralData = async () => {
-        setLoadingReferData(true); // Set loading state to true
-        try {
-            const response = await fetch(`https://main-wjaxre4ena-uc.a.run.app/api_usage?address=${useAccountAddress}`);
-            if (!response.ok) {
-                throw new Error("Error fetching referral data");
-            }
-            const data = await response.json();
-            setReferredCreditScores(data.referred_credit_scores || {});
-            setReferredIds(data.referred_ids || {});
-            setReferredBonuses(data.referred_bonus || {});
-            setIsReferralModalOpen(true);
-        } catch (error) {
-            console.error("Failed to fetch referral data:", error);
-        } finally {
-            setLoadingReferData(false); // Reset loading state
-        }
-    };
     
     class Presale {
         constructor(presaleData) {
@@ -439,9 +419,6 @@ export default function SeedSale({ slug }) {
 
                     {/* Second button group */}
                     <div className="flex justify-center space-x-4 mb-0">
-                        <button onClick={handleReferralData} className="button-class bg-green-500 text-white px-4 py-2 rounded" disabled={loadingReferData}>
-                            {loadingReferData ? 'Loading...' : 'Referral'}
-                        </button>
                         <button onClick={handleOpenKombatModal} className="button-class bg-orange-500 text-white px-4 py-2 rounded">
                             Kombat
                         </button>
