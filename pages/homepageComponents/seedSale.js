@@ -398,7 +398,7 @@ export default function SeedSale({ slug }) {
                         <button onClick={() => setIsCreditCardModalOpen(true)} className="mt-4 button-class bg-blue-500 text-white px-4 py-2 rounded">
                             Witch Card
                         </button>
-                        <button onClick={handleOpenStatsModal} className="button-class bg-blue-500 text-white px-4 py-2 rounded">
+                        <button onClick={handleOpenStatsModal} className="mt-4 button-class bg-blue-500 text-white px-4 py-2 rounded">
                             Stats
                         </button>
                     </div>

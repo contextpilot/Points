@@ -22,12 +22,10 @@ Chart.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, P
 const StatsModal = ({ isOpen, onClose }) => {
   const [data, setData] = useState(null);
   const [leaders, setLeaders] = useState(null);
-  const [kombatData, setKombatData] = useState(null);
   const [creditScores, setCreditScores] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [loadingStats, setLoadingStats] = useState(false);
   const [loadingLeaders, setLoadingLeaders] = useState(false);
-  const [loadingKombat, setLoadingKombat] = useState(false);
   const [loadingCreditScores, setLoadingCreditScores] = useState(false);
   const [error, setError] = useState(null);
   const [sortConfig, setSortConfig] = useState({
@@ -39,12 +37,6 @@ const StatsModal = ({ isOpen, onClose }) => {
   const [selectedCreditScores, setSelectedCreditScores] = useState(null);
 
   const itemsPerPage = 10;
-
-  const evmAccessChartRef = useRef(null);
-  const evmRecordChartRef = useRef(null);
-  const kombatActiveAddressesChartRef = useRef(null);
-  const kombatAddedAddressesChartRef = useRef(null);
-  const kombatTotalPointsChartRef = useRef(null);
   const creditScoresChartRef = useRef(null);
   const [currentCreditScorePage, setCurrentCreditScorePage] = useState(1);
   const [creditScoreSortConfig, setCreditScoreSortConfig] = useState({
@@ -58,7 +50,6 @@ const StatsModal = ({ isOpen, onClose }) => {
     if (isOpen) {
       fetchGeneralStats();
       fetchLeaders();
-      fetchKombatStats();
       fetchCreditScores();
     }
   }, [isOpen]);
@@ -90,21 +81,6 @@ const StatsModal = ({ isOpen, onClose }) => {
       console.error("Failed to fetch leaders data", error);
     } finally {
       setLoadingLeaders(false);
-    }
-  };
-
-  const fetchKombatStats = async () => {
-    setLoadingKombat(true);
-    try {
-      const response = await axios.get(
-        "https://main-wjaxre4ena-uc.a.run.app/kombat_stats_all_days"
-      );
-      setKombatData(response.data);
-    } catch (error) {
-      setError("Failed to fetch Kombat stats");
-      console.error("Failed to fetch Kombat stats", error);
-    } finally {
-      setLoadingKombat(false);
     }
   };
 
@@ -140,28 +116,14 @@ const StatsModal = ({ isOpen, onClose }) => {
     };
   };
 
-  const prepareKombatChartData = (array, key) => {
-    if (!array) return { labels: [], datasets: [] };
-    return {
-      labels: array.map((item) => item.date.split(",")[1].trim().split(" ").slice(0, 3).join(" ")), // Trimming to keep yyyy-MM-dd format
-      datasets: [
-        {
-          label: key.replace(/_/g, " ").toUpperCase(),
-          data: array.map((item) => item[key]),
-          backgroundColor: "rgba(75, 192, 192, 0.6)",
-        },
-      ],
-    };
-  };
-
   const prepareCreditScoresChartData = (creditScores) => {
     if (!creditScores) return { datasets: [] };
-  
+
     const scores = creditScores.map(score => ({
       x: Math.random(), // Random x value for the dot plot
       y: score.credit_score.credit_score,
     }));
-  
+
     return {
       datasets: [
         {
@@ -175,15 +137,13 @@ const StatsModal = ({ isOpen, onClose }) => {
 
   const handleCreditScoreClick = (creditScore, type) => {
     if(type === 'address'){
-      // Logic for handling address click
       setResumeModalOpen(true);
     } else if(type === 'score') {
       setItemizedCreditScores(creditScore.credit_score);
       setCreditScoreModalOpen(true);
     }
   };
-  
-  // Sorting function for credit scores
+
   const handleCreditScoreSort = (key) => {
     let direction = "ascending";
     if (creditScoreSortConfig.key === key && creditScoreSortConfig.direction === "ascending") {
@@ -192,16 +152,15 @@ const StatsModal = ({ isOpen, onClose }) => {
     setCreditScoreSortConfig({ key, direction });
   };
 
-  // Sorted and paginated credit scores
   const sortedCreditScores = useMemo(() => {
     if (!creditScores) return [];
-  
+
     const sortableCreditScores = [...creditScores];
-  
+
     sortableCreditScores.sort((a, b) => {
       const aValue = a.credit_score[creditScoreSortConfig.key] || a[creditScoreSortConfig.key];
       const bValue = b.credit_score[creditScoreSortConfig.key] || b[creditScoreSortConfig.key];
-  
+
       if (aValue < bValue) {
         return creditScoreSortConfig.direction === "ascending" ? -1 : 1;
       }
@@ -210,17 +169,17 @@ const StatsModal = ({ isOpen, onClose }) => {
       }
       return 0;
     });
-  
+
     return sortableCreditScores;
   }, [creditScores, creditScoreSortConfig]);
-  
+
   const renderCreditScoresTable = useMemo(() => {
     if (loadingCreditScores) return <p>Loading...</p>;
     if (!creditScores) return <p>No data available...</p>;
-  
+
     const startIndex = (currentCreditScorePage - 1) * itemsPerPage;
     const currentCreditScores = sortedCreditScores.slice(startIndex, startIndex + itemsPerPage);
-  
+
     const rows = currentCreditScores.map((creditScore) => (
       <tr key={creditScore.evm_address} className="border-b">
         <td
@@ -237,9 +196,9 @@ const StatsModal = ({ isOpen, onClose }) => {
         </td>
       </tr>
     ));
-  
+
     const totalPages = Math.ceil(sortedCreditScores.length / itemsPerPage);
-  
+
     return (
       <>
         <table className="min-w-full bg-white border">
@@ -353,10 +312,6 @@ const StatsModal = ({ isOpen, onClose }) => {
         <td className="py-1 px-2 border-r text-sm">
           {String(leader.used_tokens)}
         </td>
-        <td className="py-1 px-2 border-r text-sm">
-          {String(leader.withdrawed_points)}
-        </td>
-        <td className="py-1 px-2 text-sm">{String(leader.points)}</td>
       </tr>
     ));
 
@@ -384,18 +339,6 @@ const StatsModal = ({ isOpen, onClose }) => {
                 onClick={() => handleSort("used_tokens")}
               >
                 Used Tokens
-              </th>
-              <th
-                className="py-1 px-2 border-r cursor-pointer text-sm"
-                onClick={() => handleSort("withdrawed_points")}
-              >
-                Withdrawed Points
-              </th>
-              <th
-                className="py-1 px-2 cursor-pointer text-sm"
-                onClick={() => handleSort("points")}
-              >
-                Kombat Points
               </th>
             </tr>
           </thead>
@@ -426,21 +369,6 @@ const StatsModal = ({ isOpen, onClose }) => {
 
   useEffect(() => {
     return () => {
-      if (evmAccessChartRef.current) {
-        evmAccessChartRef.current.destroy();
-      }
-      if (evmRecordChartRef.current) {
-        evmRecordChartRef.current.destroy();
-      }
-      if (kombatActiveAddressesChartRef.current) {
-        kombatActiveAddressesChartRef.current.destroy();
-      }
-      if (kombatAddedAddressesChartRef.current) {
-        kombatAddedAddressesChartRef.current.destroy();
-      }
-      if (kombatTotalPointsChartRef.current) {
-        kombatTotalPointsChartRef.current.destroy();
-      }
       if (creditScoresChartRef.current) {
         creditScoresChartRef.current.destroy();
       }
@@ -459,15 +387,14 @@ const StatsModal = ({ isOpen, onClose }) => {
       <div className="fixed inset-0 flex items-center justify-center z-50 bg-gray-900 bg-opacity-50">
         <div className="bg-white p-6 rounded shadow-lg w-full max-w-4xl h-4/5 overflow-auto">
           {error && <p className="text-red-500">{error}</p>}
-          {(loadingStats || loadingKombat || loadingCreditScores) ? (
+          {(loadingStats || loadingCreditScores) ? (
             <p>Loading stats...</p>
           ) : (
-            (data || kombatData || creditScores) && (
+            (data || creditScores) && (
               <Tabs>
                 <TabList>
                   <Tab>General Stats</Tab>
                   <Tab>Leaders</Tab>
-                  <Tab>Kombat Stats</Tab>
                   <Tab>Credit Scores</Tab>
                 </TabList>
 
@@ -489,7 +416,7 @@ const StatsModal = ({ isOpen, onClose }) => {
                     </h3>
                     <Bar
                       data={prepareChartData(data.evm_access)}
-                      ref={evmAccessChartRef}
+                      ref={creditScoresChartRef}
                     />
                   </div>
                   <div>
@@ -498,7 +425,7 @@ const StatsModal = ({ isOpen, onClose }) => {
                     </h3>
                     <Bar
                       data={prepareChartData(data.evm_record)}
-                      ref={evmRecordChartRef}
+                      ref={creditScoresChartRef}
                     />
                   </div>
                 </TabPanel>
@@ -506,44 +433,6 @@ const StatsModal = ({ isOpen, onClose }) => {
                 <TabPanel>
                   <h2 className="text-2xl font-bold mb-4">Leaders</h2>
                   {renderLeadersTable}
-                </TabPanel>
-
-                <TabPanel>
-                  <h2 className="text-2xl font-bold mb-4">Kombat Stats</h2>
-                  <div className="mb-6"></div>
-                  <div>
-                    <h3 className="text-xl font-bold mb-4">
-                      Daily Active Addresses
-                    </h3>
-                    <Bar
-                      data={prepareKombatChartData(
-                        kombatData,
-                        "daily_active_addresses"
-                      )}
-                      ref={kombatActiveAddressesChartRef}
-                    />
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-bold mt-6 mb-4">
-                      Daily Added Addresses
-                    </h3>
-                    <Bar
-                      data={prepareKombatChartData(
-                        kombatData,
-                        "daily_added_addresses"
-                      )}
-                      ref={kombatAddedAddressesChartRef}
-                    />
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-bold mt-6 mb-4">
-                      Daily Total Points
-                    </h3>
-                    <Bar
-                      data={prepareKombatChartData(kombatData, "daily_total_points")}
-                      ref={kombatTotalPointsChartRef}
-                    />
-                  </div>
                 </TabPanel>
 
                 <TabPanel>
@@ -599,14 +488,8 @@ const StatsModal = ({ isOpen, onClose }) => {
           isOpen={resumeModalOpen}
           onClose={() => setResumeModalOpen(false)}
           evmAddress={selectedLeader.address}  // Using leader's full address
-          // Add more properties as needed based on `selectedLeader`
         />   
       )}
-      <ResumeModal
-        isOpen={resumeModalOpen}
-        onClose={() => setResumeModalOpen(false)}
-        evmAddress={selectedLeader ? selectedLeader.address : ''}
-      />
       <CreditScoreDetailModal
         isOpen={creditScoreModalOpen}
         onClose={() => setCreditScoreModalOpen(false)}
