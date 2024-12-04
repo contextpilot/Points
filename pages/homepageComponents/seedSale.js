@@ -27,13 +27,6 @@ function UserVesting({ userVestingData, userAddress, telegramCode, apiKey }) {
         <div id="toast-simple" className="flex justify-center items-center p-4 space-x-4 w-full max-w-xs text-white bg-neutral-800 rounded-lg divide-x divide-gray-200 shadow space-x" role="alert">
             <div className="pl-4 text-sm font-normal">
                 {/* You own {new Intl.NumberFormat().format(totalAmount)} Credits<br /> */}
-                Refer link: <br /> <a href={`https://context-pilot.xyz/${secretKeyPart}`} target="_blank" rel="noopener noreferrer" className="text-blue-500 underline">https://context-pilot.xyz/{showKey ? secretKeyPart : "****"}</a><br />
-                {telegramCode && (
-                    <>
-                        Telegram code: {showKey ? telegramCode : "****"} 
-                        <a href="https://doc.context-pilot.xyz/getting-started/use-pilot-kombat" target="_blank" rel="noopener noreferrer" className="ml-2 text-blue-500 underline">doc</a><br />
-                    </>
-                )}
                 Secret key: {showKey ? apiKey : "****"}
                 <button onClick={toggleKeyVisibility} className="pl-2 text-blue-500">{showKey ? "Hide" : "Show"}</button>
             </div>
