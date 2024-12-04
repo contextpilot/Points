@@ -6,7 +6,6 @@ import BuyWithUsdtModal from './buyWithUsdtModal';
 import CreditCardModal from './CreditCardModal';
 import ReferralModal from './ReferralModal';
 import StatsModal from './StatsModal';
-import KombatModal from './KombatModal';
 import ResumeModal from './ResumeModal';
 
 function UserVesting({ userVestingData, userAddress, telegramCode, apiKey }) {
@@ -73,14 +72,6 @@ export default function SeedSale({ slug }) {
     const handleCloseStatsModal = () => setIsStatsModalOpen(false);
 
     const [isKombatModalOpen, setIsKombatModalOpen] = useState(false); // Add state for KombatModal
-
-    const handleOpenKombatModal = () => {
-        setIsKombatModalOpen(true); // Open KombatModal
-    };
-
-    const handleCloseKombatModal = () => {
-        setIsKombatModalOpen(false); // Close KombatModal
-    };
 
     function Log(stringToLog) {
         const timeElapsed = Date.now();
@@ -410,17 +401,9 @@ export default function SeedSale({ slug }) {
         <div className="text-center">
             <div className="box-cont h-fit w-fit px-14 mb-10 py-8 shadow-md bg-neutral-900 rounded-lg">
                 <div className="flex flex-col items-center space-y-4">
-                    {/* First button group */}
                     <div className="flex justify-center space-x-4 mb-0">
                         <button onClick={() => setIsCreditCardModalOpen(true)} className="mt-4 button-class bg-blue-500 text-white px-4 py-2 rounded">
                             Witch Card
-                        </button>
-                    </div>
-
-                    {/* Second button group */}
-                    <div className="flex justify-center space-x-4 mb-0">
-                        <button onClick={handleOpenKombatModal} className="button-class bg-orange-500 text-white px-4 py-2 rounded">
-                            Kombat
                         </button>
                         <button onClick={handleOpenStatsModal} className="button-class bg-blue-500 text-white px-4 py-2 rounded">
                             Stats
@@ -518,14 +501,6 @@ export default function SeedSale({ slug }) {
                         </button>
                     </div>
                 </div>
-            )}
-    
-            {isKombatModalOpen && (
-                <KombatModal
-                    isOpen={isKombatModalOpen}
-                    onClose={handleCloseKombatModal}
-                    telegram_code={userTelegramCode}
-                />
             )}
     
             <StatsModal isOpen={isStatsModalOpen} onClose={handleCloseStatsModal} />
