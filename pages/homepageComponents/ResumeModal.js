@@ -121,26 +121,9 @@ const ResumeModal = ({ isOpen, onClose, usedTokens, allowedTokens, correctAnswer
         };
     };
 
-    const processKombatPointsData = data => {
-        if (!data || Object.keys(data).length === 0) return { labels: [], datasets: [] };
-        const labels = Object.keys(data);
-        const values = labels.map(label => data[label]);
-        return {
-            labels,
-            datasets: [
-                {
-                    label: 'Kombat Points',
-                    data: values,
-                    backgroundColor: 'rgba(75, 192, 192, 0.6)',
-                },
-            ],
-        };
-    };
-
     const answeredQuestionsData = useMemo(() => processAnsweredQuestionsData(data?.answered_questions_by_date), [data]);
     const chatTokensData = useMemo(() => processChatTokensData(data?.chat_records_by_date), [data]);
     const chatModelCountsData = useMemo(() => processChatModelCountsData(data?.chat_records_by_date, handleBarClick), [data]);
-    const kombatPointsData = useMemo(() => processKombatPointsData(data?.kombat_points_by_date), [data]);
 
     if (!isOpen) return null;
     if (loading) return <div className="text-center">Loading...</div>;
@@ -155,7 +138,6 @@ const ResumeModal = ({ isOpen, onClose, usedTokens, allowedTokens, correctAnswer
                             <Tab>Token Usage</Tab>
                             <Tab>Answered Questions</Tab>
                             <Tab>Model Records</Tab>
-                            <Tab>Kombat Points</Tab>
                             <Tab>Sybil Graph</Tab> {/* New Tab */}
                         </TabList>
 
@@ -234,11 +216,6 @@ const ResumeModal = ({ isOpen, onClose, usedTokens, allowedTokens, correctAnswer
                                     }}
                                 />
                             </div>
-                        </TabPanel>
-
-                        <TabPanel>
-                            <h2 className="text-xl font-bold mb-4">Kombat Points by Date</h2>
-                            <Bar data={kombatPointsData} />
                         </TabPanel>
 
                         <TabPanel>
