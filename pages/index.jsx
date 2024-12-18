@@ -27,7 +27,7 @@ export default function Home() {
   const [userApiKey, setUserApiKey] = useState(null);
   const [conversation, setConversation] = useState([
     { role: "system", content: "I am an active bot" },
-    { role: "user", content: "Welcome to our chat!" },
+    { role: "user", content: "How are you!" },
   ]);
 
   useEffect(() => {
@@ -63,19 +63,36 @@ export default function Home() {
   };
 
   const streamChatMessage = async (sessionId, newMessage) => {
-    if (!userApiKey) {
-      console.error("API key is not available");
-      throw new Error("API key is not available");
-    }
-
-    const url = `https://main-wjaxre4ena-uc.a.run.app/streamchat?session_id=${sessionId}&secret_key=${userApiKey}`;
-    try {
-      const response = await axios.get(url);
-      return response.data; // Modify based on your backend response structure
-    } catch (error) {
-      console.error("Error streaming chat message", error);
-      throw new Error("Failed to stream chat message");
-    }
+    return new Promise((resolve, reject) => {
+      if (!userApiKey) {
+        console.error("API key is not available");
+        reject(new Error("API key is not available"));
+        return;
+      }
+  
+      const url = `https://main-wjaxre4ena-uc.a.run.app/streamchat?session_id=${sessionId}&secret_key=${userApiKey}`;
+      let responseContent = "";
+  
+      // Initialize EventSource
+      const eventSource = new EventSource(url);
+  
+      // Handle incoming messages
+      eventSource.onmessage = (event) => {
+        const messageData = JSON.parse(event.data);
+        responseContent += messageData.text;
+        if (messageData.finish_reason) {
+          eventSource.close();
+          resolve({ content: responseContent, question_id: messageData.question_id });
+        }
+      };
+  
+      // Error handling
+      eventSource.onerror = (event) => {
+        console.error("EventSource failed:", event);
+        eventSource.close();
+        reject(new Error("Failed to stream chat message"));
+      };
+    });
   };
 
   const initiateChatOnOpen = async () => {
@@ -93,7 +110,7 @@ export default function Home() {
     }
 
     const initialMessage = {
-      model: "cryptiqa",
+      model: "gpt-4o",
       message: conversation,
     };
 
@@ -169,7 +186,7 @@ export default function Home() {
   const handleNewUserMessage = async (newMessage) => {
     const updatedConversation = [...conversation, { role: "user", content: newMessage }];
     const initialMessage = {
-      model: "cryptiqa",
+      model: "gpt-4o",
       message: updatedConversation,
     };
 
@@ -201,6 +218,7 @@ export default function Home() {
           handleNewUserMessage={handleNewUserMessage}
           handleToggle={handleChatToggle}
           autofocus={false}
+          resizable={true}
         />
       </div>
     </>
