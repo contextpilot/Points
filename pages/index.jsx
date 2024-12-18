@@ -23,12 +23,13 @@ export default function Home() {
   const [isChatOpen, setIsChatOpen] = useState(false);
   const { address: useAccountAddress, isConnected: useAccountIsConnected } = useAccount();
   const chatWidgetRef = useRef(null);
-  
+
   const [userApiKey, setUserApiKey] = useState(null);
   const [conversation, setConversation] = useState([
     { role: "system", content: "I am an active bot" },
-    { role: "user", content: "Welcome to our chat!" },
+    { role: "user", content: "How are you!" },
   ]);
+  const [selectedModel, setSelectedModel] = useState("gpt-4o");
 
   useEffect(() => {
     if (!useAccountAddress) return;
@@ -63,19 +64,36 @@ export default function Home() {
   };
 
   const streamChatMessage = async (sessionId, newMessage) => {
-    if (!userApiKey) {
-      console.error("API key is not available");
-      throw new Error("API key is not available");
-    }
-
-    const url = `https://main-wjaxre4ena-uc.a.run.app/streamchat?session_id=${sessionId}&secret_key=${userApiKey}`;
-    try {
-      const response = await axios.get(url);
-      return response.data; // Modify based on your backend response structure
-    } catch (error) {
-      console.error("Error streaming chat message", error);
-      throw new Error("Failed to stream chat message");
-    }
+    return new Promise((resolve, reject) => {
+      if (!userApiKey) {
+        console.error("API key is not available");
+        reject(new Error("API key is not available"));
+        return;
+      }
+  
+      const url = `https://main-wjaxre4ena-uc.a.run.app/streamchat?session_id=${sessionId}&secret_key=${userApiKey}`;
+      let responseContent = "";
+  
+      // Initialize EventSource
+      const eventSource = new EventSource(url);
+  
+      // Handle incoming messages
+      eventSource.onmessage = (event) => {
+        const messageData = JSON.parse(event.data);
+        responseContent += messageData.text;
+        if (messageData.finish_reason) {
+          eventSource.close();
+          resolve({ content: responseContent, question_id: messageData.question_id });
+        }
+      };
+  
+      // Error handling
+      eventSource.onerror = (event) => {
+        console.error("EventSource failed:", event);
+        eventSource.close();
+        reject(new Error("Failed to stream chat message"));
+      };
+    });
   };
 
   const initiateChatOnOpen = async () => {
@@ -93,7 +111,7 @@ export default function Home() {
     }
 
     const initialMessage = {
-      model: "cryptiqa",
+      model: selectedModel,
       message: conversation,
     };
 
@@ -103,7 +121,7 @@ export default function Home() {
 
       setConversation(prev => [...prev, { role: "assistant", content: response.content, question_id: response.question_id }]);
       import("@ryaneewx/react-chat-widget").then(({ addResponseMessage }) => {
-        addResponseMessage(response.content); // Adjust based on your backend response structure
+        addResponseMessage(response.content);
       });
     } catch (error) {
       console.error("Error initiating chat on open", error);
@@ -117,22 +135,16 @@ export default function Home() {
     if (isChatOpen) {
       initiateChatOnOpen();
     }
-  }, [isChatOpen, useAccountAddress, userApiKey]);
+  }, [isChatOpen, useAccountAddress, userApiKey, selectedModel]);
 
   useEffect(() => {
     if (chatWidgetRef.current) {
       const inputElement = chatWidgetRef.current.querySelector('.rcw-input');
-      console.log("Input element:", inputElement);
 
       if (inputElement && 'ontouchstart' in window) {
-        // Ensure the input does not automatically gain focus when the chatbox opens
         inputElement.setAttribute('contenteditable', false);
-
-        // Remove the readonly attribute and focus the input when the user taps on it
         const handleTouchStart = () => {
           inputElement.setAttribute('contenteditable', true);
-
-          // This slight delay allows the browser to register the contenteditable change
           setTimeout(() => {
             inputElement.focus();
           }, 100);
@@ -140,7 +152,6 @@ export default function Home() {
 
         inputElement.addEventListener('touchstart', handleTouchStart);
 
-        // Clean up event listener on component unmount
         return () => {
           inputElement.removeEventListener('touchstart', handleTouchStart);
         };
@@ -169,7 +180,7 @@ export default function Home() {
   const handleNewUserMessage = async (newMessage) => {
     const updatedConversation = [...conversation, { role: "user", content: newMessage }];
     const initialMessage = {
-      model: "cryptiqa",
+      model: selectedModel,
       message: updatedConversation,
     };
 
@@ -180,7 +191,7 @@ export default function Home() {
       setConversation(prev => [...prev, { role: "assistant", content: response.content, question_id: response.question_id }]);
 
       import("@ryaneewx/react-chat-widget").then(({ addResponseMessage }) => {
-        addResponseMessage(response.content); // Adjust based on your backend response structure
+        addResponseMessage(response.content);
       });
     } catch (error) {
       console.error("Error handling new user message", error);
@@ -190,9 +201,36 @@ export default function Home() {
     }
   };
 
+  // Clear session function including widget clear
+  const clearSession = () => {
+    setConversation([
+      { role: "system", content: "I am an active bot" },
+      { role: "user", content: "How are you!" },
+    ]);
+
+    import("@ryaneewx/react-chat-widget").then(({ addResponseMessage, deleteMessages }) => {
+      // Assuming deleteMessages or similar is available:
+      deleteMessages(); // Hypothetical function to clear the widget messages
+      addResponseMessage("Session cleared. Starting a new conversation.");
+    });
+  };
+
   return (
     <>
-      {/* Use the NotificationBanner component <NotificationBanner /> */}
+      <div>
+        <label htmlFor="model-select">Choose a model:</label>
+        <select
+          id="model-select"
+          value={selectedModel}
+          onChange={(e) => setSelectedModel(e.target.value)}
+        >
+          <option value="gpt-4o">GPT-4o</option>
+          <option value="claude-3-5-sonnet-latest">claude-3-5-sonnet-latest</option>
+          <option value="gemini-1.5-pro-latest">gemini-1.5-pro-latest</option>
+          <option value="gemini-2.0-flash-exp">gemini-2.0-flash-exp</option>
+        </select>
+        <button onClick={clearSession}>Clear Session</button>
+      </div>
       <main className="flex flex-col min-h-screen">
         <Section4 />
       </main>
@@ -201,6 +239,7 @@ export default function Home() {
           handleNewUserMessage={handleNewUserMessage}
           handleToggle={handleChatToggle}
           autofocus={false}
+          resizable={true}
         />
       </div>
     </>
