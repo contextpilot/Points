@@ -41,31 +41,6 @@ const ResumeModal = ({ isOpen, onClose, usedTokens, allowedTokens, correctAnswer
         }
     };
 
-    const processAnsweredQuestionsData = data => {
-        if (!data || Object.keys(data).length === 0) return { labels: [], datasets: [] };
-        const labels = Object.keys(data);
-        const correctValues = labels.map(label => data[label].correct);
-        const totalValues = labels.map(label => data[label].total - data[label].correct); // Total minus correct gives incorrect
-
-        return {
-            labels,
-            datasets: [
-                {
-                    label: 'Correct Answers',
-                    data: correctValues,
-                    backgroundColor: 'rgba(75, 192, 192, 0.6)',
-                    stack: 'Stack 0',
-                },
-                {
-                    label: 'Incorrect Answers',
-                    data: totalValues,
-                    backgroundColor: 'rgba(192, 75, 75, 0.6)',
-                    stack: 'Stack 0',
-                },
-            ],
-        };
-    };
-
     const processChatTokensData = data => {
         if (!data || Object.keys(data).length === 0) return { labels: [], datasets: [] };
         const labels = Object.keys(data);
@@ -121,7 +96,6 @@ const ResumeModal = ({ isOpen, onClose, usedTokens, allowedTokens, correctAnswer
         };
     };
 
-    const answeredQuestionsData = useMemo(() => processAnsweredQuestionsData(data?.answered_questions_by_date), [data]);
     const chatTokensData = useMemo(() => processChatTokensData(data?.chat_records_by_date), [data]);
     const chatModelCountsData = useMemo(() => processChatModelCountsData(data?.chat_records_by_date, handleBarClick), [data]);
 
@@ -136,46 +110,12 @@ const ResumeModal = ({ isOpen, onClose, usedTokens, allowedTokens, correctAnswer
                     <Tabs>
                         <TabList>
                             <Tab>Token Usage</Tab>
-                            <Tab>Answered Questions</Tab>
                             <Tab>Model Records</Tab>
                         </TabList>
 
                         <TabPanel>
                             <h2 className="text-lg font-bold mb-4">Token Usage</h2>
                             <p>Used / Allowed Tokens: {usedTokens} / {allowedTokens}</p>
-                            <p>Correct / Total Answers: {correctAnswers} / {totalAnswers}</p>
-                            <p>Referred by: {referredBy}</p>
-                        </TabPanel>
-
-                        <TabPanel>
-                            <h2 className="text-xl font-bold mb-4">Answered Questions by Date</h2>
-                            <Bar
-                                data={answeredQuestionsData}
-                                options={{
-                                    plugins: {
-                                        tooltip: {
-                                            callbacks: {
-                                                label: context => {
-                                                    let label = context.dataset.label || '';
-                                                    if (label) {
-                                                        label += ': ';
-                                                    }
-                                                    label += context.raw;
-                                                    return label;
-                                                },
-                                            },
-                                        },
-                                    },
-                                    scales: {
-                                        x: {
-                                            stacked: true,
-                                        },
-                                        y: {
-                                            stacked: true,
-                                        },
-                                    },
-                                }}
-                            />
                         </TabPanel>
 
                         <TabPanel>
